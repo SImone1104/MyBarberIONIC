@@ -1,0 +1,46 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="contatti-container">
+    <div class="header-section">
+      <h1>Contattaci</h1>
+      <p class="subtitle">Hai dubbi sul tuo prossimo taglio? Contattaci, troveremo insieme il look perfetto per te.</p>
+    </div>
+
+    <div class="contatti-grid">
+      <div class="info-side">
+        <div class="info-card">
+          <h3>Indirizzo</h3>
+          <p>Via Roma, 123 - 90100 Palermo (PA)</p>
+          <a href="https://www.google.com/maps/dir/?api=1&destination=38.1157,13.3613" class="map-link">Ottieni indicazioni</a>
+        </div>
+
+        <div class="info-card">
+          <h3>Orari di Apertura</h3>
+          <ul>
+            <li>Lunedì: <span class="closed">Chiuso</span></li>
+            <li>Martedì - Venerdì: 09:00 - 19:30</li>
+            <li>Sabato: 08:30 - 20:00</li>
+            <li>Domenica: <span class="closed">Chiuso</span></li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <h3>Recapiti Diretti</h3>
+          <p>Telefono: <a href="tel:+390911234567" class="contact-link">+39 091 1234567</a></p>
+          <p>Email: <a href="mailto:info@mybarber.it" class="contact-link">info&#64;mybarber.it</a></p>
+        </div>
+      </div>
+
+      <div class="form-side">
+        <div id="map"></div>
+      </div>
+    </div>
+
+  </div>
+
+      <app-footer></app-footer>
+
+</ion-content>

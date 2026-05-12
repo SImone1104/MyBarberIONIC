@@ -1,0 +1,73 @@
+<ion-content>
+  <div class="page-wrapper">
+    <div class="login-container">
+      
+      <img src="assets/logo.svg" alt="Logo Barberia" class="brand-logo" routerLink="/home">
+
+      <h1>Registrati</h1>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+
+        <div class="form-group">
+          <label>Nome</label>
+          <input type="text" formControlName="nome" placeholder="Inserisci il tuo nome">
+          <p class="error-inline" *ngIf="registerForm.get('nome')?.invalid && registerForm.get('nome')?.touched">
+            Il nome è obbligatorio.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label>Cognome</label>
+          <input type="text" formControlName="cognome" placeholder="Inserisci il tuo cognome">
+          <p class="error-inline" *ngIf="registerForm.get('cognome')?.invalid && registerForm.get('cognome')?.touched">
+            Il cognome è obbligatorio.
+          </p>
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" formControlName="email" placeholder="esempio@mail.com">
+          <p class="error-inline" *ngIf="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            Inserisci un'email valida.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" formControlName="password" placeholder="Inserisci password">
+          
+          <div class="password-requirements" *ngIf="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+            <p [style.color]="registerForm.get('password')?.errors?.['required'] ? '#ef4444' : '#666'">• Obbligatoria</p>
+            <p [style.color]="registerForm.get('password')?.errors?.['minlength'] ? '#ef4444' : '#1b793e'">• Almeno 8 caratteri</p>
+            <p [style.color]="registerForm.get('password')?.errors?.['pattern'] ? '#ef4444' : '#1b793e'">• Almeno una maiuscola, un numero e un carattere speciale</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Conferma Password</label>
+          <input type="password" formControlName="confermaPassword" placeholder="Ripeti password">
+          <p class="error-inline" *ngIf="registerForm.hasError('mismatch') && registerForm.get('confermaPassword')?.touched">
+            Le password non corrispondono!
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label for="cellulare">Cellulare</label>
+          <input type="tel" id="cellulare" formControlName="cellulare" placeholder="3331234567">
+          <p class="error-inline" *ngIf="registerForm.get('cellulare')?.invalid && registerForm.get('cellulare')?.touched">
+            Inserisci un cellulare valido (min 9 cifre).
+          </p>
+        </div>
+
+        <button type="submit" [disabled]="registerForm.invalid || isLoading">
+          {{ isLoading ? 'Creazione in corso...' : 'Crea Account' }}
+        </button>
+      </form>
+
+      <div class="footer-link">
+        <span>Hai già un account?</span>
+        <a routerLink="/login" class="link-btn">Accedi qui</a>
+      </div>
+    </div>
+  </div>
+</ion-content>

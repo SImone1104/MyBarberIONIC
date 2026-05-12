@@ -1,0 +1,81 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+<div class="profile-container">
+  <section class="profile-header">
+    <div>
+      <p class="eyebrow">Area personale</p>
+      <h1>Profilo</h1>
+      <span>Gestisci i dati salvati nel tuo account MyBarber.</span>
+    </div>
+  </section>
+
+  <div class="profile-card">
+    <div class="profile-summary">
+      <div class="avatar">{{ (profiloForm.get('nome')?.value || 'U').charAt(0).toUpperCase() }}</div>
+      <div>
+        <h2>{{ profiloForm.get('nome')?.value || 'Utente' }} {{ profiloForm.get('cognome')?.value || '' }}</h2>
+        <p>{{ profiloForm.get('email')?.value || 'Email non disponibile' }}</p>
+      </div>
+    </div>
+
+    <div class="loading-box" *ngIf="isLoading; else profileFormTemplate">
+      Caricamento profilo...
+    </div>
+
+    <ng-template #profileFormTemplate>
+      <form [formGroup]="profiloForm" (ngSubmit)="salvaModifiche()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Nome</label>
+            <input type="text" formControlName="nome" placeholder="Nome">
+            <small *ngIf="profiloForm.get('nome')?.invalid && profiloForm.get('nome')?.touched">Il nome e obbligatorio.</small>
+          </div>
+
+          <div class="form-group">
+            <label>Cognome</label>
+            <input type="text" formControlName="cognome" placeholder="Cognome">
+            <small *ngIf="profiloForm.get('cognome')?.invalid && profiloForm.get('cognome')?.touched">Il cognome e obbligatorio.</small>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" formControlName="email" placeholder="email@example.com">
+          <small *ngIf="profiloForm.get('email')?.invalid && profiloForm.get('email')?.touched">Inserisci un'email valida.</small>
+        </div>
+
+        <div class="form-group">
+          <label>Telefono</label>
+          <input type="tel" formControlName="telefono" placeholder="3331234567">
+          <small *ngIf="profiloForm.get('telefono')?.invalid && profiloForm.get('telefono')?.touched">
+            Inserisci un telefono valido, solo cifre da 9 a 11 caratteri.
+          </small>
+        </div>
+
+        <button type="submit" [disabled]="profiloForm.invalid || isSaving || isLoading" class="btn-save">
+          {{ isSaving ? 'Salvataggio...' : 'Salva modifiche' }}
+        </button>
+      </form>
+    </ng-template>
+
+    <p *ngIf="messaggio" class="success-msg">{{ messaggio }}</p>
+    <p *ngIf="messaggioErrore" class="error-msg">{{ messaggioErrore }}</p>
+  </div>
+</div>
+
+
+
+
+
+
+
+  <app-footer></app-footer>
+</ion-content>
+
+
+
+

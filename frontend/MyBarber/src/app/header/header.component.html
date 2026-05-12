@@ -1,0 +1,89 @@
+<header class="site-header">
+  <nav class="navbar" aria-label="Navigazione principale">
+    <button
+      type="button"
+      class="menu-toggle"
+      [class.open]="mobileMenuOpen"
+      (click)="toggleMobileMenu()"
+      [attr.aria-expanded]="mobileMenuOpen"
+      aria-label="Apri menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <a routerLink="/home" class="brand" (click)="closeMenus()" aria-label="Vai alla home">
+      <img src="assets/logo.svg" alt="Logo MyBarber" class="brand-logo">
+    </a>
+
+    <div class="menu-backdrop" *ngIf="mobileMenuOpen || dropdownOpen" (click)="closeMenus()"></div>
+
+    <div class="nav-panel" [class.open]="mobileMenuOpen">
+      <div class="drawer-brand">
+        <img src="assets/logo.svg" alt="">
+        <span>
+          <strong>Menu Navigazione</strong>
+        </span>
+      </div>
+
+      <ul class="nav-links">
+        <li>
+          <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenus()">
+            <span class="nav-icon home-icon" aria-hidden="true"></span>
+            <span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/prenotazioni" routerLinkActive="active" (click)="closeMenus()">
+            <span class="nav-icon booking-icon" aria-hidden="true"></span>
+            <span>Prenotazioni</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/servizi" routerLinkActive="active" (click)="closeMenus()">
+            <span class="nav-icon services-icon" aria-hidden="true"></span>
+            <span>Servizi</span>
+          </a>
+        </li>
+        <li>
+          <a routerLink="/contatti" routerLinkActive="active" (click)="closeMenus()">
+            <span class="nav-icon contact-icon" aria-hidden="true"></span>
+            <span>Contatti</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="account-menu">
+      <a *ngIf="!authService.isLoggedIn()" routerLink="/login" class="login-btn" (click)="closeMenus()">
+        <img src="assets/profile-circle-svgrepo-com.svg" class="account-icon" alt="">
+        <span>Accedi</span>
+      </a>
+
+      <div *ngIf="authService.isLoggedIn()" class="user-dropdown-container">
+        <button class="user-btn" type="button" (click)="toggleDropdown()">
+          <span class="user-avatar">{{ authService.getUsername().charAt(0).toUpperCase() }}</span>
+          <span class="user-copy">
+            <span class="user-label">Area personale</span>
+            <strong>{{ authService.getUsername() }}</strong>
+          </span>
+          <span class="chevron" aria-hidden="true">▼</span>
+        </button>
+
+        <div class="dropdown-menu" [class.open]="dropdownOpen">
+          <div class="dropdown-heading">
+            <span class="user-avatar">{{ authService.getUsername().charAt(0).toUpperCase() }}</span>
+            <div>
+              <strong>{{ authService.getUsername() }}</strong>
+              <small>Gestisci il tuo profilo</small>
+            </div>
+          </div>
+          <a class="dropdown-item" routerLink="/profilo" (click)="closeMenus()">Il mio profilo</a>
+          <a class="dropdown-item" routerLink="/miei-appuntamenti" (click)="closeMenus()">I miei appuntamenti</a>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item logout-text" (click)="eseguireLogout()">Logout</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

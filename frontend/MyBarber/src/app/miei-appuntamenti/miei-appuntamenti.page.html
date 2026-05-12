@@ -1,0 +1,95 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+<div class="appointments-page">
+  <section class="appointments-section future-section">
+    <div class="section-heading">
+      <h2>Prossimi appuntamenti</h2>
+      <span class="count-pill">{{ appuntamentiFuturi().length }} futuri</span>
+    </div>
+
+    <div class="appointments-list" *ngIf="appuntamentiFuturi().length > 0; else emptyState">
+      <article
+        class="appointment-card"
+        *ngFor="let app of appuntamentiFuturi(); let primo = first"
+        [class.featured]="primo">
+        <div class="appointment-date">
+          <span>{{ meseBreve(app) }}</span>
+          <strong>{{ giornoNumero(app) }}</strong>
+        </div>
+
+        <div class="appointment-main">
+          <div class="appointment-topline">
+            <span class="status-pill">{{ primo ? 'Prossimo' : statoAppuntamento(app) }}</span>
+            <span class="duration-pill">{{ durataAppuntamento(app) }} min</span>
+          </div>
+
+          <h3>{{ servizioLabel(app.servizio) }}</h3>
+          <p>{{ dataLabel(app) }}</p>
+
+          <div class="appointment-meta">
+            <div>
+              <span>Orario</span>
+              <strong>{{ app.ora }} - {{ oraFineAppuntamento(app) }}</strong>
+            </div>
+            <div>
+              <span>Totale</span>
+              <strong>{{ servizioPrezzo(app.servizio) }}</strong>
+            </div>
+            <div *ngIf="app.note">
+              <span>Note</span>
+              <strong>{{ app.note }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-delete" type="button" (click)="rimuoviAppuntamento(app.id)">Annulla</button>
+      </article>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="empty-state">
+        <span>Nessun appuntamento</span>
+        <h3>La tua agenda &egrave; libera</h3>
+        <p>Prenota un servizio per visualizzare qui data, orario e riepilogo del trattamento.</p>
+        <a routerLink="/layout/prenotazioni">Prenota</a>
+      </div>
+    </ng-template>
+  </section>
+
+  <section class="appointments-section history-section" *ngIf="appuntamentiPassati().length > 0">
+    <div class="section-heading compact">
+      <h2>Storico</h2>
+      <span class="count-pill muted">{{ appuntamentiPassati().length }} conclusi</span>
+    </div>
+
+    <div class="appointments-list history-list">
+      <article class="appointment-card history-card" *ngFor="let app of appuntamentiPassati()">
+        <div class="appointment-date">
+          <span>{{ meseBreve(app) }}</span>
+          <strong>{{ giornoNumero(app) }}</strong>
+        </div>
+
+        <div class="appointment-main">
+          <div class="appointment-topline">
+            <span class="status-pill past-status">Concluso</span>
+            <span class="duration-pill">{{ durataAppuntamento(app) }} min</span>
+          </div>
+
+          <h3>{{ servizioLabel(app.servizio) }}</h3>
+          <p>{{ dataLabel(app) }} dalle {{ app.ora }} alle {{ oraFineAppuntamento(app) }}</p>
+        </div>
+      </article>
+    </div>
+  </section>
+</div>
+
+
+
+
+  <app-footer></app-footer>
+</ion-content>
+

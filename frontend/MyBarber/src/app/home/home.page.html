@@ -1,0 +1,83 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="home-container">
+    
+    <section class="hero-section">
+      <div class="hero-copy">
+        <p class="hero-eyebrow">MyBarber Studio</p>
+        <h1>Taglio e Barba, senza attese inutili.</h1>
+        <p>Prenota il tuo servizio in pochi secondi e scegli l’orario che preferisci.</p>
+
+        <div class="hero-actions">
+          <a class="cta-button primary" routerLink="/prenotazioni">Prenota Ora</a>
+          <a class="cta-button secondary" routerLink="/servizi">Scopri i Servizi</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="next-appointment-section" *ngIf="authService.isLoggedIn()">
+      <div class="section-title">
+        <p>Agenda personale</p>
+        <h2>Il tuo prossimo appuntamento</h2>
+      </div>
+
+      <div class="appointment-card" *ngIf="prossimoAppuntamento; else noAppointment">
+        <div class="appointment-date">
+          <span>{{ meseAppuntamento }}</span>
+          <strong>{{ giornoAppuntamento }}</strong>
+        </div>
+
+        <div class="appointment-info">
+          <span class="appointment-label">Confermato</span>
+          <h3>{{ servizioLabel(prossimoAppuntamento.servizio) }}</h3>
+          <p>{{ dataCompletaAppuntamento }} alle {{ prossimoAppuntamento.ora }}</p>
+        </div>
+
+        <a class="appointment-link" routerLink="/miei-appuntamenti">Dettagli</a>
+      </div>
+
+      <ng-template #noAppointment>
+        <div class="appointment-card empty">
+          <div class="appointment-info">
+            <span class="appointment-label">{{ caricamentoAppuntamento ? 'Sincronizzazione' : 'Nessun appuntamento' }}</span>
+            <h3>{{ caricamentoAppuntamento ? 'Sto controllando la tua agenda...' : 'Non hai appuntamenti' }}</h3>
+            <p *ngIf="!caricamentoAppuntamento">Prenota un nuovo taglio per vederlo qui.</p>
+          </div>
+        </div>
+      </ng-template>
+    </section>
+
+    <section class="services-menu-section">
+      <div class="services-heading">
+        <div>
+          <p>Prenota</p>
+          <h2>{{ titoloServiziRapidi }}</h2>
+          <span>{{ descrizioneServiziRapidi }}</span>
+        </div>
+      </div>
+
+      <div class="services-grid">
+        <article class="service-card" *ngFor="let servizio of serviziRapidi">
+          <div class="service-topline">
+            <span>{{ servizio.badge }}</span>
+            <strong>{{ servizio.prezzo }}</strong>
+          </div>
+          <h3>{{ servizio.nome }}</h3>
+          <p> {{ servizio.durataMinuti }} minuti.</p>
+          <div class="service-meta">
+            <a class="book-service-link" [routerLink]="['/prenotazioni']" [queryParams]="{ servizio: servizio.valore }">
+              Prenota
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </div>
+
+      <app-footer></app-footer>
+
+</ion-content>

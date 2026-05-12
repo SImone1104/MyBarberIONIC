@@ -1,0 +1,217 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+
+<div class="page-container">
+  <!-- Card principale: contiene tutto il flusso di creazione prenotazione. -->
+  <div class="card form-section">
+    <!-- Intestazione della pagina con titolo e stato del passaggio corrente. -->
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">Agenda barber</p>
+        <h2>Nuova Prenotazione</h2>
+      </div>
+      <span class="step-pill">
+        {{ isRicercaRapida ? 'Prenotazione rapida' : (servizioSelezionato() ? 'Servizio selezionato' : 'Scegli prima il servizio') }}
+      </span>
+    </div>
+
+    <form [formGroup]="prenotazioneForm" (ngSubmit)="onSubmit()">
+      <!-- Sezione servizi: e il primo passo perche la durata del servizio determina gli slot disponibili. -->
+      <div class="service-picker">
+        <div class="picker-header service-header">
+          <div>
+            <h3>Servizio</h3>
+            <p>Scegli il trattamento: useremo la durata per calcolare gli orari liberi.</p>
+          </div>
+          <div class="service-total">
+            <span>Totale</span>
+            <strong>{{ servizioPrezzo() }}</strong>
+          </div>
+        </div>
+
+        <div class="service-grid">
+          <!-- Ogni card imposta il servizio nel form e azzera l'orario scelto, per ricalcolare gli slot corretti. -->
+          <button
+            type="button"
+            class="service-card"
+            *ngFor="let servizio of servizi"
+            [class.selected]="servizioSelezionato() === servizio.valore"
+            (click)="selezionaServizio(servizio.valore)">
+            <span class="service-radio"></span>
+            <span class="service-content">
+              <strong>{{ servizio.nome }}</strong>
+              <small>{{ servizio.descrizione }}</small>
+              <span class="service-meta">{{ servizio.durataMinuti }} min</span>
+            </span>
+            <span class="service-price">{{ servizio.prezzo }}</span>
+          </button>
+        </div>
+
+        <!-- Campo nascosto usato dal form: viene aggiornato quando si seleziona una card servizio. -->
+        <input type="hidden" formControlName="servizio">
+      </div>
+
+      <!-- Sezione calendario: permette di scegliere il giorno della prenotazione. -->
+      <div class="booking-picker">
+        <div class="picker-header">
+          <div>
+            <h3>Calendario</h3>
+            <p>Scegli il giorno direttamente dal mese.</p>
+          </div>
+          <div class="month-controls">
+            <button type="button" class="month-btn" (click)="cambiaMese(-1)" aria-label="Mese precedente">‹</button>
+            <strong>{{ meseLabel() }}</strong>
+            <button type="button" class="month-btn" (click)="cambiaMese(1)" aria-label="Mese successivo">›</button>
+          </div>
+        </div>
+
+        <div class="calendar-month">
+          <!-- Intestazione dei giorni della settimana. -->
+          <span class="weekday" *ngFor="let giorno of giorniSettimana">{{ giorno }}</span>
+
+          <!-- Singola cella giorno: evidenzia giorno selezionato, oggi e giorni non disponibili. -->
+          <button
+            type="button"
+            class="day-card"
+            *ngFor="let giorno of giorniCalendario"
+            [class.selected]="dataSelezionata() === giorno.data"
+            [class.outside-month]="!giorno.isCurrentMonth"
+            [class.today]="giorno.isToday"
+            [disabled]="giorno.disabled"
+            (click)="selezionaData(giorno.data)">
+            <strong>{{ giorno.numero }}</strong>
+            <span *ngIf="giorno.isToday">Oggi</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Sezione orari: mostra gli slot disponibili e disabilita quelli occupati o passati. -->
+      <div class="booking-picker time-picker">
+        <div class="picker-header">
+          <div>
+            <h3>Slot orari</h3>
+            <p>
+              {{
+                isLoadingOrari
+                  ? (isRicercaRapida ? 'Sto cercando il primo slot disponibile per questo servizio...' : 'Controllo disponibilita in corso...')
+                  : (erroreCaricamentoOrari
+                    ? 'Non riesco a verificare la disponibilita. Riprova selezionando di nuovo la data.'
+                    : (servizioSelezionato()
+                      ? 'Mostriamo solo gli slot compatibili con la durata scelta.'
+                      : 'Scegli prima un servizio per vedere gli slot disponibili.'))
+              }}
+            </p>
+          </div>
+          <span class="selected-time" *ngIf="oraSelezionata(); else noTime">{{ oraSelezionata() }}</span>
+          <ng-template #noTime>
+            <span class="selected-time muted">--:--</span>
+          </ng-template>
+        </div>
+
+        <div class="time-state time-loading" *ngIf="isLoadingOrari">
+          <span class="loading-dot"></span>
+          <strong>{{ isRicercaRapida ? 'Cerco il primo appuntamento libero' : 'Sto verificando gli slot disponibili' }}</strong>
+          <small>
+            {{
+              isRicercaRapida
+                ? 'Controllo i prossimi giorni e seleziono automaticamente il primo orario utile.'
+                : 'Attendi qualche secondo, gli orari saranno mostrati appena il controllo termina.'
+            }}
+          </small>
+        </div>
+
+        <div class="time-state time-error" *ngIf="!isLoadingOrari && erroreCaricamentoOrari">
+          <strong>Disponibilita non verificata</strong>
+          <small>Non mostro gli slot per evitare prenotazioni su orari non controllati.</small>
+          <button type="button" class="retry-time-btn" (click)="riprovaCaricamentoOrari()">Riprova controllo</button>
+        </div>
+
+        <div class="time-empty" *ngIf="!isLoadingOrari && !erroreCaricamentoOrari && !servizioSelezionato()">
+          Seleziona un servizio per generare gli slot in base alla sua durata.
+        </div>
+
+        <div class="time-grid" *ngIf="!isLoadingOrari && !erroreCaricamentoOrari && servizioSelezionato()">
+          <button
+            type="button"
+            class="time-slot"
+            *ngFor="let slot of slotOrari()"
+            [class.selected]="oraSelezionata() === slot.inizio"
+            [disabled]="slotNonDisponibile(slot.inizio)"
+            (click)="selezionaOra(slot.inizio)">
+            <strong>{{ slot.inizio }}</strong>
+            <small>{{ slot.fine }}</small>
+          </button>
+        </div>
+      </div>
+
+      <!-- Campo nascosto usato dal form: il valore viene impostato cliccando uno slot. -->
+      <input type="hidden" formControlName="ora">
+
+      <!-- Campo opzionale per comunicare preferenze o dettagli al barbiere. -->
+      <div class="form-group">
+        <label>Note (opzionale)</label>
+        <input type="text" formControlName="note" placeholder="Es. taglio sfumato ai lati">
+      </div>
+
+      <!-- Riepilogo live: mostra data, ora e servizio scelti prima della conferma. -->
+      <div class="booking-summary">
+        <div class="summary-title">
+          <span>Riepilogo</span>
+          <strong>Pronto per confermare</strong>
+          <small>Controlla i dettagli del tuo appuntamento prima di inviare la richiesta.</small>
+        </div>
+        <div class="summary-items">
+          <div class="summary-item">
+            <span>Data</span>
+            <strong>{{ dataSelezionata() || 'Da scegliere' }}</strong>
+            <small>Giorno selezionato</small>
+          </div>
+          <div class="summary-item">
+            <span>Ora</span>
+            <strong>{{ oraSelezionata() || '--:--' }}</strong>
+            <small>Slot appuntamento</small>
+          </div>
+          <div class="summary-item">
+            <span>Servizio</span>
+            <strong>{{ servizioLabel() }}</strong>
+            <small>Trattamento scelto</small>
+          </div>
+          <div class="summary-item">
+            <span>Totale</span>
+            <strong>{{ servizioPrezzo() }}</strong>
+            <small>Pagamento in sede</small>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottone finale: resta disabilitato finche i campi obbligatori non sono validi. -->
+      <button type="submit" [disabled]="prenotazioneNonConfermabile()">Conferma Prenotazione</button>
+    </form>
+
+    <!-- Messaggio di esito dopo salvataggio o errore. -->
+    <div
+      class="feedback-msg"
+      *ngIf="messaggio"
+      [class.feedback-success]="messaggioTipo === 'success'"
+      [class.feedback-error]="messaggioTipo === 'error'"
+      [class.feedback-info]="messaggioTipo === 'info'"
+      role="status"
+      aria-live="polite">
+      <span class="feedback-icon" aria-hidden="true">
+        {{ messaggioTipo === 'success' ? '✓' : (messaggioTipo === 'error' ? '!' : 'i') }}
+      </span>
+      <div>
+        <strong>{{ messaggioTipo === 'success' ? 'Prenotazione confermata' : (messaggioTipo === 'error' ? 'Attenzione' : 'Aggiornamento') }}</strong>
+        <p>{{ messaggio }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+      <app-footer></app-footer>
+
+
+</ion-content>

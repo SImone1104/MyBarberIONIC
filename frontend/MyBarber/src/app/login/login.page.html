@@ -1,0 +1,34 @@
+<ion-content>
+  <div class="page-wrapper">
+    <div class="login-container">
+      <img src="assets/logo.svg" alt="Logo Barberia" class="brand-logo" routerLink="/home">
+
+      <h1>Accedi</h1>
+
+      <form *ngIf="loginForm" [formGroup]="loginForm" (ngSubmit)="onLogin()">
+        <div class="form-group">
+          <label for="email">Indirizzo Email</label>
+          <input id="email" type="email" formControlName="email" placeholder="Inserisci email">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" formControlName="password" placeholder="Inserisci password">
+        </div>
+
+        <button type="submit" [disabled]="!loginForm.valid || isLoading">
+          {{ isLoading ? 'Accesso in corso...' : 'Accedi' }}
+        </button>
+
+        <div class="footer-link">
+          <span>Non hai un account?</span>
+          <a routerLink="/registrazione" class="link-btn">Registrati ora</a>
+        </div>
+      </form>
+
+      <p *ngIf="messaggio" [ngClass]="isErrore ? 'error-msg' : 'success-msg'">
+        {{ messaggio }}
+      </p>
+    </div>
+  </div>
+</ion-content>

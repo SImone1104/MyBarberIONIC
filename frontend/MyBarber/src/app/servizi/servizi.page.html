@@ -1,0 +1,60 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="servizi-page">
+    <section class="services-hero">
+      <div class="hero-content">
+        <p class="eyebrow">Menu MyBarber</p>
+        <h1>Servizi MyBarber</h1>
+        <p>Scegli il servizio e prenota lo slot più comodo.</p>
+
+        <div class="hero-actions">
+          <a class="primary-action" routerLink="/prenotazioni">Prenota</a>
+          <a class="secondary-action" routerLink="/home">Torna alla home</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="service-showcase">
+      <article class="service-detail-card" *ngFor="let servizio of servizi">
+        <div class="service-media">
+          <img [src]="servizio.immagine" [alt]="servizio.nome" loading="lazy">
+          <span>{{ servizio.badge }}</span>
+        </div>
+
+        <div class="service-body">
+          <div class="service-heading">
+            <div>
+              <h2>{{ servizio.nome }}</h2>
+              <p>{{ servizio.descrizione }}</p>
+            </div>
+          </div>
+
+          <div class="service-facts">
+            <div>
+              <span>Prezzo</span>
+              <strong>{{ servizio.prezzo }}</strong>
+            </div>
+            <div>
+              <span>Durata</span>
+              <strong>{{ servizio.durataMinuti }} min</strong>
+            </div>
+          </div>
+
+          <div class="service-footer">
+            <a
+              [routerLink]="['/prenotazioni']"
+              [queryParams]="{ servizio: servizio.valore }">
+              Prenota
+            </a>
+          </div>
+        </div>
+      </article>
+    </section>
+
+  </div>
+      <app-footer></app-footer>
+
+</ion-content>

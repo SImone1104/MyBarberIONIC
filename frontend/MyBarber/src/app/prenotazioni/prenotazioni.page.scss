@@ -1,0 +1,795 @@
+:host {
+  display: block;
+  
+}
+
+ion-content {
+  /* Rende lo sfondo coerente con il tuo design originale */
+  --background: #f8fafc; 
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+
+}
+
+/* Layout generale della pagina prenotazioni. */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+    width: 92%;           /* Occupa il 92% della larghezza su mobile */
+  max-width: 1100px;    /* Non diventa mai più largo di 1100px su PC */
+  margin: 80px auto 40px auto; /* 80px sopra per l'header, 'auto' ai lati per centrare */
+  margin-top: 130px;
+  
+  box-sizing: border-box;
+}
+
+/* Card bianca usata come contenitore principale del form. */
+.card {
+  background: #fff;
+  padding: 26px;
+  border-radius: 10px;
+  border: 1px solid #e4ebf3;
+}
+
+/* Layout condiviso per intestazioni, riepiloghi e header delle card. */
+.section-heading,
+.picker-header,
+.booking-summary,
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.section-heading,
+.picker-header {
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+/* Testi introduttivi e titoli delle sezioni. */
+.eyebrow {
+  margin: 0 0 4px;
+  color: #007bff;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+h2 {
+  margin: 0;
+  color: #2c2c2c;
+  padding-bottom: 10px;
+  display: inline-block;
+}
+
+h3 {
+  margin: 0 0 4px;
+  color: #2c2c2c;
+  font-size: 18px;
+}
+
+.picker-header p {
+  margin: 0;
+  color: #667085;
+}
+
+/* Pill informative usate per stato corrente, orario e prezzo selezionato. */
+.step-pill,
+.selected-time {
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(37, 99, 235, 0.15);
+
+  color: #111827;
+
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  transition: all 0.2s ease;
+}
+
+/* Contenitori visuali per calendario, orari e servizi. */
+.booking-picker,
+.service-picker {
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid #dfeaf6;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.service-picker {
+  background: #ffffff;
+  border-color: #d7e0ea;
+  box-shadow: 0 18px 40px rgba(16, 24, 40, 0.07);
+}
+
+.service-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e6edf5;
+}
+
+.service-total {
+  min-width: 128px;
+  padding: 10px 14px;
+
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(37, 99, 235, 0.15);
+
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.06);
+
+  text-align: right;
+
+  transition: all 0.2s ease;
+}
+
+.service-total span {
+  display: block;
+  color: #667085;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.service-total strong {
+  display: block;
+  margin-top: 4px;
+
+  color: #2563eb;
+
+  font-size: 18px;
+  font-weight: 900;
+}
+
+/* piccolo effetto interattivo coerente con resto UI */
+.service-total:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.12);
+}
+
+/* Navigazione del mese nel calendario. */
+.month-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-width: 220px;
+  padding: 8px 12px;
+
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border: 1px solid rgba(15, 23, 42, 0.08);
+
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.06);
+
+  text-transform: capitalize;
+}
+
+.month-controls strong {
+  min-width: 140px;
+  text-align: center;
+  color: #111827;
+  font-weight: 800;
+}
+
+/* Pulsanti cambio mese */
+.month-btn {
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  border-radius: 50%;
+
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+
+  cursor: pointer;
+
+  display: grid;
+  place-items: center;
+
+  font-size: 20px;
+
+  transition: all 0.2s ease;
+}
+
+.month-btn:hover {
+  background: #2563eb;
+  color: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
+}
+
+/* Selezione coerente con il tuo tema */
+.day-card.selected,
+.time-slot.selected {
+  background: linear-gradient(
+    145deg,
+    rgba(37, 99, 235, 0.85),
+    rgba(15, 23, 42, 0.95)
+  );
+
+  color: #fff;
+
+  border-color: rgba(59, 130, 246, 0.4);
+
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(59, 130, 246, 0.15),
+    0 0 24px rgba(37, 99, 235, 0.18);
+
+  transform: translateY(-1px);
+  transition: all 0.2s ease;
+}
+
+/* Griglie principali: calendario e slot orari. */
+.calendar-month,
+.time-grid {
+  display: grid;
+  gap: 8px;
+}
+
+/* Layout specifico della griglia calendario. */
+.calendar-month {
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  padding: 12px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+/* Intestazioni dei giorni della settimana. */
+.weekday {
+  display: grid;
+  place-items: center;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Celle del calendario e pulsanti degli slot orari. */
+.day-card,
+.time-slot {
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  background: #fff;
+  color: #344054;
+  cursor: pointer;
+}
+
+.day-card {
+  min-height: 72px;
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.day-card strong {
+  color: #20252d;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.day-card span {
+  color: #667085;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.day-card:hover:not(:disabled),
+.time-slot:hover:not(:disabled) {
+  border-color: #007bff;
+}
+
+.day-card.selected strong,
+.day-card.selected span {
+  color: #fff;
+}
+
+.day-card.today:not(.selected) {
+  border-color: #007bff;
+  background: #f4f9ff;
+}
+
+/* Stati non disponibili: giorni fuori mese, giorni passati e slot non prenotabili. */
+.day-card.outside-month strong,
+.day-card:disabled strong,
+.day-card:disabled span {
+  color: #98a2b3;
+}
+
+.day-card:disabled,
+.time-slot:disabled {
+  background: #f1f3f5;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Griglia dei pulsanti orari. */
+.time-grid {
+  grid-template-columns: repeat(4, minmax(92px, 1fr));
+  gap: 12px;
+}
+
+/* Griglia delle card servizio. */
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+/* Card cliccabile per scegliere il servizio. */
+.service-card {
+  min-height: 134px;
+  padding: 16px;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #fff 0%, #fbfdff 100%);
+  color: #1f2937;
+  cursor: pointer;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 10px 12px;
+  text-align: left;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Feedback visivo della card servizio al passaggio del mouse e alla selezione. */
+.service-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
+  transform: translateY(-1px);
+}
+
+.service-card.selected {
+  border-color: #007bff;
+  background: linear-gradient(180deg, #f4f9ff 0%, #ffffff 100%);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12), 0 14px 32px rgba(0, 105, 217, 0.12);
+}
+
+/* Pallino radio custom dentro ogni card servizio. */
+.service-radio {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border: 2px solid #b8c3d1;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-card.selected .service-radio {
+  border-color: #007bff;
+}
+
+.service-card.selected .service-radio::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #007bff;
+}
+
+/* Testi e prezzo visualizzati nella card servizio. */
+.service-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.service-content strong {
+  font-size: 17px;
+  line-height: 1.15;
+}
+
+.service-content small {
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.service-meta {
+  color: #000000;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.service-price {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+
+  padding: 9px 10px;
+  border-radius: 8px;
+
+  background: linear-gradient(
+    135deg,
+    #111827,
+    #0f172a
+  );
+
+  color: #e5e7eb;
+  font-size: 13px;
+  font-weight: 800;
+  text-align: center;
+
+  border: 1px solid rgba(59, 130, 246, 0.25);
+
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.35),
+    0 0 18px rgba(59, 130, 246, 0.10);
+
+  transition: all 0.2s ease;
+}
+
+/* Stile degli slot orari. */
+.time-slot {
+  min-height: 58px;
+  padding: 11px 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.time-slot strong {
+  color: #1f2937;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.time-slot small {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.time-slot small::before {
+  content: '- ';
+}
+
+.time-slot.selected small {
+  color: #fff;
+}
+
+.time-slot.selected strong {
+  color: #fff;
+}
+
+.time-slot:disabled {
+  border-color: #dfe4ea;
+  background: #f3f6f9;
+  color: #98a2b3;
+  opacity: 1;
+}
+
+.time-slot:disabled strong,
+.time-slot:disabled small {
+  color: #a6b0bf;
+}
+
+.time-empty {
+  padding: 18px;
+  border: 1px dashed #c8d6e5;
+  border-radius: 8px;
+  background: #fff;
+  color: #667085;
+  font-weight: 700;
+  text-align: center;
+}
+
+.time-state {
+  min-height: 104px;
+  padding: 22px;
+  border: 1px solid #d8e4f0;
+  border-radius: 8px;
+  background: #fff;
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.time-state strong {
+  color: #1f2937;
+}
+
+.time-state small {
+  max-width: 420px;
+  color: #667085;
+  line-height: 1.4;
+}
+
+.loading-dot {
+  width: 34px;
+  height: 34px;
+  border: 3px solid #d8e7f8;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.time-error {
+  border-color: #ffd7ba;
+  background: #fff8f2;
+}
+
+.retry-time-btn {
+  margin-top: 4px;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 7px;
+  background: #111827;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.selected-time.muted {
+  color: #98a2b3;
+  background: #f2f4f7;
+}
+
+/* Campi form generici: note e data manuale. */
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.compact-date {
+  min-width: 170px;
+  margin-bottom: 0;
+}
+
+label {
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: #555;
+}
+
+input,
+select {
+  padding: 12px;
+  border: 1px solid #cfd6df;
+  border-radius: 7px;
+}
+
+/* Focus accessibile sugli input. */
+input:focus,
+select:focus {
+  outline: 0;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
+}
+
+/* Riepilogo finale della prenotazione prima della conferma. */
+.booking-summary {
+  align-items: stretch;
+  margin-top: 8px;
+  padding: 22px;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #344054;
+  border: 1px solid #dde5ef;
+  box-shadow: 0 18px 42px rgba(16, 24, 40, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.booking-summary::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg, #ffffff, #1d45e6, #ffffff);
+}
+
+/* Titolo del riepilogo e singole informazioni: data, ora, servizio. */
+.summary-title {
+  width: 230px;
+  min-width: 230px;
+  padding-right: 18px;
+}
+
+.summary-title span,
+.summary-item span {
+  display: block;
+  color: #2381d9;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.summary-title strong {
+  display: block;
+  margin-top: 7px;
+  color: #111827;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.summary-title small {
+  display: block;
+  max-width: 230px;
+  margin-top: 10px;
+  color: #667085;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.summary-items {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.summary-item {
+  min-height: 94px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e5ebf3;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.summary-item strong {
+  display: block;
+  margin-top: 10px;
+  color: #111827;
+  font-size: 17px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.summary-item small {
+  display: block;
+  margin-top: 8px;
+  color: #667085;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* Pulsante di conferma prenotazione. */
+button[type='submit'] {
+  width: 100%;
+  margin-top: 14px;
+  padding: 14px;
+  border: 0;
+  border-radius: 7px;
+  background: #28a745;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button[type='submit']:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.feedback-msg {
+  margin-top: 22px;
+  padding: 18px;
+  border-radius: 8px;
+  border: 2px solid #16a34a;
+  background: #ecfdf3;
+  color: #14532d;
+  display: flex;
+  gap: 12px;
+  font-weight: 800;
+  box-shadow: 0 14px 32px rgba(22, 163, 74, 0.18);
+}
+
+.feedback-icon {
+  font-weight: 900;
+}
+
+.feedback-msg strong {
+  display: block;
+  font-size: 20px;
+}
+
+.feedback-msg p {
+  margin: 4px 0 0;
+}
+
+.feedback-error { border-color: #dc2626; background: #fff1f2; }
+.feedback-info { border-color: #007bff; background: #eef6ff; color: #005fc5; }
+
+/* Adattamenti tablet/mobile. */
+@media (max-width: 768px) {
+  .card {
+    padding: 18px;
+  }
+
+  .section-heading,
+  .picker-header,
+  .booking-summary {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .month-controls,
+  .compact-date,
+  .service-total {
+    min-width: 0;
+    width: auto;
+    text-align: left;
+  }
+
+  .summary-title {
+    width: auto;
+    min-width: 0;
+    padding-right: 0;
+  }
+
+  .day-card {
+    min-height: unset; /* Rimuoviamo il 56px che li allunga */
+    aspect-ratio: 1 / 1; /* Larghezza e Altezza diventano uguali */
+    padding: 4px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .day-card span {
+    display: none !important;
+  }
+
+  .time-grid,
+  .service-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .summary-items {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Layout a colonna singola per schermi molto stretti. */
+@media (max-width: 560px) {
+  .service-grid {
+    grid-template-columns: 1fr;
+  }
+}

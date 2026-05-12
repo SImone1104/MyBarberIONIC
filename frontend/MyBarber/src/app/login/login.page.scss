@@ -1,0 +1,235 @@
+/* Sostituisci la parte iniziale del tuo CSS con questa */
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  width: 100%;
+  /* Sfondo scuro che riempie tutto lo spazio dietro la card */
+  background: #181a1f; 
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Mantieni tutto il resto del tuo codice (login-container, h1, input, ecc.) identico */
+/* Contenitore principale a tutto schermo (opzionale: puoi mettere un'immagine di sfondo qui) */
+
+
+/* La Card di Login con effetto Glassmorphism */
+.login-container {
+  width: 100%;
+  max-width: 420px;
+  margin: 20px;
+  padding: 40px 32px;
+  border-radius: 12px;
+
+  /* Effetto vetro: sfondo bianco semitrasparente + sfocatura */
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+
+  /* Bordo sottile e ombra profonda (coerente con le altre card) */
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+h1 {
+  text-align: center;
+  color: #111827;
+  font-size: 28px;
+  font-weight: 800;
+  margin-top: 0;           /* Assicurati che non ci sia margine extra sopra */
+  margin-bottom: 32px;
+  letter-spacing: -0.02em;
+}
+
+/* Distanzia i vari campi del form */
+.form-group {
+  margin-bottom: 22px;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  margin-bottom: 6px;
+  color: #475467;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input {
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(209, 213, 219, 0.8);
+  border-radius: 8px;
+  font-size: 15px;
+  color: #111827;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* Effetto Focus moderno (stile Tailwind/Bootstrap moderno) */
+input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background: #ffffff;
+}
+
+/* Stile del bottone principale */
+button {
+  width: 100%;
+  padding: 14px;
+  background-color: #111827; /* Nero/Grigio scurissimo elegante */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Hover del bottone */
+button:hover:not(:disabled) {
+  background-color: #000000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* Bottone disabilitato (quando il form non è valido o sta caricando) */
+button:disabled {
+  background-color: #9ca3af;
+  color: #f3f4f6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Sezione link in basso */
+.footer-link {
+  margin-top: 24px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+}
+
+.footer-link span {
+  font-size: 14px;
+  color: #667085;
+  font-weight: 500;
+}
+
+.link-btn {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.link-btn:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+/* Messaggio di errore sotto il form */
+/* Messaggio di ERRORE (Rosso) */
+.error-msg {
+  text-align: center;
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: rgba(239, 68, 68, 0.1); 
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444; 
+  font-size: 14px;
+  font-weight: 600;
+  display: block; 
+}
+
+/* Messaggio di SUCCESSO (Verde) */
+.success-msg {
+  text-align: center;
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: rgba(34, 197, 94, 0.15); 
+  border: 1px solid rgba(34, 197, 94, 0.5); 
+  color: #1b793e; 
+  font-size: 14px;
+  font-weight: 700;
+  display: block; 
+}
+
+/* Stile per il logo sospeso */
+.brand-logo {
+  display: block;          /* Permette il posizionamento con margin auto */
+  margin: 0 auto 20px;     /* 0 sopra, auto ai lati (centra), 24px sotto verso "Accedi" */
+  max-width: 250px;        /* Ridotto leggermente per eleganza, regola a piacere */
+  height: auto;
+  z-index: 10;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+/* Effetto al passaggio del mouse */
+.brand-logo:hover {
+  transform: scale(1.05); /* Ingrandisce leggermente il logo del 5% */
+}
+/* --- AGGIUNGI QUESTO IN FONDO AL FILE --- */
+
+@media screen and (max-width: 768px) {
+  /* 1. Rendiamo la card meno trasparente per migliorare il contrasto */
+  .login-container {
+    background: rgba(255, 255, 255, 0.98); /* Quasi solido */
+    padding: 30px 20px; /* Più spazio interno */
+    margin: 15px;
+    width: 95%; /* Sfrutta meglio la larghezza */
+  }
+
+  /* 2. Rendiamo i bordi degli input molto più visibili */
+  input {
+    border: 2px solid #d1d5db; /* Bordo più spesso e solido */
+    background: #ffffff;
+    font-size: 16px; /* Evita lo zoom automatico di iOS al clic */
+    padding: 16px; /* Più facile da cliccare con il pollice */
+  }
+
+  /* 3. Colore della Label più scuro per leggerlo meglio sotto il sole */
+  label {
+    color: #1f2937; 
+    font-size: 13px;
+  }
+
+  /* 4. Effetto focus più marcato per capire dove si sta scrivendo */
+  input:focus {
+    border-color: #111827; /* Bordo nero al focus per massimo contrasto */
+    box-shadow: 0 0 0 4px rgba(17, 24, 39, 0.1);
+  }
+
+  /* 5. Logo leggermente più piccolo per non rubare spazio */
+  .brand-logo {
+    max-width: 200px;
+    margin-bottom: 30px;
+  }
+
+  /* 6. Bottone più alto (misura standard 44px+ per mobile) */
+  button {
+    padding: 18px;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+}
