@@ -456,20 +456,39 @@ ion-header, ion-toolbar {
     min-width: 48px;
   }
 
-  .profile-close {
-    width: 42px;
-    height: 42px;
-    display: grid;
-    place-items: center;
-    flex: 0 0 42px;
-    border: 1px solid #343841;
-    border-radius: 50%;
-    background: #22252b;
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: 900;
-    cursor: pointer;
-  }
+ /* Pulsante di chiusura del Profilo (Menu laterale dx in mobile) */
+.profile-close {
+  width: 42px;
+  height: 42px;
+  display: flex;            /* Passiamo a flex per il controllo millimetrico */
+  align-items: center;      /* Centra verticalmente */
+  justify-content: center;  /* Centra orizzontalmente */
+  flex: 0 0 42px;
+  
+  border: 1px solid #343841;
+  border-radius: 50%;
+  background: #22252b;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 0;
+  
+  /* Stile del carattere per la massima simmetria */
+  font-size: 22px; 
+  font-weight: 300;
+  line-height: 0;           /* Rimuove gli spazi fantasma del font */
+  
+  transition: all 0.2s ease;
+}
+
+.profile-close:hover {
+  background: #2a2e35;
+}
+
+/* Allineamento ottico della X */
+.profile-close span {
+  display: block;
+  transform: translateY(-2px); /* Correzione per sollevare la 'x' al centro esatto */
+}
 
   .dropdown-item {
     min-height: 54px;
@@ -554,20 +573,31 @@ ion-header, ion-toolbar {
     margin-top: 2px;
   }
 
-  .drawer-close {
-    width: 42px;
-    height: 42px;
-    display: grid;
-    place-items: center;
-    flex: 0 0 42px;
-    border: 1px solid #343841;
-    border-radius: 50%;
-    background: #22252b;
-    color: #ffffff;
-    font-size: 18px;
-    font-weight: 900;
-    cursor: pointer;
-  }
+ .drawer-close {
+  width: 42px;
+  height: 42px;
+  display: flex;          /* Passiamo a flex per un controllo più millimetrico */
+  align-items: center;    /* Centra verticalmente */
+  justify-content: center; /* Centra orizzontalmente */
+  flex: 0 0 42px;
+  border: 1px solid #343841;
+  border-radius: 50%;
+  background: #22252b;
+  color: #ffffff;
+  font-size: 20px;        /* Un po' più grande si centra meglio visivamente */
+  font-weight: 400;       /* Meglio non troppo bold per la simmetria */
+  cursor: pointer;
+  line-height: 1;         /* Forza l'altezza della riga a zero per non avere sbalzi */
+  padding: 0;
+  
+  /* Se la 'x' ti sembra ancora troppo bassa, aggiungi questo: */
+  /* padding-bottom: 2px; */ 
+}
+
+.drawer-close span {
+  display: block;
+  transform: translateY(-1px); /* Sposta la 'x' di un pixel verso l'alto */
+}
   
 
   // Riorganizzazione Nav Links per Mobile
