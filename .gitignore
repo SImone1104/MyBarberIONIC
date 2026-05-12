@@ -1,16 +1,47 @@
-# Sistema Mac
-.DS_Store
-
-# Dipendenze (MAI caricarle su Git)
+# Dependencies
 node_modules/
+**/node_modules/
 
-# Cartelle Angular/Ionic
-.angular/
-www/
+# Build output
 dist/
-capacitor.config.json.bak
+build/
+www/
+out/
+coverage/
+**/.angular/
+**/.cache/
 
-# Log e file temporanei
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# Capacitor / native generated artifacts
+android/
+ios/
+capacitor.config.json.bak
