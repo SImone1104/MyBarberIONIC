@@ -116,6 +116,11 @@ ion-header, ion-toolbar {
   justify-content: flex-end;
   gap: 12px;
 }
+
+.user-dropdown-container {
+  position: relative;
+}
+
 .account-icon {
   width: 22px;
   height: 22px;
@@ -176,6 +181,15 @@ ion-header, ion-toolbar {
   font-size: 11px;
 }
 
+.chevron {
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px);
+  opacity: 0.72;
+}
+
 // ---------------------------------------------------------
 // DROPDOWN DESKTOP (Sempre scuro)
 // ---------------------------------------------------------
@@ -217,10 +231,21 @@ ion-header, ion-toolbar {
   align-items: center;
   background: transparent;
   transition: background 0.2s ease;
+  gap: 12px;
 }
 
 .dropdown-item:hover {
   background: #2a2e35;
+}
+
+.dropdown-divider {
+  height: 1px;
+  margin: 8px 0;
+  background: #343841;
+}
+
+.profile-close {
+  display: none;
 }
 /* Contenitore principale dell'intestazione (Avatar + Testi) */
 .dropdown-heading {
@@ -361,6 +386,103 @@ ion-header, ion-toolbar {
     height: 48px;
     padding: 0;
     border-radius: 50%;
+  }
+
+  .user-dropdown-container {
+    position: static;
+  }
+
+  .dropdown-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(86vw, 340px);
+    min-width: 0;
+    height: 100vh;
+    padding: calc(18px + var(--ion-safe-area-top)) 16px 20px;
+    border-radius: 0;
+    border: 0;
+    border-left: 1px solid #343841;
+    background: #181a1f !important;
+    box-shadow: -24px 0 55px rgba(0, 0, 0, 0.52);
+    z-index: 1016;
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(105%);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dropdown-menu.open {
+    transform: translateX(0);
+  }
+
+  .dropdown-heading {
+    min-height: 74px;
+    margin: 0 0 18px;
+    padding: 10px 0 18px;
+    gap: 14px;
+  }
+
+  .dropdown-heading > div {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .dropdown-heading strong {
+    font-size: 18px;
+  }
+
+  .dropdown-heading small {
+    font-size: 13px;
+  }
+
+  .dropdown-heading .user-avatar {
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+  }
+
+  .profile-close {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 42px;
+    border: 1px solid #343841;
+    border-radius: 50%;
+    background: #22252b;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
+  }
+
+  .dropdown-item {
+    min-height: 54px;
+    padding: 0 16px;
+    border-radius: 8px;
+    background: #22252b;
+    color: #e5e7eb;
+    font-size: 15px;
+  }
+
+  .dropdown-item + .dropdown-item {
+    margin-top: 8px;
+  }
+
+  .dropdown-item:hover {
+    background: #ffffff;
+    color: #111827;
+  }
+
+  .dropdown-divider {
+    margin: 14px 0;
+  }
+
+  .logout-text,
+  .logout-text:hover {
+    color: #ef4444;
   }
 
   // ---------------------------------------------------------

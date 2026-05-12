@@ -61,13 +61,18 @@
       </a>
 
       <div *ngIf="authService.isLoggedIn()" class="user-dropdown-container">
-        <button class="user-btn" type="button" (click)="toggleDropdown()">
+        <button
+          class="user-btn"
+          type="button"
+          (click)="toggleDropdown()"
+          [attr.aria-expanded]="dropdownOpen"
+          aria-label="Apri menu profilo">
           <span class="user-avatar">{{ authService.getUsername().charAt(0).toUpperCase() }}</span>
           <span class="user-copy">
             <span class="user-label">Area personale</span>
             <strong>{{ authService.getUsername() }}</strong>
           </span>
-          <span class="chevron" aria-hidden="true">▼</span>
+          <span class="chevron" aria-hidden="true"></span>
         </button>
 
         <div class="dropdown-menu" [class.open]="dropdownOpen">
@@ -77,11 +82,20 @@
               <strong>{{ authService.getUsername() }}</strong>
               <small>Gestisci il tuo profilo</small>
             </div>
+            <button class="profile-close" type="button" (click)="closeMenus()" aria-label="Chiudi menu profilo">
+              <span aria-hidden="true">x</span>
+            </button>
           </div>
-          <a class="dropdown-item" routerLink="/profilo" (click)="closeMenus()">Il mio profilo</a>
-          <a class="dropdown-item" routerLink="/miei-appuntamenti" (click)="closeMenus()">I miei appuntamenti</a>
+          <a class="dropdown-item" routerLink="/profilo" (click)="closeMenus()">
+            <span>Il mio profilo</span>
+          </a>
+          <a class="dropdown-item" routerLink="/miei-appuntamenti" (click)="closeMenus()">
+            <span>I miei appuntamenti</span>
+          </a>
           <div class="dropdown-divider"></div>
-          <button class="dropdown-item logout-text" (click)="eseguireLogout()">Logout</button>
+          <button class="dropdown-item logout-text" (click)="eseguireLogout()">
+            <span>Logout</span>
+          </button>
         </div>
       </div>
     </div>
