@@ -1,0 +1,16 @@
+# Sistema Mac
+.DS_Store
+
+# Dipendenze (MAI caricarle su Git)
+node_modules/
+
+# Cartelle Angular/Ionic
+.angular/
+www/
+dist/
+capacitor.config.json.bak
+
+# Log e file temporanei
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
