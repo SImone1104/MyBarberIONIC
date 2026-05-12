@@ -20,10 +20,13 @@
 
     <div class="nav-panel" [class.open]="mobileMenuOpen">
       <div class="drawer-brand">
-        <img src="assets/logo.svg" alt="">
-        <span>
-          <strong>Menu Navigazione</strong>
-        </span>
+        <div>
+          <strong>Menu</strong>
+          <small>Navigazione</small>
+        </div>
+        <button class="drawer-close" type="button" (click)="closeMenus()" aria-label="Chiudi menu">
+          <span aria-hidden="true">x</span>
+        </button>
       </div>
 
       <ul class="nav-links">

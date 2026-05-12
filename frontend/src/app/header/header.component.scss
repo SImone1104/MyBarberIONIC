@@ -323,6 +323,7 @@ ion-header, ion-toolbar {
   height: 2px;
   border-radius: 999px;
   background: #ffffff;
+  transition: transform 0.24s ease, opacity 0.2s ease;
 }
 
 // Overlay per chiudere i menu
@@ -369,6 +370,18 @@ ion-header, ion-toolbar {
     // Evitiamo che Ionic cambi il colore del pulsante
     --background: transparent;
     --color: #ffffff;
+  }
+
+  .menu-toggle.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .menu-toggle.open span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .menu-toggle.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
   }
 
   .account-menu {
@@ -493,22 +506,67 @@ ion-header, ion-toolbar {
     top: 0;
     bottom: 0;
     left: 0;
-    width: 280px;
-    // Sfondo Drawer originale SCURO
+    width: min(86vw, 340px);
     background: #181a1f !important; 
-    border-right: 1px solid #2b2e35;
-    padding: calc(20px + var(--ion-safe-area-top)) 16px 20px;
+    border-right: 1px solid #343841;
+    padding: calc(18px + var(--ion-safe-area-top)) 16px 20px;
     display: flex;
     flex-direction: column;
-    z-index: 1010;
-    // Animazione swipe
+    z-index: 1016;
     transform: translateX(-105%);
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 20px 0 50px rgba(0,0,0,0.5);
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 24px 0 55px rgba(0, 0, 0, 0.52);
   }
 
   .nav-panel.open {
     transform: translateX(0);
+  }
+
+  .drawer-brand {
+    min-height: 74px;
+    margin: 0 0 18px;
+    padding: 10px 0 18px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    border-bottom: 1px solid #343841;
+  }
+
+  .drawer-brand > div {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .drawer-brand strong {
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+
+  .drawer-brand small {
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  .drawer-close {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 42px;
+    border: 1px solid #343841;
+    border-radius: 50%;
+    background: #22252b;
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 900;
+    cursor: pointer;
   }
   
 
@@ -516,7 +574,7 @@ ion-header, ion-toolbar {
   .nav-links {
     width: 100%;
     max-width: none;
-    margin-top: 20px;
+    margin-top: 0;
     padding: 0;
     flex-direction: column;
     align-items: stretch;
@@ -527,10 +585,13 @@ ion-header, ion-toolbar {
 
   .nav-links a {
     justify-content: flex-start;
-    gap: 16px;
-    min-height: 50px;
-    background: #22252b; // Pill scuro mobile
+    gap: 14px;
+    min-height: 54px;
+    padding: 0 16px;
+    border-radius: 8px;
+    background: #22252b;
     color: #e5e7eb;
+    font-size: 15px;
   }
 
   .nav-links a.active,
