@@ -92,10 +92,23 @@
               <option [ngValue]="false">No</option>
             </select>
           </label>
-          <label class="form-field full">
+          <div class="form-field full image-picker-field">
             <span class="field-label">Immagine</span>
-            <input type="text" formControlName="immagine" placeholder="assets/services/nome.png">
-          </label>
+            <input type="hidden" formControlName="immagine">
+            <input
+              #immagineInput
+              class="file-input"
+              type="file"
+              accept="image/*"
+              (change)="selezionaImmagine($event)">
+            <div class="image-picker">
+              <button class="ghost-btn" type="button" (click)="immagineInput.click()">Scegli immagine</button>
+              <span>{{ nomeImmagineSelezionata || 'Nessun file selezionato' }}</span>
+            </div>
+            <div class="image-preview" *ngIf="anteprimaImmagine()">
+              <img [src]="anteprimaImmagine()" alt="Anteprima servizio">
+            </div>
+          </div>
           <label class="form-field full">
             <span class="field-label">Dettagli</span>
             <textarea formControlName="dettagli" placeholder="Un dettaglio per riga"></textarea>

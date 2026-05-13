@@ -16,7 +16,7 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json()); // Permette al server di leggere dati in formato JSON
+app.use(express.json({ limit: '10mb' })); // Permette al server di leggere dati in formato JSON
 
 // Routes
 app.use('/api/auth', authRoutes);

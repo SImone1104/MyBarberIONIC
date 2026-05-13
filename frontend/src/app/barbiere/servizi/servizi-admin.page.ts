@@ -19,6 +19,7 @@ export class BarbiereServiziPage implements OnInit {
   servizioInModifica: AdminServizio | null = null;
   messaggio = '';
   messaggioTipo: 'success' | 'error' = 'success';
+  nomeImmagineSelezionata = '';
 
   servizioForm = this.formBuilder.group({
     nome: ['', Validators.required],
@@ -54,6 +55,7 @@ export class BarbiereServiziPage implements OnInit {
 
   modificaServizio(servizio: AdminServizio): void {
     this.servizioInModifica = servizio;
+    this.nomeImmagineSelezionata = this.nomeFileDaImmagine(servizio.immagine);
     this.servizioForm.setValue({
       nome: servizio.nome,
       descrizione: servizio.descrizione || '',
@@ -68,6 +70,7 @@ export class BarbiereServiziPage implements OnInit {
 
   nuovoServizio(): void {
     this.servizioInModifica = null;
+    this.nomeImmagineSelezionata = '';
     this.servizioForm.reset({
       nome: '',
       descrizione: '',
@@ -105,10 +108,50 @@ export class BarbiereServiziPage implements OnInit {
         this.caricaServizi();
       },
       error: (err) => {
-        const msg = err.error?.message || 'Servizio non salvato.';
+        const msg = err.status === 413
+          ? 'Immagine troppo grande per il salvataggio. Scegli una foto piu leggera.'
+          : err.error?.message || 'Servizio non salvato.';
         this.mostraMessaggio(msg, 'error');
       }
     });
+  }
+
+  async selezionaImmagine(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+      this.mostraMessaggio('Seleziona un file immagine valido.', 'error');
+      input.value = '';
+      return;
+    }
+
+    const maxBytes = 8 * 1024 * 1024;
+
+    if (file.size > maxBytes) {
+      this.mostraMessaggio('Immagine troppo grande: scegli un file sotto 8 MB.', 'error');
+      input.value = '';
+      return;
+    }
+
+    try {
+      const immagine = await this.preparaImmagineServizio(file);
+      this.nomeImmagineSelezionata = file.name;
+      this.servizioForm.patchValue({ immagine });
+      this.mostraMessaggio('', 'success');
+    } catch (err) {
+      console.error('Errore immagine servizio:', err);
+      this.mostraMessaggio('Non riesco a preparare l immagine selezionata.', 'error');
+      input.value = '';
+    }
+  }
+
+  anteprimaImmagine(): string {
+    return this.servizioForm.get('immagine')?.value || '';
   }
 
   eliminaServizio(servizio: AdminServizio): void {
@@ -132,5 +175,70 @@ export class BarbiereServiziPage implements OnInit {
   private mostraMessaggio(messaggio: string, tipo: 'success' | 'error'): void {
     this.messaggio = messaggio;
     this.messaggioTipo = tipo;
+  }
+
+  private preparaImmagineServizio(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+
+      reader.onerror = () => reject(new Error('File non leggibile'));
+      reader.onload = () => {
+        const img = new Image();
+
+        img.onerror = () => reject(new Error('Immagine non leggibile'));
+        img.onload = () => {
+          const maxDimensione = 1200;
+          const scala = Math.min(1, maxDimensione / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(img.width * scala));
+          canvas.height = Math.max(1, Math.round(img.height * scala));
+
+          const context = canvas.getContext('2d');
+
+          if (!context) {
+            reject(new Error('Canvas non disponibile'));
+            return;
+          }
+
+          context.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          let qualita = 0.86;
+          let dataUrl = canvas.toDataURL('image/jpeg', qualita);
+
+          while (this.dimensioneDataUrl(dataUrl) > 900 * 1024 && qualita > 0.55) {
+            qualita -= 0.08;
+            dataUrl = canvas.toDataURL('image/jpeg', qualita);
+          }
+
+          if (this.dimensioneDataUrl(dataUrl) > 1200 * 1024) {
+            reject(new Error('Immagine compressa ancora troppo grande'));
+            return;
+          }
+
+          resolve(dataUrl);
+        };
+
+        img.src = String(reader.result || '');
+      };
+
+      reader.readAsDataURL(file);
+    });
+  }
+
+  private dimensioneDataUrl(dataUrl: string): number {
+    const base64 = dataUrl.split(',')[1] || '';
+    return Math.ceil((base64.length * 3) / 4);
+  }
+
+  private nomeFileDaImmagine(immagine: string): string {
+    if (!immagine) {
+      return '';
+    }
+
+    if (immagine.startsWith('data:image/')) {
+      return 'Immagine caricata';
+    }
+
+    return immagine.split('/').pop() || immagine;
   }
 }
