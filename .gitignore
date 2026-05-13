@@ -25,10 +25,7 @@ pnpm-debug.log*
 !.env.example
 
 # Local databases
-*.sqlite
-*.sqlite3
-*.db
-*.db-journal
+
 
 # OS files
 .DS_Store
