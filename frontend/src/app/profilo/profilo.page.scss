@@ -13,10 +13,16 @@ ion-content {
   display: flex;
   flex-direction: column;
   gap: 36px;
-    width: 92%;           /* Occupa il 92% della larghezza su mobile */
-  max-width: 1100px;    /* Non diventa mai più largo di 1100px su PC */
-  margin: 80px auto 40px auto; /* 80px sopra per l'header, 'auto' ai lati per centrare */
-  margin-top: 130px;
+  width: 92%;
+  max-width: 1100px;
+  margin: 0 auto 40px auto;
+
+  /* SPIEGAZIONE:
+     104px è l'altezza standard del tuo header su desktop.
+     Aggiungendo var(--ion-safe-area-top), il margine aumenta 
+     esattamente di quanto si espande l'header su iPhone.
+  */
+  margin-top: calc(104px + var(--ion-safe-area-top) + 20px); 
   
   box-sizing: border-box;
 }
@@ -165,8 +171,53 @@ small {
 .error-msg {
   color: #d9534f;
 }
+.logout-wrapper {
+  margin-top: 30px;
+}
+
+.btn-logout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Rimuoviamo il gap e gestiamo la spaziatura a mano per bilanciare */
+  width: 100%;
+  padding: 14px;
+  margin: 0;
+  
+  background: #fff1f2;
+  color: #dc2626;
+  border: 1px solid #fee2e2;
+  border-radius: 8px;
+  
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+  
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Diamo lo spazio a destra dell'icona, ma la compensiamo 
+   spostandola a sinistra con un margine negativo */
+.btn-logout ion-icon {
+  font-size: 20px;
+  margin-right: 10px;
+  margin-left: -20px; /* Tira l'intero blocco verso sinistra per centrare la scritta */
+}
+
+.btn-logout:hover {
+  background: #fecaca;
+  border-color: #f87171;
+}
+
 
 @media (max-width: 768px) {
+
+  .profile-container {
+    /* Su mobile l'header è 78px, quindi usiamo quel valore come base */
+    margin-top: calc(78px + var(--ion-safe-area-top) + 20px);
+  }
   .profile-card {
     padding: 20px;
   }

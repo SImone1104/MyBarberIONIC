@@ -65,6 +65,14 @@
     <p *ngIf="messaggio" class="success-msg">{{ messaggio }}</p>
     <p *ngIf="messaggioErrore" class="error-msg">{{ messaggioErrore }}</p>
   </div>
+
+  <div class="logout-wrapper">
+<button type="button" class="btn-logout" style="display: block !important; text-align: center !important; position: relative;" (click)="eseguireLogout()">
+  <ion-icon name="log-out-outline" style="position: absolute; left: 16px; top: 16px;"></ion-icon>
+  <span>Disconnetti</span>
+</button>
+</div>
+
 </div>
 
 

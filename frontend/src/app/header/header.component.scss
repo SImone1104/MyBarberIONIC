@@ -32,13 +32,12 @@ ion-header, ion-toolbar {
 // ---------------------------------------------------------
 .navbar {
   width: 100%;
-  min-height: 104px;
+  /* Rimuovi min-height fisso e usa calc */
+  min-height: calc(104px + var(--ion-safe-area-top)); 
   padding: 0 24px;
-  // GESTIONE SAFE AREA (Notch smartphone)
-  padding-top: var(--ion-safe-area-top);
+  padding-top: var(--ion-safe-area-top); /* Questo sposta giù il contenuto */
   box-sizing: border-box;
   display: grid;
-  // Definizione colonne desktop
   grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr);
   align-items: center;
   gap: 28px;
@@ -349,9 +348,11 @@ ion-header, ion-toolbar {
 @media (max-width: 820px) {
   
   .navbar {
-    min-height: calc(94px + var(--ion-safe-area-top));
-    grid-template-columns: 52px minmax(0, 1fr) 52px; // Hamburger | Logo | Account
+    /* Altezza mobile più spazio notch */
+    min-height: calc(78px + var(--ion-safe-area-top)); 
+    padding-top: var(--ion-safe-area-top);
   }
+
 
   .brand {
     grid-column: 2;

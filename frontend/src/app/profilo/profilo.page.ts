@@ -9,6 +9,7 @@ import {
 } from '@ionic/angular/standalone';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
+import { Router } from '@angular/router'; // <--- AGGIUNGI QUESTO
 
 
 @Component({
@@ -29,7 +30,8 @@ export class ProfiloPage implements OnInit {
   constructor(
     private fb: FormBuilder,
     private cdr: ChangeDetectorRef,
-    public authService: AuthService
+    public authService: AuthService,
+    private router: Router, // <--- INIETTA IL ROUTER
   ) {
     this.profiloForm = this.fb.group({
       nome: ['', Validators.required],
@@ -122,4 +124,9 @@ export class ProfiloPage implements OnInit {
       }
     });
   }
+  eseguireLogout() {
+  this.authService.logout();
+  // Se hai una funzione per chiudere menu globali chiamala qui
+  this.router.navigate(['/home']);
+}
 }

@@ -17,8 +17,7 @@ ion-content {
     width: 92%;           /* Occupa il 92% della larghezza su mobile */
   max-width: 1100px;    /* Non diventa mai più largo di 1100px su PC */
   margin: 80px auto 40px auto; /* 80px sopra per l'header, 'auto' ai lati per centrare */
-  margin-top: 130px;
-  
+  margin-top: calc(104px + var(--ion-safe-area-top) + 20px);  
   box-sizing: border-box;
 }
 
@@ -735,6 +734,13 @@ button[type='submit']:disabled {
 
 /* Adattamenti tablet/mobile. */
 @media (max-width: 768px) {
+
+  .page-container {
+    /* Mobile: Header più basso (78px) + Safe Area + Spazio ridotto */
+    margin-top: calc(78px + var(--ion-safe-area-top) + 15px);
+    gap: 24px;
+  }
+
   .card {
     padding: 18px;
   }
