@@ -1,34 +1,16 @@
 <header class="site-header">
   <nav class="navbar" aria-label="Navigazione principale">
-    <button
-      type="button"
-      class="menu-toggle"
-      [class.open]="mobileMenuOpen"
-      (click)="toggleMobileMenu()"
-      [attr.aria-expanded]="mobileMenuOpen"
-      aria-label="Apri menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+    <a routerLink="/contatti" class="mobile-header-action contact-action" aria-label="Vai ai contatti">
+      <ion-icon name="call-outline"></ion-icon>
+    </a>
 
     <a routerLink="/home" class="brand" (click)="closeMenus()" aria-label="Vai alla home">
       <img src="assets/logo.svg" alt="Logo MyBarber" class="brand-logo">
     </a>
 
-    <div class="menu-backdrop" *ngIf="mobileMenuOpen || dropdownOpen" (click)="closeMenus()"></div>
+    <div class="menu-backdrop" *ngIf="dropdownOpen" (click)="closeMenus()"></div>
 
-    <div class="nav-panel" [class.open]="mobileMenuOpen">
-      <div class="drawer-brand">
-        <div>
-          <strong>Menu</strong>
-          <small>Navigazione</small>
-        </div>
-        <button class="drawer-close" type="button" (click)="closeMenus()" aria-label="Chiudi menu">
-          <span aria-hidden="true">x</span>
-        </button>
-      </div>
-
+    <div class="nav-panel">
       <ul class="nav-links">
         <li>
           <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" (click)="closeMenus()">
@@ -102,5 +84,9 @@
         </div>
       </div>
     </div>
+
+    <a routerLink="/miei-appuntamenti" class="mobile-header-action appointments-action" aria-label="Vai ai miei appuntamenti">
+      <ion-icon name="calendar-number-outline"></ion-icon>
+    </a>
   </nav>
 </header>

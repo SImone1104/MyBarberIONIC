@@ -1,0 +1,43 @@
+.mobile-tab-bar {
+  --background: #181a1f;
+  --border: 1px solid #d7d7d7;
+  --color: #6f7176;
+  --color-selected: #98aad3;
+  display: none;
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1000;
+  height: calc(66px + var(--ion-safe-area-bottom));
+  padding-bottom: var(--ion-safe-area-bottom);
+  box-shadow: 0 -10px 26px rgba(15, 23, 42, 0.12);
+}
+
+.mobile-tab-bar ion-tab-button {
+  --color: #6f7176;
+  --color-selected: #2f6beb;
+  --ripple-color: #d9b982;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.mobile-tab-bar ion-tab-button.tab-selected {
+  color: #2f6beb;
+}
+
+.mobile-tab-bar ion-icon {
+  font-size: 23px;
+  margin-bottom: 2px;
+}
+
+.mobile-tab-bar ion-label {
+  font-size: 11px;
+  line-height: 1.1;
+}
+
+@media (max-width: 820px) {
+  .mobile-tab-bar {
+    display: flex;
+  }
+}

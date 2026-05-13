@@ -673,3 +673,63 @@ ion-header, ion-toolbar {
     display: none !important;
   }
 }
+
+.mobile-header-action {
+  display: none;
+}
+
+@media (max-width: 820px) {
+  .site-header {
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.18);
+  }
+
+  .navbar {
+    min-height: calc(78px + var(--ion-safe-area-top));
+    grid-template-columns: 52px minmax(0, 1fr) 52px;
+    gap: 8px;
+    padding: 0 14px;
+    padding-top: var(--ion-safe-area-top);
+  }
+
+  .brand {
+    grid-column: 2;
+    justify-self: center;
+  }
+
+  .brand-logo {
+    width: 122px;
+    height: 64px;
+    object-position: center;
+  }
+
+  .nav-panel,
+  .account-menu,
+  .menu-backdrop {
+    display: none !important;
+  }
+
+  .mobile-header-action {
+    width: 46px;
+    height: 46px;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid #3b404a;
+    border-radius: 50%;
+    background: #242830;
+    color: #ffffff;
+    text-decoration: none;
+    justify-self: center;
+  }
+
+  .mobile-header-action ion-icon {
+    font-size: 23px;
+  }
+
+  .contact-action {
+    grid-column: 1;
+  }
+
+  .appointments-action {
+    grid-column: 3;
+  }
+}

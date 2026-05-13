@@ -1,3 +1,25 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+
+  <ion-tab-bar *ngIf="showMobileTabs" class="mobile-tab-bar">
+    <ion-tab-button tab="home" [class.tab-selected]="isActive('/home')" (click)="navigateTo('/home')">
+      <ion-icon name="home-outline"></ion-icon>
+      <ion-label>Home</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="prenotazioni" [class.tab-selected]="isActive('/prenotazioni')" (click)="navigateTo('/prenotazioni')">
+      <ion-icon name="calendar-outline"></ion-icon>
+      <ion-label>Prenotazione</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="servizi" [class.tab-selected]="isActive('/servizi')" (click)="navigateTo('/servizi')">
+      <ion-icon name="cut-outline"></ion-icon>
+      <ion-label>Servizi</ion-label>
+    </ion-tab-button>
+
+    <ion-tab-button tab="profilo" [class.tab-selected]="isActive('/profilo')" (click)="navigateTo('/profilo')">
+      <ion-icon name="person-outline"></ion-icon>
+      <ion-label>Profilo</ion-label>
+    </ion-tab-button>
+  </ion-tab-bar>
 </ion-app>
