@@ -46,7 +46,10 @@
               <p class="row-meta">{{ cliente.email }} · {{ cliente.telefono }}</p>
               <p class="row-notes">{{ cliente.totale_appuntamenti || 0 }} appuntamenti · ultimo: {{ ultimoAppuntamento(cliente) }}</p>
             </div>
-            <button class="ghost-btn" type="button" (click)="selezionaCliente(cliente)">Dettaglio</button>
+            <div class="row-actions">
+              <span class="status-pill warning" *ngIf="deveRiprogrammare(cliente)">Da riprogrammare</span>
+              <button class="ghost-btn" type="button" (click)="selezionaCliente(cliente)">Dettaglio</button>
+            </div>
           </article>
         </div>
 

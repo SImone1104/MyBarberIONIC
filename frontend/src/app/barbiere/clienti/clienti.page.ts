@@ -17,6 +17,7 @@ export class BarbiereClientiPage implements OnInit {
   clienti: AdminCliente[] = [];
   clienteSelezionato: AdminCliente | null = null;
   storico: AdminPrenotazione[] = [];
+  clientiDaRiprogrammare = new Set<number>();
   ricerca = '';
   isLoading = false;
 
@@ -26,6 +27,7 @@ export class BarbiereClientiPage implements OnInit {
 
   ionViewWillEnter(): void {
     this.caricaClienti();
+    this.caricaClientiDaRiprogrammare();
 
     if (this.clienteSelezionato) {
       this.ricaricaClienteSelezionato();
@@ -42,12 +44,27 @@ export class BarbiereClientiPage implements OnInit {
     this.adminService.getClienti(this.ricerca).subscribe({
       next: (clienti) => {
         this.clienti = clienti;
+        this.ordinaClienti();
         this.isLoading = false;
       },
       error: (err) => {
         console.error('Errore clienti:', err);
         this.isLoading = false;
       }
+    });
+  }
+
+  caricaClientiDaRiprogrammare(): void {
+    this.adminService.getPrenotazioni().subscribe({
+      next: (appuntamenti) => {
+        this.clientiDaRiprogrammare = new Set(
+          appuntamenti
+            .filter((appuntamento) => appuntamento.stato === 'da_riprogrammare')
+            .map((appuntamento) => appuntamento.user_id)
+        );
+        this.ordinaClienti();
+      },
+      error: (err) => console.error('Errore clienti da riprogrammare:', err)
     });
   }
 
@@ -77,6 +94,23 @@ export class BarbiereClientiPage implements OnInit {
     }
 
     return cliente.ultimo_appuntamento;
+  }
+
+  deveRiprogrammare(cliente: AdminCliente): boolean {
+    return this.clientiDaRiprogrammare.has(cliente.id);
+  }
+
+  private ordinaClienti(): void {
+    this.clienti = [...this.clienti].sort((a, b) => {
+      const prioritaA = this.deveRiprogrammare(a) ? 0 : 1;
+      const prioritaB = this.deveRiprogrammare(b) ? 0 : 1;
+
+      if (prioritaA !== prioritaB) {
+        return prioritaA - prioritaB;
+      }
+
+      return `${a.cognome} ${a.nome}`.localeCompare(`${b.cognome} ${b.nome}`, 'it-IT');
+    });
   }
 
   dataLabel(appuntamento: AdminPrenotazione): string {
