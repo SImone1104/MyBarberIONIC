@@ -53,14 +53,16 @@
                 <option [ngValue]="true">Si</option>
               </select>
             </label>
-            <label class="form-field">
-              <span class="field-label">Da</span>
-              <input type="time" formControlName="oraInizio">
-            </label>
-            <label class="form-field">
-              <span class="field-label">A</span>
-              <input type="time" formControlName="oraFine">
-            </label>
+            <div class="time-range-row">
+              <label class="form-field">
+                <span class="field-label">Da</span>
+                <input type="time" formControlName="oraInizio">
+              </label>
+              <label class="form-field">
+                <span class="field-label">A</span>
+                <input type="time" formControlName="oraFine">
+              </label>
+            </div>
             <label class="form-field full">
               <span class="field-label">Motivo</span>
               <input type="text" formControlName="motivo" placeholder="Ferie, imprevisto, pausa, chiusura">
@@ -92,14 +94,16 @@
                 <option [ngValue]="false">No</option>
               </select>
             </label>
-            <label class="form-field">
-              <span class="field-label">Da</span>
-              <input type="time" formControlName="oraInizio">
-            </label>
-            <label class="form-field">
-              <span class="field-label">A</span>
-              <input type="time" formControlName="oraFine">
-            </label>
+            <div class="time-range-row">
+              <label class="form-field">
+                <span class="field-label">Da</span>
+                <input type="time" formControlName="oraInizio">
+              </label>
+              <label class="form-field">
+                <span class="field-label">A</span>
+                <input type="time" formControlName="oraFine">
+              </label>
+            </div>
             <label class="form-field">
               <span class="field-label">Valida dal</span>
               <input type="date" formControlName="validaDal">

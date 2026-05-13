@@ -70,6 +70,16 @@ export class BarbiereDisponibilitaPage implements OnInit {
       }
     });
 
+    this.bloccoForm.get('interaGiornata')?.valueChanges.subscribe((interaGiornata) => {
+      this.sincronizzaOrariInteraGiornata(!!interaGiornata, 'blocco');
+    });
+
+    this.regolaForm.get('interaGiornata')?.valueChanges.subscribe((interaGiornata) => {
+      this.sincronizzaOrariInteraGiornata(!!interaGiornata, 'regola');
+    });
+
+    this.sincronizzaOrariInteraGiornata(!!this.bloccoForm.get('interaGiornata')?.value, 'blocco');
+    this.sincronizzaOrariInteraGiornata(!!this.regolaForm.get('interaGiornata')?.value, 'regola');
   }
 
   ionViewWillEnter(): void {
@@ -111,8 +121,8 @@ export class BarbiereDisponibilitaPage implements OnInit {
     this.adminService.creaDisponibilita(payload).subscribe({
       next: (response) => {
         this.pulisciConferma();
-        const creati = response.creati && response.creati > 1 ? ` (${response.creati} giorni)` : '';
-        this.mostraMessaggio(`Disponibilita aggiornata${creati}.`, 'success');
+        const riepilogo = this.riepilogoDisponibilita(response);
+        this.mostraMessaggio(`${response.message || 'Disponibilita aggiornata'}${riepilogo}.`, 'success');
         this.caricaBlocchi();
       },
       error: (err) => this.gestisciErroreConflitto(err, 'blocco', payload, 'Blocco non salvato.')
@@ -225,7 +235,7 @@ export class BarbiereDisponibilitaPage implements OnInit {
   }
 
   private payloadBlocco(): Record<string, unknown> {
-    const value = this.bloccoForm.value;
+    const value = this.bloccoForm.getRawValue();
 
     return {
       ...value,
@@ -234,7 +244,7 @@ export class BarbiereDisponibilitaPage implements OnInit {
   }
 
   private payloadRegolaRicorrente(): Record<string, unknown> {
-    const value = this.regolaForm.value;
+    const value = this.regolaForm.getRawValue();
 
     return {
       ...value,
@@ -264,6 +274,49 @@ export class BarbiereDisponibilitaPage implements OnInit {
   private pulisciConferma(): void {
     this.conflitti = [];
     this.azioneInAttesa = null;
+  }
+
+  private sincronizzaOrariInteraGiornata(interaGiornata: boolean, tipo: 'blocco' | 'regola'): void {
+    const oraInizio = tipo === 'blocco'
+      ? this.bloccoForm.get('oraInizio')
+      : this.regolaForm.get('oraInizio');
+    const oraFine = tipo === 'blocco'
+      ? this.bloccoForm.get('oraFine')
+      : this.regolaForm.get('oraFine');
+
+    if (!oraInizio || !oraFine) {
+      return;
+    }
+
+    if (interaGiornata) {
+      oraInizio.setValue('00:00', { emitEvent: false });
+      oraFine.setValue('23:59', { emitEvent: false });
+      oraInizio.disable({ emitEvent: false });
+      oraFine.disable({ emitEvent: false });
+      return;
+    }
+
+    oraInizio.enable({ emitEvent: false });
+    oraFine.enable({ emitEvent: false });
+
+    if (oraInizio.value === '00:00' && oraFine.value === '23:59') {
+      oraInizio.setValue('09:00', { emitEvent: false });
+      oraFine.setValue(tipo === 'blocco' ? '09:30' : '19:00', { emitEvent: false });
+    }
+  }
+
+  private riepilogoDisponibilita(response: { creati?: number; ignorati?: number }): string {
+    const dettagli: string[] = [];
+
+    if (response.creati && response.creati > 1) {
+      dettagli.push(`${response.creati} giorni creati`);
+    }
+
+    if (response.ignorati && response.ignorati > 0) {
+      dettagli.push(`${response.ignorati} gia coperti`);
+    }
+
+    return dettagli.length ? ` (${dettagli.join(', ')})` : '';
   }
 
   private mostraMessaggio(messaggio: string, tipo: 'success' | 'error'): void {

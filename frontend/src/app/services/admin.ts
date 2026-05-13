@@ -67,6 +67,7 @@ export type AdminDisponibilitaResponse = {
   message: string;
   id?: number;
   creati?: number;
+  ignorati?: number;
   blocchi?: Array<{ id: number; data: string }>;
   conflitti?: number;
 };

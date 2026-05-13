@@ -360,7 +360,7 @@ async function blocchiEsistentiInConflitto(giorni, oraInizio, oraFine) {
 
   return dbAll(
     `
-      SELECT id, data, ora_inizio, ora_fine, motivo
+      SELECT id, data, ora_inizio, ora_fine, intera_giornata, motivo
       FROM disponibilita_blocchi
       WHERE data IN (${placeholders})
         AND (
@@ -376,6 +376,25 @@ async function blocchiEsistentiInConflitto(giorni, oraInizio, oraFine) {
         )
     `,
     [...giorni, fine, inizio]
+  );
+}
+
+function disponibilitaCopreIntervallo(disponibilita, oraInizio, oraFine) {
+  if (disponibilita.intera_giornata || disponibilita.interaGiornata) {
+    return true;
+  }
+
+  const inizioEsistente = oraInMinuti(disponibilita.ora_inizio || disponibilita.oraInizio);
+  const fineEsistente = oraInMinuti(disponibilita.ora_fine || disponibilita.oraFine);
+
+  return inizioEsistente <= oraInMinuti(oraInizio) && fineEsistente >= oraInMinuti(oraFine);
+}
+
+function giorniGiaCopertiDaDisponibilita(disponibilita, oraInizio, oraFine) {
+  return new Set(
+    disponibilita
+      .filter((item) => item.data && disponibilitaCopreIntervallo(item, oraInizio, oraFine))
+      .map((item) => item.data)
   );
 }
 
@@ -920,22 +939,14 @@ exports.creaDisponibilita = async (req, res) => {
     const giorni = dateRange(data, dataFine);
     const blocchiInConflitto = await blocchiEsistentiInConflitto(giorni, oraInizio, oraFine);
     const regoleInConflitto = await regoleRicorrentiInConflittoConGiorni(giorni, oraInizio, oraFine);
+    const giorniGiaCoperti = giorniGiaCopertiDaDisponibilita(
+      [...blocchiInConflitto, ...regoleInConflitto],
+      oraInizio,
+      oraFine
+    );
+    const giorniDaBloccare = giorni.filter((giorno) => !giorniGiaCoperti.has(giorno));
 
-    if (blocchiInConflitto.length > 0) {
-      return res.status(409).json({
-        message: "Esiste gia un blocco su una delle fasce selezionate",
-        blocchi: blocchiInConflitto
-      });
-    }
-
-    if (regoleInConflitto.length > 0) {
-      return res.status(409).json({
-        message: "Esiste gia una regola ricorrente su una delle fasce selezionate",
-        regole: regoleInConflitto
-      });
-    }
-
-    const conflitti = await prenotazioniInConflitto(giorni, oraInizio, oraFine);
+    const conflitti = await prenotazioniInConflitto(giorniDaBloccare, oraInizio, oraFine);
 
     if (conflitti.length > 0 && !confermaRiprogrammazione) {
       return res.status(409).json({
@@ -947,7 +958,7 @@ exports.creaDisponibilita = async (req, res) => {
 
     const blocchiCreati = [];
 
-    for (const giorno of giorni) {
+    for (const giorno of giorniDaBloccare) {
       const result = await dbRun(
         `
           INSERT INTO disponibilita_blocchi (data, ora_inizio, ora_fine, intera_giornata, motivo)
@@ -974,9 +985,12 @@ exports.creaDisponibilita = async (req, res) => {
     res.status(201).json({
       message: conflitti.length > 0
         ? "Disponibilita bloccata e clienti notificati per riprogrammare"
-        : "Disponibilita bloccata",
+        : blocchiCreati.length > 0
+          ? "Disponibilita bloccata"
+          : "Il periodo selezionato era gia coperto da blocchi o regole ricorrenti",
       id: blocchiCreati[0]?.id,
       creati: blocchiCreati.length,
+      ignorati: giorni.length - giorniDaBloccare.length,
       blocchi: blocchiCreati,
       conflitti: conflitti.length
     });
