@@ -1,10 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { IonHeader, IonContent, IonToolbar, IonTitle } from '@ionic/angular/standalone';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
-import { SERVIZI_OFFERTI } from '../shared/servizi';
+import { AuthService } from '../services/auth';
+import { SERVIZI_OFFERTI, ServizioOfferto } from '../shared/servizi';
 
 @Component({
   selector: 'app-servizi',
@@ -22,6 +23,19 @@ import { SERVIZI_OFFERTI } from '../shared/servizi';
   templateUrl: './servizi.page.html',
   styleUrls: ['./servizi.page.scss']
 })
-export class ServiziPage {
-  servizi = SERVIZI_OFFERTI;
+export class ServiziPage implements OnInit {
+  servizi: ServizioOfferto[] = SERVIZI_OFFERTI;
+
+  constructor(private authService: AuthService) {}
+
+  ngOnInit(): void {
+    this.authService.getServiziDisponibili().subscribe({
+      next: (servizi) => {
+        if (servizi.length > 0) {
+          this.servizi = servizi;
+        }
+      },
+      error: (err) => console.error('Errore servizi:', err)
+    });
+  }
 }

@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../services/auth'; // <--- IMPORTA IL SERVIZIO
-import { SERVIZI_OFFERTI, servizioByValore } from '../shared/servizi';
+import { SERVIZI_OFFERTI, ServizioOfferto } from '../shared/servizi';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonMenuButton,
   IonButton, IonIcon, IonSpinner 
@@ -84,10 +84,11 @@ export class PrenotazioniPage implements OnInit {
   slotStepMinuti = 30;
 
   // Servizi mostrati come card cliccabili al posto del select classico.
-  servizi = SERVIZI_OFFERTI;
+  servizi: ServizioOfferto[] = SERVIZI_OFFERTI;
 
   // Prima data prenotabile: impedisce di selezionare giorni passati.
   dataMinima = this.formatDateInput(new Date());
+  prenotazioneDaRiprogrammareId: number | null = null;
 
   constructor(
     private formBuilder: FormBuilder, 
@@ -107,13 +108,35 @@ export class PrenotazioniPage implements OnInit {
   ngOnInit() {
     // All'apertura della pagina inizializza calendario e data odierna.
     this.giorniCalendario = this.creaGiorniCalendario(this.meseVisualizzato);
-    this.applicaServizioDaHome();
+    this.caricaParametriRiprogrammazione();
+    this.caricaServizi();
+  }
+
+  private caricaParametriRiprogrammazione() {
+    const riprenota = Number(this.route.snapshot.queryParamMap.get('riprenota'));
+    this.prenotazioneDaRiprogrammareId = Number.isFinite(riprenota) && riprenota > 0 ? riprenota : null;
+  }
+
+  private caricaServizi() {
+    this.authService.getServiziDisponibili().subscribe({
+      next: (servizi) => {
+        if (servizi.length > 0) {
+          this.servizi = servizi;
+        }
+
+        this.applicaServizioDaHome();
+      },
+      error: (err) => {
+        console.error('Errore caricamento servizi:', err);
+        this.applicaServizioDaHome();
+      }
+    });
   }
 
   private applicaServizioDaHome() {
     const servizio = this.route.snapshot.queryParamMap.get('servizio');
 
-    if (servizio && servizioByValore(servizio)) {
+    if (servizio && this.servizioByValore(servizio)) {
       this.prenotazioneForm.patchValue({ servizio, ora: '' });
       this.prenotaPrimaPossibile();
       return;
@@ -125,7 +148,7 @@ export class PrenotazioniPage implements OnInit {
   private async prenotaPrimaPossibile() {
     const servizio = this.servizioSelezionato();
 
-    if (!servizioByValore(servizio)) {
+    if (!this.servizioByValore(servizio)) {
       this.selezionaData(this.dataMinima);
       return;
     }
@@ -307,7 +330,7 @@ export class PrenotazioniPage implements OnInit {
 
   // Durata del servizio selezionato: e il dato che rende variabile la disponibilita degli slot.
   durataServizioSelezionato(): number {
-    const servizio = servizioByValore(this.servizioSelezionato());
+    const servizio = this.servizioByValore(this.servizioSelezionato());
 
     return servizio?.durataMinuti || 0;
   }
@@ -410,7 +433,7 @@ export class PrenotazioniPage implements OnInit {
       'taglio e colore': 'colore'
     };
 
-    return servizioByValore(alias[valore] || valore);
+    return this.servizioByValore(alias[valore] || valore);
   }
 
   private oraInMinuti(ora: string): number {
@@ -430,7 +453,7 @@ export class PrenotazioniPage implements OnInit {
   servizioLabel(): string {
     const servizio = this.prenotazioneForm.get('servizio')?.value;
 
-    return servizioByValore(servizio)?.nome || 'Da scegliere';
+    return this.servizioByValore(servizio)?.nome || 'Da scegliere';
   }
 
   // Mostra il prezzo del servizio scelto nel riepilogo.
@@ -438,6 +461,11 @@ export class PrenotazioniPage implements OnInit {
     const servizio = this.servizi.find((item) => item.valore === this.servizioSelezionato());
 
     return servizio?.prezzo || 'Prezzo';
+  }
+
+  private servizioByValore(valore: string): ServizioOfferto | undefined {
+    return this.servizi.find((servizio) => servizio.valore === valore)
+      || SERVIZI_OFFERTI.find((servizio) => servizio.valore === valore);
   }
 
   // Converte una data JavaScript nel formato yyyy-mm-dd richiesto dagli input date.
@@ -555,10 +583,21 @@ export class PrenotazioniPage implements OnInit {
       const dati = this.prenotazioneForm.value;
 
       // CHIAMATA REALE AL DATABASE
-      this.authService.creaPrenotazione(dati).subscribe({
+      const riprogrammaId = this.prenotazioneDaRiprogrammareId;
+      const eraRiprogrammazione = riprogrammaId !== null;
+      const richiesta = eraRiprogrammazione
+        ? this.authService.riprogrammaPrenotazione(riprogrammaId, dati)
+        : this.authService.creaPrenotazione(dati);
+
+      richiesta.subscribe({
         next: (res) => {
           this.mostraMessaggio('La tua prenotazione è stata registrata correttamente.', 'success');
           
+          if (eraRiprogrammazione) {
+            this.mostraMessaggio('La tua prenotazione e stata riprogrammata correttamente.', 'success');
+          }
+
+          this.prenotazioneDaRiprogrammareId = null;
           this.prenotazioneForm.reset({ servizio: '', data: this.dataMinima, ora: '' });
           this.meseVisualizzato = new Date();
           this.giorniCalendario = this.creaGiorniCalendario(this.meseVisualizzato);

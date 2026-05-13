@@ -11,10 +11,10 @@
     <div class="section-heading">
       <div>
         <p class="eyebrow">Agenda barber</p>
-        <h2>Nuova Prenotazione</h2>
+        <h2>{{ prenotazioneDaRiprogrammareId ? 'Riprogramma Prenotazione' : 'Nuova Prenotazione' }}</h2>
       </div>
       <span class="step-pill">
-        {{ isRicercaRapida ? 'Prenotazione rapida' : (servizioSelezionato() ? 'Servizio selezionato' : 'Scegli prima il servizio') }}
+        {{ prenotazioneDaRiprogrammareId ? 'Riprogrammazione' : (isRicercaRapida ? 'Prenotazione rapida' : (servizioSelezionato() ? 'Servizio selezionato' : 'Scegli prima il servizio')) }}
       </span>
     </div>
 
@@ -39,6 +39,7 @@
             class="service-card"
             *ngFor="let servizio of servizi"
             [class.selected]="servizioSelezionato() === servizio.valore"
+            [disabled]="prenotazioneDaRiprogrammareId !== null && !!servizioSelezionato()"
             (click)="selezionaServizio(servizio.valore)">
             <span class="service-radio"></span>
             <span class="service-content">
@@ -188,7 +189,9 @@
       </div>
 
       <!-- Bottone finale: resta disabilitato finche i campi obbligatori non sono validi. -->
-      <button type="submit" [disabled]="prenotazioneNonConfermabile()">Conferma Prenotazione</button>
+      <button type="submit" [disabled]="prenotazioneNonConfermabile()">
+        {{ prenotazioneDaRiprogrammareId ? 'Conferma nuovo giorno' : 'Conferma Prenotazione' }}
+      </button>
     </form>
 
     <!-- Messaggio di esito dopo salvataggio o errore. -->

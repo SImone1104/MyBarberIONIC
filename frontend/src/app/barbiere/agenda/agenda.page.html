@@ -1,0 +1,116 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="admin-shell">
+    <section class="admin-topbar">
+      <div>
+        <p class="admin-kicker">Area barbiere</p>
+        <h1>Agenda globale</h1>
+        <p>Tutte le prenotazioni del salone, filtrabili per giorno, settimana o mese.</p>
+      </div>
+      <div class="quick-actions">
+        <a routerLink="/barbiere/nuova-prenotazione">Inserisci prenotazione</a>
+      </div>
+    </section>
+
+    <nav class="admin-tabs" aria-label="Navigazione area barbiere">
+      <a routerLink="/barbiere/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/barbiere/agenda" routerLinkActive="active">Agenda</a>
+      <a routerLink="/barbiere/nuova-prenotazione" routerLinkActive="active">Nuova prenotazione</a>
+      <a routerLink="/barbiere/disponibilita" routerLinkActive="active">Disponibilità</a>
+      <a routerLink="/barbiere/clienti" routerLinkActive="active">Clienti</a>
+      <a routerLink="/barbiere/servizi" routerLinkActive="active">Servizi</a>
+      <a routerLink="/barbiere/contatti" routerLinkActive="active">Contatti</a>
+      <a routerLink="/barbiere/statistiche" routerLinkActive="active">Statistiche</a>
+    </nav>
+
+    <div class="feedback" *ngIf="messaggio" [class.success]="messaggioTipo === 'success'" [class.error]="messaggioTipo === 'error'">
+      {{ messaggio }}
+    </div>
+
+    <section class="admin-panel">
+      <div class="panel-heading">
+        <div>
+          <h2>Calendario operativo</h2>
+          <p>{{ appuntamenti.length }} appuntamenti nel periodo selezionato.</p>
+        </div>
+        <div class="segmented">
+          <button type="button" [class.active]="periodo === 'giorno'" (click)="cambiaPeriodo('giorno')">Giorno</button>
+          <button type="button" [class.active]="periodo === 'settimana'" (click)="cambiaPeriodo('settimana')">Settimana</button>
+          <button type="button" [class.active]="periodo === 'mese'" (click)="cambiaPeriodo('mese')">Mese</button>
+        </div>
+      </div>
+
+      <div class="filters">
+        <label class="form-field">
+          <span class="field-label">Data riferimento</span>
+          <input type="date" [value]="dataFiltro" (change)="aggiornaData($event)">
+        </label>
+      </div>
+
+      <div class="appointment-list" *ngIf="appuntamenti.length > 0; else emptyAgenda">
+        <article class="appointment-row" *ngFor="let app of appuntamenti" [class.today]="isOggi(app)">
+          <div>
+            <h3 class="row-title">{{ app.cliente.nome }} {{ app.cliente.cognome }} · {{ app.servizioNome }}</h3>
+            <p class="row-meta">{{ dataLabel(app) }} · {{ app.ora }}-{{ app.oraFine }} · {{ app.durataMinuti }} min</p>
+            <p class="row-meta">{{ app.cliente.telefono }} · {{ app.cliente.email }}</p>
+            <p class="row-notes" *ngIf="app.note">{{ app.note }}</p>
+          </div>
+          <div class="row-actions">
+            <span class="status-pill warning" *ngIf="app.stato === 'da_riprogrammare'">Da riprogrammare</span>
+            <span class="price-pill">{{ euro(app.prezzo) }}</span>
+            <button class="ghost-btn" type="button" (click)="iniziaModifica(app)">Modifica</button>
+            <button class="danger-btn" type="button" (click)="eliminaPrenotazione(app.id)">Annulla</button>
+          </div>
+        </article>
+      </div>
+
+      <ng-template #emptyAgenda>
+        <div class="empty-state">{{ isLoading ? 'Caricamento agenda...' : 'Nessuna prenotazione nel periodo selezionato.' }}</div>
+      </ng-template>
+    </section>
+
+    <section class="form-panel" *ngIf="modificaId">
+      <div class="panel-heading">
+        <div>
+          <h2>Modifica prenotazione</h2>
+          <p>Aggiorna data, orario, servizio e note.</p>
+        </div>
+      </div>
+
+      <form [formGroup]="modificaForm" (ngSubmit)="salvaModifica()">
+        <div class="form-grid">
+          <label class="form-field">
+            <span class="field-label">Data</span>
+            <input type="date" formControlName="data">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Ora</span>
+            <input type="time" formControlName="ora">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Servizio</span>
+            <select formControlName="servizio">
+              <option value="">Seleziona servizio</option>
+              <option *ngFor="let servizio of servizi" [value]="servizio.valore">
+                {{ servizio.nome }} · {{ servizio.durataMinuti }} min
+              </option>
+            </select>
+          </label>
+          <label class="form-field">
+            <span class="field-label">Note</span>
+            <input type="text" formControlName="note" placeholder="Note per il banco">
+          </label>
+        </div>
+        <div class="row-actions">
+          <button class="ghost-btn" type="button" (click)="annullaModifica()">Chiudi</button>
+          <button class="admin-btn" type="submit" [disabled]="modificaForm.invalid">Salva modifiche</button>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <app-footer></app-footer>
+</ion-content>

@@ -36,6 +36,12 @@
             <span>Contatti</span>
           </a>
         </li>
+        <li *ngIf="authService.isAdmin()">
+          <a routerLink="/barbiere/dashboard" routerLinkActive="active" (click)="closeMenus()">
+            <span class="nav-icon services-icon" aria-hidden="true"></span>
+            <span>Barbiere</span>
+          </a>
+        </li>
       </ul>
     </div>
 
@@ -77,6 +83,9 @@
           <a class="dropdown-item" routerLink="/miei-appuntamenti" (click)="closeMenus()">
             <span>I miei appuntamenti</span>
           </a>
+          <a class="dropdown-item" *ngIf="authService.isAdmin()" routerLink="/barbiere/dashboard" (click)="closeMenus()">
+            <span>Area barbiere</span>
+          </a>
           <div class="dropdown-divider"></div>
           <button class="dropdown-item logout-text" (click)="eseguireLogout()">
             <span>Logout</span>
@@ -85,7 +94,10 @@
       </div>
     </div>
 
-    <a routerLink="/miei-appuntamenti" class="mobile-header-action appointments-action" aria-label="Vai ai miei appuntamenti">
+    <a
+      [routerLink]="authService.isAdmin() ? '/barbiere/dashboard' : '/miei-appuntamenti'"
+      class="mobile-header-action appointments-action"
+      [attr.aria-label]="authService.isAdmin() ? 'Vai all area barbiere' : 'Vai ai miei appuntamenti'">
       <ion-icon name="calendar-number-outline"></ion-icon>
     </a>
   </nav>

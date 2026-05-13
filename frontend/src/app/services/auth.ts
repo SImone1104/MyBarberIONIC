@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, tap, throwError, timeout } from 'rxjs';
+import { Observable, map, tap, throwError, timeout } from 'rxjs';
 import { catchError } from 'rxjs/operators';
+import { normalizzaServizioApi, ServizioOfferto } from '../shared/servizi';
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +50,7 @@ private hasLocalStorage(): boolean {
     if (this.hasLocalStorage()) {
       localStorage.removeItem('token');
       localStorage.removeItem('username');
+      localStorage.removeItem('role');
     }
 
     const loginData = {
@@ -62,6 +64,7 @@ private hasLocalStorage(): boolean {
           localStorage.setItem('token', response.token);
           const username = response.user?.nome || loginData.email.split('@')[0];
           localStorage.setItem('username', username);
+          localStorage.setItem('role', response.user?.ruolo || 'user');
         }
       })
     );
@@ -71,6 +74,7 @@ private hasLocalStorage(): boolean {
     if (this.hasLocalStorage()) {
       localStorage.removeItem('token');
       localStorage.removeItem('username');
+      localStorage.removeItem('role');
     }
 
     const registrationData = {
@@ -88,6 +92,7 @@ private hasLocalStorage(): boolean {
     if (this.hasLocalStorage()) {
       localStorage.removeItem('token');
       localStorage.removeItem('username');
+      localStorage.removeItem('role');
     }
   }
 
@@ -112,6 +117,31 @@ private hasLocalStorage(): boolean {
     }
 
     return 'Utente';
+  }
+
+  getRole(): string {
+    if (this.hasLocalStorage()) {
+      const token = localStorage.getItem('token');
+
+      if (token && !this.isTokenExpired(token)) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const role = payload.ruolo || payload.role || localStorage.getItem('role') || 'user';
+          localStorage.setItem('role', role);
+          return role;
+        } catch {
+          return localStorage.getItem('role') || 'user';
+        }
+      }
+
+      return localStorage.getItem('role') || 'user';
+    }
+
+    return 'user';
+  }
+
+  isAdmin(): boolean {
+    return this.isLoggedIn() && this.getRole() === 'admin';
   }
 
   getToken(): string | null {
@@ -146,9 +176,27 @@ private hasLocalStorage(): boolean {
     );
   }
 
+  riprogrammaPrenotazione(id: number, datiPrenotazione: any): Observable<any> {
+    return this.withAuthHeaders((headers) =>
+      this.http.put(`${this.apiUrl}/prenota/${id}/riprogramma`, datiPrenotazione, { headers })
+    );
+  }
+
   getPrenotazioni(): Observable<any> {
     return this.withAuthHeaders((headers) =>
       this.http.get(`${this.apiUrl}/miei-appuntamenti`, { headers })
+    );
+  }
+
+  getNotifiche(): Observable<any[]> {
+    return this.withAuthHeaders((headers) =>
+      this.http.get<any[]>(`${this.apiUrl}/notifiche`, { headers })
+    );
+  }
+
+  segnaNotificaLetta(id: number): Observable<any> {
+    return this.withAuthHeaders((headers) =>
+      this.http.put(`${this.apiUrl}/notifiche/${id}/letta`, {}, { headers })
     );
   }
 
@@ -163,6 +211,12 @@ private hasLocalStorage(): boolean {
   eliminaPrenotazione(id: number): Observable<any> {
     return this.withAuthHeaders((headers) =>
       this.http.delete(`${this.apiUrl}/prenota/${id}`, { headers })
+    );
+  }
+
+  getServiziDisponibili(): Observable<ServizioOfferto[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/servizi`).pipe(
+      map((servizi) => servizi.map((servizio) => normalizzaServizioApi(servizio)))
     );
   }
 }

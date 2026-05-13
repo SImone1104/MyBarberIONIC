@@ -1,0 +1,103 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="admin-shell">
+    <section class="admin-topbar">
+      <div>
+        <p class="admin-kicker">Area barbiere</p>
+        <h1>Dashboard</h1>
+        <p>Agenda, incassi e prossimi clienti in un unico pannello operativo.</p>
+      </div>
+    </section>
+
+    <nav class="admin-tabs" aria-label="Navigazione area barbiere">
+      <a routerLink="/barbiere/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/barbiere/agenda" routerLinkActive="active">Agenda</a>
+      <a routerLink="/barbiere/nuova-prenotazione" routerLinkActive="active">Nuova prenotazione</a>
+      <a routerLink="/barbiere/disponibilita" routerLinkActive="active">Disponibilità</a>
+      <a routerLink="/barbiere/clienti" routerLinkActive="active">Clienti</a>
+      <a routerLink="/barbiere/servizi" routerLinkActive="active">Servizi</a>
+      <a routerLink="/barbiere/contatti" routerLinkActive="active">Contatti</a>
+      <a routerLink="/barbiere/statistiche" routerLinkActive="active">Statistiche</a>
+    </nav>
+
+    <div class="metric-grid">
+      <article class="metric-card">
+        <span>Appuntamenti oggi</span>
+        <strong>{{ statistiche?.oggi?.appuntamenti || 0 }}</strong>
+        <small>{{ appuntamentiOggi().length }} ancora in agenda</small>
+      </article>
+      <article class="metric-card">
+        <span>Incasso stimato</span>
+        <strong>{{ incassoOggi() }}</strong>
+        <small>Pagamento previsto in sede</small>
+      </article>
+      <article class="metric-card">
+        <span>Servizio più richiesto</span>
+        <strong>{{ servizioTop() }}</strong>
+        <small>Basato sulle prenotazioni salvate</small>
+      </article>
+      <article class="metric-card">
+        <span>Appuntamenti mese</span>
+        <strong>{{ statistiche?.mese?.appuntamenti || 0 }}</strong>
+        <small>{{ euro(statistiche?.mese?.incasso || 0) }} stimati</small>
+      </article>
+    </div>
+
+    <section class="admin-grid">
+      <div class="admin-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Prossimi appuntamenti</h2>
+            <p>Lista compatta ordinata per data e ora.</p>
+          </div>
+          <span class="status-pill">{{ appuntamenti.length }} in arrivo</span>
+        </div>
+
+        <div class="appointment-list" *ngIf="appuntamenti.length > 0; else emptyDashboard">
+          <article class="appointment-row" *ngFor="let app of appuntamenti" [class.today]="app.data === appuntamentiOggi()[0]?.data">
+            <div>
+              <h3 class="row-title">{{ app.cliente.nome }} {{ app.cliente.cognome }} · {{ app.servizioNome }}</h3>
+              <p class="row-meta">{{ dataOraLabel(app) }} · {{ app.durataMinuti }} min · {{ app.cliente.telefono }}</p>
+              <p class="row-notes" *ngIf="app.note">{{ app.note }}</p>
+            </div>
+            <span class="price-pill">{{ euro(app.prezzo) }}</span>
+          </article>
+        </div>
+
+        <ng-template #emptyDashboard>
+          <div class="empty-state">{{ isLoading ? 'Caricamento agenda...' : 'Nessun appuntamento imminente.' }}</div>
+        </ng-template>
+      </div>
+
+      <aside class="admin-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Prossimo cliente</h2>
+            <p>Dettaglio rapido del prossimo ingresso.</p>
+          </div>
+        </div>
+
+        <ng-container *ngIf="prossimoAppuntamento() as prossimo; else noNext">
+          <div class="appointment-row">
+            <div>
+              <h3 class="row-title">{{ prossimo.cliente.nome }} {{ prossimo.cliente.cognome }}</h3>
+              <p class="row-meta">{{ prossimo.servizioNome }}</p>
+              <p class="row-meta">{{ dataOraLabel(prossimo) }}</p>
+              <p class="row-notes">{{ prossimo.cliente.telefono }}</p>
+            </div>
+            <span class="price-pill">{{ euro(prossimo.prezzo) }}</span>
+          </div>
+        </ng-container>
+
+        <ng-template #noNext>
+          <div class="empty-state">La coda è libera.</div>
+        </ng-template>
+      </aside>
+    </section>
+  </main>
+
+  <app-footer></app-footer>
+</ion-content>

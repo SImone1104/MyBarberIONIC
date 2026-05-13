@@ -5,6 +5,16 @@
 <ion-content [fullscreen]="true">
 
 <div class="appointments-page">
+  <section class="notification-section" *ngIf="notificheAttive().length > 0">
+    <article class="notification-card" *ngFor="let notifica of notificheAttive()">
+      <div>
+        <span>Avviso</span>
+        <h3>{{ notifica.titolo }}</h3>
+        <p>{{ notifica.messaggio }}</p>
+      </div>
+    </article>
+  </section>
+
   <section class="appointments-section future-section">
     <div class="section-heading">
       <h2>Prossimi appuntamenti</h2>
@@ -23,7 +33,9 @@
 
         <div class="appointment-main">
           <div class="appointment-topline">
-            <span class="status-pill">{{ primo ? 'Prossimo' : statoAppuntamento(app) }}</span>
+            <span class="status-pill" [class.reschedule-status]="richiedeRiprogrammazione(app)">
+              {{ richiedeRiprogrammazione(app) ? statoAppuntamento(app) : (primo ? 'Prossimo' : statoAppuntamento(app)) }}
+            </span>
             <span class="duration-pill">{{ durataAppuntamento(app) }} min</span>
           </div>
 
@@ -46,7 +58,16 @@
           </div>
         </div>
 
-        <button class="btn-delete" type="button" (click)="rimuoviAppuntamento(app.id)">Annulla</button>
+        <a
+          *ngIf="richiedeRiprogrammazione(app); else annullaPrenotazione"
+          class="btn-reschedule"
+          [routerLink]="['/prenotazioni']"
+          [queryParams]="riprogrammaQueryParams(app)">
+          Cambia giorno
+        </a>
+        <ng-template #annullaPrenotazione>
+          <button class="btn-delete" type="button" (click)="rimuoviAppuntamento(app.id)">Annulla</button>
+        </ng-template>
       </article>
     </div>
 

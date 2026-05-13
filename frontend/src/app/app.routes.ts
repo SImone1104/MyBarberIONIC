@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './guards/auth-guard'; // Assicurati che il percorso sia corretto
+import { adminGuard } from './guards/admin-guard';
 
 export const routes: Routes = [
   {
@@ -42,6 +43,51 @@ export const routes: Routes = [
     path: 'profilo',
     loadComponent: () => import('./profilo/profilo.page').then(m => m.ProfiloPage),
     canActivate: [authGuard]
+  },
+  {
+    path: 'barbiere',
+    redirectTo: 'barbiere/dashboard',
+    pathMatch: 'full'
+  },
+  {
+    path: 'barbiere/dashboard',
+    loadComponent: () => import('./barbiere/dashboard/dashboard.page').then(m => m.BarbiereDashboardPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'barbiere/agenda',
+    loadComponent: () => import('./barbiere/agenda/agenda.page').then(m => m.BarbiereAgendaPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'barbiere/nuova-prenotazione',
+    loadComponent: () => import('./barbiere/nuova-prenotazione/nuova-prenotazione.page').then(m => m.BarbiereNuovaPrenotazionePage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'barbiere/disponibilita',
+    loadComponent: () => import('./barbiere/disponibilita/disponibilita.page').then(m => m.BarbiereDisponibilitaPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'barbiere/clienti',
+    loadComponent: () => import('./barbiere/clienti/clienti.page').then(m => m.BarbiereClientiPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'barbiere/servizi',
+    loadComponent: () => import('./barbiere/servizi/servizi-admin.page').then(m => m.BarbiereServiziPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'barbiere/contatti',
+    loadComponent: () => import('./barbiere/contatti/contatti-admin.page').then(m => m.BarbiereContattiPage),
+    canActivate: [adminGuard]
+  },
+  {
+    path: 'barbiere/statistiche',
+    loadComponent: () => import('./barbiere/statistiche/statistiche.page').then(m => m.BarbiereStatistichePage),
+    canActivate: [adminGuard]
   },
   // Rilevamento errori o rotte non trovate
   {

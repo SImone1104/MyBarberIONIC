@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth';
-import { servizioByValore } from '../shared/servizi';
+import { SERVIZI_OFFERTI, ServizioOfferto, servizioByValore } from '../shared/servizi';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { 
@@ -18,8 +18,18 @@ type Appuntamento = {
   oraFine?: string;
   durata_minuti?: number;
   durataMinuti?: number;
+  stato?: string;
   servizio: string;
   note?: string;
+};
+
+type Notifica = {
+  id: number;
+  prenotazioneId?: number;
+  titolo: string;
+  messaggio: string;
+  letta: boolean;
+  createdAt: string;
 };
 
 @Component({
@@ -32,6 +42,8 @@ type Appuntamento = {
 })
 export class MieiAppuntamentiPage implements OnInit {
   listaAppuntamenti: Appuntamento[] = [];
+  notifiche: Notifica[] = [];
+  servizi: ServizioOfferto[] = SERVIZI_OFFERTI;
 
   constructor(
     public authService: AuthService,
@@ -39,7 +51,20 @@ export class MieiAppuntamentiPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.caricaServizi();
     this.caricaPrenotazioni();
+    this.caricaNotifiche();
+  }
+
+  caricaServizi() {
+    this.authService.getServiziDisponibili().subscribe({
+      next: (servizi) => {
+        if (servizi.length > 0) {
+          this.servizi = servizi;
+        }
+      },
+      error: (err) => console.error('Errore servizi appuntamenti:', err)
+    });
   }
 
   caricaPrenotazioni() {
@@ -55,6 +80,20 @@ export class MieiAppuntamentiPage implements OnInit {
         console.error('Errore nel recupero appuntamenti:', err);
       }
     });
+  }
+
+  caricaNotifiche() {
+    this.authService.getNotifiche().subscribe({
+      next: (notifiche: Notifica[]) => {
+        this.notifiche = Array.isArray(notifiche) ? notifiche : [];
+        this.cdr.detectChanges();
+      },
+      error: (err) => console.error('Errore notifiche appuntamenti:', err)
+    });
+  }
+
+  notificheAttive(): Notifica[] {
+    return this.notifiche.filter((notifica) => !notifica.letta);
   }
 
   rimuoviAppuntamento(id: number) {
@@ -76,13 +115,17 @@ export class MieiAppuntamentiPage implements OnInit {
   appuntamentiFuturi(): Appuntamento[] {
     const adesso = new Date();
 
-    return this.listaAppuntamenti.filter((appuntamento) => this.creaDataAppuntamento(appuntamento) >= adesso);
+    return this.listaAppuntamenti.filter((appuntamento) =>
+      this.richiedeRiprogrammazione(appuntamento) || this.creaDataAppuntamento(appuntamento) >= adesso
+    );
   }
 
   appuntamentiPassati(): Appuntamento[] {
     const adesso = new Date();
 
-    return this.listaAppuntamenti.filter((appuntamento) => this.creaDataAppuntamento(appuntamento) < adesso);
+    return this.listaAppuntamenti.filter((appuntamento) =>
+      !this.richiedeRiprogrammazione(appuntamento) && this.creaDataAppuntamento(appuntamento) < adesso
+    );
   }
 
   prossimoAppuntamento(): Appuntamento | null {
@@ -94,17 +137,17 @@ export class MieiAppuntamentiPage implements OnInit {
   }
 
   servizioLabel(servizio: string): string {
-    return servizioByValore(servizio)?.nome || servizio;
+    return this.servizioByValore(servizio)?.nome || servizio;
   }
 
   servizioPrezzo(servizio: string): string {
-    return servizioByValore(servizio)?.prezzo || 'Prezzo non disponibile';
+    return this.servizioByValore(servizio)?.prezzo || 'Prezzo non disponibile';
   }
 
   durataAppuntamento(appuntamento: Appuntamento): number {
     return appuntamento.durataMinuti
       || appuntamento.durata_minuti
-      || servizioByValore(appuntamento.servizio)?.durataMinuti
+      || this.servizioByValore(appuntamento.servizio)?.durataMinuti
       || 30;
   }
 
@@ -134,7 +177,22 @@ export class MieiAppuntamentiPage implements OnInit {
   }
 
   statoAppuntamento(appuntamento: Appuntamento): string {
+    if (this.richiedeRiprogrammazione(appuntamento)) {
+      return 'Da riprogrammare';
+    }
+
     return this.creaDataAppuntamento(appuntamento) >= new Date() ? 'Confermato' : 'Concluso';
+  }
+
+  richiedeRiprogrammazione(appuntamento: Appuntamento): boolean {
+    return appuntamento.stato === 'da_riprogrammare';
+  }
+
+  riprogrammaQueryParams(appuntamento: Appuntamento): Record<string, string | number> {
+    return {
+      riprenota: appuntamento.id,
+      servizio: appuntamento.servizio
+    };
   }
 
   private creaDataAppuntamento(appuntamento: Appuntamento): Date {
@@ -155,6 +213,10 @@ export class MieiAppuntamentiPage implements OnInit {
     const minuti = String(minutiTotali % 60).padStart(2, '0');
 
     return `${ore}:${minuti}`;
+  }
+
+  private servizioByValore(valore: string): ServizioOfferto | undefined {
+    return this.servizi.find((servizio) => servizio.valore === valore) || servizioByValore(valore);
   }
 }
 

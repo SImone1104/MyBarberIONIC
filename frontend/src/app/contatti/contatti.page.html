@@ -13,24 +13,23 @@
       <div class="info-side">
         <div class="info-card">
           <h3>Indirizzo</h3>
-          <p>Via Roma, 123 - 90100 Palermo (PA)</p>
-          <a href="https://www.google.com/maps/dir/?api=1&destination=38.1157,13.3613" class="map-link">Ottieni indicazioni</a>
+          <p>{{ contatti.indirizzo }}</p>
+          <a [href]="contatti.mapsUrl" target="_blank" rel="noopener" class="map-link">Ottieni indicazioni</a>
         </div>
 
         <div class="info-card">
           <h3>Orari di Apertura</h3>
           <ul>
-            <li>Lunedì: <span class="closed">Chiuso</span></li>
-            <li>Martedì - Venerdì: 09:00 - 19:30</li>
-            <li>Sabato: 08:30 - 20:00</li>
-            <li>Domenica: <span class="closed">Chiuso</span></li>
+            <li *ngFor="let riga of contatti.orari">
+              <span [class.closed]="riga.toLowerCase().includes('chiuso')">{{ riga }}</span>
+            </li>
           </ul>
         </div>
 
         <div class="info-card">
           <h3>Recapiti Diretti</h3>
-          <p>Telefono: <a href="tel:+390911234567" class="contact-link">+39 091 1234567</a></p>
-          <p>Email: <a href="mailto:info@mybarber.it" class="contact-link">info&#64;mybarber.it</a></p>
+          <p>Telefono: <a [href]="'tel:' + contatti.telefono" class="contact-link">{{ contatti.telefono }}</a></p>
+          <p>Email: <a [href]="'mailto:' + contatti.email" class="contact-link">{{ contatti.email }}</a></p>
         </div>
       </div>
 
@@ -38,9 +37,7 @@
         <div id="map"></div>
       </div>
     </div>
-
   </div>
 
-      <app-footer></app-footer>
-
+  <app-footer></app-footer>
 </ion-content>

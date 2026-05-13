@@ -65,3 +65,18 @@ export const SERVIZI_OFFERTI: ServizioOfferto[] = [
 export function servizioByValore(valore: string): ServizioOfferto | undefined {
   return SERVIZI_OFFERTI.find((servizio) => servizio.valore === valore);
 }
+
+export function normalizzaServizioApi(servizio: any): ServizioOfferto {
+  return {
+    valore: servizio.valore,
+    nome: servizio.nome,
+    descrizione: servizio.descrizione || '',
+    prezzo: typeof servizio.prezzo === 'number' ? `${servizio.prezzo}€` : String(servizio.prezzo || ''),
+    badge: servizio.badge || '',
+    durataMinuti: Number(servizio.durataMinuti || servizio.durata_minuti || 30),
+    immagine: servizio.immagine || '',
+    dettagli: Array.isArray(servizio.dettagli)
+      ? servizio.dettagli
+      : String(servizio.dettagli || '').split('|').filter(Boolean)
+  };
+}

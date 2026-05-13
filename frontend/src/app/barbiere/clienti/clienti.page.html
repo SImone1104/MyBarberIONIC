@@ -1,0 +1,103 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="admin-shell">
+    <section class="admin-topbar">
+      <div>
+        <p class="admin-kicker">Area barbiere</p>
+        <h1>Clientela</h1>
+        <p>Rubrica clienti, storico visite e dati utili al banco.</p>
+      </div>
+    </section>
+
+    <nav class="admin-tabs" aria-label="Navigazione area barbiere">
+      <a routerLink="/barbiere/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/barbiere/agenda" routerLinkActive="active">Agenda</a>
+      <a routerLink="/barbiere/nuova-prenotazione" routerLinkActive="active">Nuova prenotazione</a>
+      <a routerLink="/barbiere/disponibilita" routerLinkActive="active">Disponibilità</a>
+      <a routerLink="/barbiere/clienti" routerLinkActive="active">Clienti</a>
+      <a routerLink="/barbiere/servizi" routerLinkActive="active">Servizi</a>
+      <a routerLink="/barbiere/contatti" routerLinkActive="active">Contatti</a>
+      <a routerLink="/barbiere/statistiche" routerLinkActive="active">Statistiche</a>
+    </nav>
+
+    <section class="admin-grid">
+      <div class="admin-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Clienti registrati</h2>
+            <p>{{ clienti.length }} profili trovati.</p>
+          </div>
+        </div>
+
+        <div class="filters">
+          <label class="form-field full">
+            <span class="field-label">Cerca</span>
+            <input type="search" [value]="ricerca" (input)="aggiornaRicerca($event)" placeholder="Nome, cognome, email o telefono">
+          </label>
+        </div>
+
+        <div class="stack-list" *ngIf="clienti.length > 0; else noClients">
+          <article class="client-row" *ngFor="let cliente of clienti">
+            <div>
+              <h3 class="row-title">{{ cliente.cognome }} {{ cliente.nome }}</h3>
+              <p class="row-meta">{{ cliente.email }} · {{ cliente.telefono }}</p>
+              <p class="row-notes">{{ cliente.totale_appuntamenti || 0 }} appuntamenti · ultimo: {{ ultimoAppuntamento(cliente) }}</p>
+            </div>
+            <button class="ghost-btn" type="button" (click)="selezionaCliente(cliente)">Dettaglio</button>
+          </article>
+        </div>
+
+        <ng-template #noClients>
+          <div class="empty-state">{{ isLoading ? 'Caricamento clienti...' : 'Nessun cliente trovato.' }}</div>
+        </ng-template>
+      </div>
+
+      <aside class="admin-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Storico cliente</h2>
+            <p *ngIf="clienteSelezionato">{{ clienteSelezionato.nome }} {{ clienteSelezionato.cognome }}</p>
+          </div>
+        </div>
+
+        <ng-container *ngIf="clienteSelezionato; else pickClient">
+          <div class="metric-grid" style="grid-template-columns: repeat(2, minmax(0, 1fr));">
+            <article class="metric-card">
+              <span>Visite</span>
+              <strong>{{ storico.length }}</strong>
+              <small>Totale salvato</small>
+            </article>
+            <article class="metric-card">
+              <span>Telefono</span>
+              <strong style="font-size: 20px;">{{ clienteSelezionato.telefono }}</strong>
+              <small>{{ clienteSelezionato.email }}</small>
+            </article>
+          </div>
+
+          <div class="stack-list" *ngIf="storico.length > 0; else noHistory">
+            <article class="stat-row" *ngFor="let app of storico">
+              <div>
+                <h3 class="row-title">{{ app.servizioNome }}</h3>
+                <p class="row-meta">{{ dataLabel(app) }} · {{ app.ora }}-{{ app.oraFine }}</p>
+              </div>
+              <span class="price-pill">{{ euro(app.prezzo) }}</span>
+            </article>
+          </div>
+
+          <ng-template #noHistory>
+            <div class="empty-state">Nessuna visita registrata.</div>
+          </ng-template>
+        </ng-container>
+
+        <ng-template #pickClient>
+          <div class="empty-state">Seleziona un cliente dalla lista.</div>
+        </ng-template>
+      </aside>
+    </section>
+  </main>
+
+  <app-footer></app-footer>
+</ion-content>

@@ -1,0 +1,128 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="admin-shell">
+    <section class="admin-topbar">
+      <div>
+        <p class="admin-kicker">Area barbiere</p>
+        <h1>Nuova prenotazione</h1>
+        <p>Inserisci appuntamenti telefonici o al banco sincronizzando subito gli slot.</p>
+      </div>
+    </section>
+
+    <nav class="admin-tabs" aria-label="Navigazione area barbiere">
+      <a routerLink="/barbiere/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/barbiere/agenda" routerLinkActive="active">Agenda</a>
+      <a routerLink="/barbiere/nuova-prenotazione" routerLinkActive="active">Nuova prenotazione</a>
+      <a routerLink="/barbiere/disponibilita" routerLinkActive="active">Disponibilità</a>
+      <a routerLink="/barbiere/clienti" routerLinkActive="active">Clienti</a>
+      <a routerLink="/barbiere/servizi" routerLinkActive="active">Servizi</a>
+      <a routerLink="/barbiere/contatti" routerLinkActive="active">Contatti</a>
+      <a routerLink="/barbiere/statistiche" routerLinkActive="active">Statistiche</a>
+    </nav>
+
+    <div class="feedback" *ngIf="messaggio" [class.success]="messaggioTipo === 'success'" [class.error]="messaggioTipo === 'error'">
+      {{ messaggio }}
+    </div>
+
+    <form class="form-panel" [formGroup]="prenotazioneForm" (ngSubmit)="onSubmit()">
+      <div class="panel-heading">
+        <div>
+          <h2>Cliente</h2>
+          <p>Usa un profilo esistente oppure creane uno rapido.</p>
+        </div>
+        <div class="segmented">
+          <button type="button" [class.active]="clienteMode === 'esistente'" (click)="cambiaClienteMode('esistente')">Esistente</button>
+          <button type="button" [class.active]="clienteMode === 'nuovo'" (click)="cambiaClienteMode('nuovo')">Nuovo</button>
+        </div>
+      </div>
+
+      <div class="form-grid" *ngIf="clienteMode === 'esistente'; else nuovoCliente">
+        <label class="form-field full">
+          <span class="field-label">Cliente registrato</span>
+          <select formControlName="userId">
+            <option value="">Seleziona cliente</option>
+            <option *ngFor="let cliente of clienti" [value]="cliente.id">
+              {{ cliente.cognome }} {{ cliente.nome }} · {{ cliente.telefono }}
+            </option>
+          </select>
+        </label>
+      </div>
+
+      <ng-template #nuovoCliente>
+        <div class="form-grid">
+          <label class="form-field">
+            <span class="field-label">Nome</span>
+            <input type="text" formControlName="nome">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Cognome</span>
+            <input type="text" formControlName="cognome">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Email</span>
+            <input type="email" formControlName="email">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Telefono</span>
+            <input type="tel" formControlName="telefono">
+          </label>
+        </div>
+      </ng-template>
+
+      <div class="panel-heading">
+        <div>
+          <h2>Appuntamento</h2>
+          <p>{{ servizioLabel() }} · {{ oraSelezionata() || '--:--' }}</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <label class="form-field">
+          <span class="field-label">Data</span>
+          <input type="date" formControlName="data">
+        </label>
+        <label class="form-field">
+          <span class="field-label">Servizio</span>
+          <select formControlName="servizio">
+            <option value="">Seleziona servizio</option>
+            <option *ngFor="let servizio of servizi" [value]="servizio.valore">
+              {{ servizio.nome }} · {{ servizio.durataMinuti }} min · {{ servizio.prezzo }}€
+            </option>
+          </select>
+        </label>
+        <label class="form-field full">
+          <span class="field-label">Note</span>
+          <input type="text" formControlName="note" placeholder="Es. cliente telefonico, preferenze, dettagli">
+        </label>
+      </div>
+
+      <div class="panel-heading">
+        <div>
+          <h2>Slot disponibili</h2>
+          <p>{{ isLoadingOrari ? 'Verifica disponibilità in corso...' : 'Gli orari occupati o bloccati non sono selezionabili.' }}</p>
+        </div>
+      </div>
+
+      <div class="time-grid">
+        <button
+          class="time-slot"
+          type="button"
+          *ngFor="let slot of slotOrari()"
+          [class.active]="oraSelezionata() === slot.inizio"
+          [disabled]="slotNonDisponibile(slot.inizio)"
+          (click)="selezionaOra(slot.inizio)">
+          {{ slot.inizio }} · {{ slot.fine }}
+        </button>
+      </div>
+
+      <div class="row-actions" style="margin-top: 18px;">
+        <button class="admin-btn" type="submit" [disabled]="prenotazioneForm.invalid">Salva in agenda</button>
+      </div>
+    </form>
+  </main>
+
+  <app-footer></app-footer>
+</ion-content>

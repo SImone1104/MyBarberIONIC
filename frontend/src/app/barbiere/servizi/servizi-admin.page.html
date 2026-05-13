@@ -1,0 +1,114 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="admin-shell">
+    <section class="admin-topbar">
+      <div>
+        <p class="admin-kicker">Area barbiere</p>
+        <h1>Gestione servizi</h1>
+        <p>Listino dinamico per durata, prezzo, descrizione e dettagli del trattamento.</p>
+      </div>
+    </section>
+
+    <nav class="admin-tabs" aria-label="Navigazione area barbiere">
+      <a routerLink="/barbiere/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/barbiere/agenda" routerLinkActive="active">Agenda</a>
+      <a routerLink="/barbiere/nuova-prenotazione" routerLinkActive="active">Nuova prenotazione</a>
+      <a routerLink="/barbiere/disponibilita" routerLinkActive="active">Disponibilità</a>
+      <a routerLink="/barbiere/clienti" routerLinkActive="active">Clienti</a>
+      <a routerLink="/barbiere/servizi" routerLinkActive="active">Servizi</a>
+      <a routerLink="/barbiere/contatti" routerLinkActive="active">Contatti</a>
+      <a routerLink="/barbiere/statistiche" routerLinkActive="active">Statistiche</a>
+    </nav>
+
+    <div class="feedback" *ngIf="messaggio" [class.success]="messaggioTipo === 'success'" [class.error]="messaggioTipo === 'error'">
+      {{ messaggio }}
+    </div>
+
+    <section class="admin-grid">
+      <div class="admin-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Listino</h2>
+            <p>{{ servizi.length }} servizi nel database.</p>
+          </div>
+          <button class="ghost-btn" type="button" (click)="nuovoServizio()">Nuovo</button>
+        </div>
+
+        <div class="stack-list" *ngIf="servizi.length > 0; else noServices">
+          <article class="service-row" *ngFor="let servizio of servizi">
+            <div>
+              <h3 class="row-title">{{ servizio.nome }}</h3>
+              <p class="row-meta">{{ servizio.descrizione }}</p>
+              <p class="row-notes">{{ servizio.durataMinuti }} min · {{ euro(servizio.prezzo) }} · {{ servizio.attivo ? 'Attivo' : 'Disattivato' }}</p>
+            </div>
+            <div class="row-actions">
+              <span class="status-pill">{{ servizio.badge || servizio.valore }}</span>
+              <button class="ghost-btn" type="button" (click)="modificaServizio(servizio)">Modifica</button>
+              <button class="danger-btn" type="button" [disabled]="!servizio.attivo" (click)="eliminaServizio(servizio)">Disattiva</button>
+            </div>
+          </article>
+        </div>
+
+        <ng-template #noServices>
+          <div class="empty-state">Nessun servizio configurato.</div>
+        </ng-template>
+      </div>
+
+      <form class="form-panel" [formGroup]="servizioForm" (ngSubmit)="salvaServizio()">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ servizioInModifica ? 'Modifica servizio' : 'Nuovo servizio' }}</h2>
+            <p>I servizi disattivati restano nello storico delle vecchie prenotazioni.</p>
+          </div>
+        </div>
+
+        <div class="form-grid two">
+          <label class="form-field full">
+            <span class="field-label">Nome</span>
+            <input type="text" formControlName="nome">
+          </label>
+          <label class="form-field full">
+            <span class="field-label">Descrizione</span>
+            <input type="text" formControlName="descrizione">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Prezzo</span>
+            <input type="number" formControlName="prezzo" min="0" step="0.5">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Durata minuti</span>
+            <input type="number" formControlName="durataMinuti" min="5" step="5">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Badge</span>
+            <input type="text" formControlName="badge">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Attivo</span>
+            <select formControlName="attivo">
+              <option [ngValue]="true">Sì</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </label>
+          <label class="form-field full">
+            <span class="field-label">Immagine</span>
+            <input type="text" formControlName="immagine" placeholder="assets/services/nome.png">
+          </label>
+          <label class="form-field full">
+            <span class="field-label">Dettagli</span>
+            <textarea formControlName="dettagli" placeholder="Un dettaglio per riga"></textarea>
+          </label>
+        </div>
+
+        <button class="admin-btn" type="submit" [disabled]="servizioForm.invalid">
+          {{ servizioInModifica ? 'Salva servizio' : 'Crea servizio' }}
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <app-footer></app-footer>
+</ion-content>

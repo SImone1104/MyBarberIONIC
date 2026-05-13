@@ -6,7 +6,7 @@ import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { AuthService } from '../services/auth';
 import { finalize, timeout } from 'rxjs';
-import { SERVIZI_OFFERTI, ServizioOfferto, servizioByValore } from '../shared/servizi';
+import { SERVIZI_OFFERTI, ServizioOfferto } from '../shared/servizi';
 
 type Appuntamento = {
   id: number;
@@ -46,9 +46,24 @@ export class HomePage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.caricaServizi();
+
     if (this.authService.isLoggedIn()) {
       this.caricaProssimoAppuntamento();
     }
+  }
+
+  caricaServizi() {
+    this.authService.getServiziDisponibili().subscribe({
+      next: (servizi) => {
+        if (servizi.length > 0) {
+          this.servizi = servizi;
+          this.serviziRapidi = this.serviziPopolariDefault();
+          this.cdr.detectChanges();
+        }
+      },
+      error: (err) => console.error('Errore servizi:', err)
+    });
   }
 
   // --- Mantenuta la vostra logica originale di filtraggio appuntamenti ---
@@ -85,7 +100,7 @@ export class HomePage implements OnInit {
     return this.prossimoAppuntamento ? this.creaDataAppuntamento(this.prossimoAppuntamento) : null;
   }
 
-  servizioLabel(servizio: string): string { return servizioByValore(servizio)?.nome || servizio; }
+  servizioLabel(servizio: string): string { return this.servizioByValore(servizio)?.nome || servizio; }
 
   meseItaliano(data: Date | null): string {
     if (!data) return '';
@@ -99,12 +114,12 @@ export class HomePage implements OnInit {
 
   private aggiornaServiziRapidi(prenotazioni: Appuntamento[]) {
     const conteggi = prenotazioni.reduce<Record<string, number>>((acc, app) => {
-      if (servizioByValore(app.servizio)) acc[app.servizio] = (acc[app.servizio] || 0) + 1;
+      if (this.servizioByValore(app.servizio)) acc[app.servizio] = (acc[app.servizio] || 0) + 1;
       return acc;
     }, {});
     const serviziFrequenti = Object.entries(conteggi)
       .sort((a, b) => b[1] - a[1])
-      .map(([valore]) => servizioByValore(valore))
+      .map(([valore]) => this.servizioByValore(valore))
       .filter((s): s is ServizioOfferto => !!s);
     this.serviziRapidi = [...serviziFrequenti, ...this.serviziPopolariDefault().filter(s => !serviziFrequenti.find(f => f.valore === s.valore))].slice(0, 3);
     if (serviziFrequenti.length > 0) {
@@ -114,7 +129,15 @@ export class HomePage implements OnInit {
   }
 
   private serviziPopolariDefault(): ServizioOfferto[] {
-    return ['sfumatura', 'completo', 'taglio'].map(v => servizioByValore(v)).filter((s): s is ServizioOfferto => !!s);
+    const preferiti = ['sfumatura', 'completo', 'taglio']
+      .map(v => this.servizioByValore(v))
+      .filter((s): s is ServizioOfferto => !!s);
+
+    return preferiti.length > 0 ? preferiti : this.servizi.slice(0, 3);
+  }
+
+  private servizioByValore(valore: string): ServizioOfferto | undefined {
+    return this.servizi.find((servizio) => servizio.valore === valore) || SERVIZI_OFFERTI.find((servizio) => servizio.valore === valore);
   }
 
   private creaDataAppuntamento(app: Appuntamento): Date {

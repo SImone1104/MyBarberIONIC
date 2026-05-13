@@ -1,0 +1,200 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="admin-shell">
+    <section class="admin-topbar">
+      <div>
+        <p class="admin-kicker">Area barbiere</p>
+        <h1>Disponibilita</h1>
+        <p>Blocca slot, fasce orarie, giornate singole o chiusure settimanali ricorrenti.</p>
+      </div>
+    </section>
+
+    <nav class="admin-tabs" aria-label="Navigazione area barbiere">
+      <a routerLink="/barbiere/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/barbiere/agenda" routerLinkActive="active">Agenda</a>
+      <a routerLink="/barbiere/nuova-prenotazione" routerLinkActive="active">Nuova prenotazione</a>
+      <a routerLink="/barbiere/disponibilita" routerLinkActive="active">Disponibilita</a>
+      <a routerLink="/barbiere/clienti" routerLinkActive="active">Clienti</a>
+      <a routerLink="/barbiere/servizi" routerLinkActive="active">Servizi</a>
+      <a routerLink="/barbiere/contatti" routerLinkActive="active">Contatti</a>
+      <a routerLink="/barbiere/statistiche" routerLinkActive="active">Statistiche</a>
+    </nav>
+
+    <div class="feedback" *ngIf="messaggio" [class.success]="messaggioTipo === 'success'" [class.error]="messaggioTipo === 'error'">
+      {{ messaggio }}
+    </div>
+
+    <section class="admin-grid">
+      <div class="admin-left-stack">
+        <form class="form-panel" [formGroup]="bloccoForm" (ngSubmit)="creaBlocco()">
+          <div class="panel-heading">
+            <div>
+              <h2>Nuovo blocco</h2>
+              <p>Usalo per ferie, imprevisti, pause o chiusure straordinarie su date specifiche.</p>
+            </div>
+          </div>
+
+          <div class="form-grid two">
+            <label class="form-field">
+              <span class="field-label">Data inizio</span>
+              <input type="date" formControlName="data">
+            </label>
+            <label class="form-field">
+              <span class="field-label">Data fine</span>
+              <input type="date" formControlName="dataFine">
+            </label>
+            <label class="form-field">
+              <span class="field-label">Intera giornata</span>
+              <select formControlName="interaGiornata">
+                <option [ngValue]="false">No</option>
+                <option [ngValue]="true">Si</option>
+              </select>
+            </label>
+            <label class="form-field">
+              <span class="field-label">Da</span>
+              <input type="time" formControlName="oraInizio">
+            </label>
+            <label class="form-field">
+              <span class="field-label">A</span>
+              <input type="time" formControlName="oraFine">
+            </label>
+            <label class="form-field full">
+              <span class="field-label">Motivo</span>
+              <input type="text" formControlName="motivo" placeholder="Ferie, imprevisto, pausa, chiusura">
+            </label>
+          </div>
+
+          <button class="admin-btn" type="submit" [disabled]="bloccoForm.invalid">Blocca disponibilita</button>
+        </form>
+
+        <form class="form-panel" [formGroup]="regolaForm" (ngSubmit)="creaRegolaRicorrente()">
+          <div class="panel-heading">
+            <div>
+              <h2>Regola settimanale</h2>
+              <p>Ripeti una chiusura ogni settimana nel giorno scelto.</p>
+            </div>
+          </div>
+
+          <div class="form-grid two">
+            <label class="form-field">
+              <span class="field-label">Giorno</span>
+              <select formControlName="giornoSettimana">
+                <option *ngFor="let giorno of giorniSettimana" [ngValue]="giorno.valore">{{ giorno.label }}</option>
+              </select>
+            </label>
+            <label class="form-field">
+              <span class="field-label">Intera giornata</span>
+              <select formControlName="interaGiornata">
+                <option [ngValue]="true">Si</option>
+                <option [ngValue]="false">No</option>
+              </select>
+            </label>
+            <label class="form-field">
+              <span class="field-label">Da</span>
+              <input type="time" formControlName="oraInizio">
+            </label>
+            <label class="form-field">
+              <span class="field-label">A</span>
+              <input type="time" formControlName="oraFine">
+            </label>
+            <label class="form-field">
+              <span class="field-label">Valida dal</span>
+              <input type="date" formControlName="validaDal">
+            </label>
+            <label class="form-field">
+              <span class="field-label">Valida fino</span>
+              <input type="date" formControlName="validaAl">
+            </label>
+            <label class="form-field full">
+              <span class="field-label">Motivo</span>
+              <input type="text" formControlName="motivo" placeholder="Chiusura settimanale, turno, formazione">
+            </label>
+          </div>
+
+          <button class="admin-btn" type="submit" [disabled]="regolaForm.invalid">Salva regola settimanale</button>
+        </form>
+
+        <section class="form-panel conflict-panel" *ngIf="conflitti.length > 0">
+          <div class="panel-heading">
+            <div>
+              <h2>Prenotazioni da riprogrammare</h2>
+              <p>{{ conflitti.length }} appuntamenti saranno marcati come da riprogrammare e i clienti riceveranno una notifica.</p>
+            </div>
+          </div>
+
+          <div class="stack-list">
+            <article class="block-row" *ngFor="let conflitto of conflitti">
+              <div>
+                <h3 class="row-title">{{ clienteLabel(conflitto) }}</h3>
+                <p class="row-meta">{{ dataLabel(conflitto.data) }} - {{ conflitto.ora }}-{{ conflitto.oraFine }}</p>
+                <p class="row-notes">{{ conflitto.servizioNome }} - {{ conflitto.cliente.telefono }}</p>
+              </div>
+              <span class="status-pill">Da avvisare</span>
+            </article>
+          </div>
+
+          <div class="row-actions conflict-actions">
+            <button class="ghost-btn" type="button" (click)="annullaConferma()">Annulla</button>
+            <button class="admin-btn" type="button" (click)="confermaRiprogrammazione()">Conferma e notifica</button>
+          </div>
+        </section>
+      </div>
+
+      <section class="admin-panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Blocchi attivi</h2>
+            <p>{{ blocchi.length }} fasce registrate.</p>
+          </div>
+        </div>
+
+        <div class="stack-list" *ngIf="blocchi.length > 0; else noBlocks">
+          <article class="block-row" *ngFor="let blocco of blocchi">
+            <div>
+              <h3 class="row-title">{{ dataLabel(blocco.data) }}</h3>
+              <p class="row-meta">
+                {{ blocco.interaGiornata ? 'Intera giornata' : (blocco.oraInizio + '-' + blocco.oraFine) }}
+              </p>
+              <p class="row-notes" *ngIf="blocco.motivo">{{ blocco.motivo }}</p>
+            </div>
+            <button class="danger-btn" type="button" (click)="eliminaBlocco(blocco.id)">Rimuovi</button>
+          </article>
+        </div>
+
+        <ng-template #noBlocks>
+          <div class="empty-state">Nessun blocco disponibilita.</div>
+        </ng-template>
+
+        <div class="panel-heading recurring-heading">
+          <div>
+            <h2>Regole settimanali</h2>
+            <p>{{ regoleRicorrenti.length }} chiusure ricorrenti.</p>
+          </div>
+        </div>
+
+        <div class="stack-list" *ngIf="regoleRicorrenti.length > 0; else noRecurring">
+          <article class="block-row" *ngFor="let regola of regoleRicorrenti">
+            <div>
+              <h3 class="row-title">Ogni {{ giornoLabel(regola.giornoSettimana) }}</h3>
+              <p class="row-meta">
+                {{ regola.interaGiornata ? 'Intera giornata' : (regola.oraInizio + '-' + regola.oraFine) }}
+              </p>
+              <p class="row-notes">{{ regolaValiditaLabel(regola) }}</p>
+              <p class="row-notes" *ngIf="regola.motivo">{{ regola.motivo }}</p>
+            </div>
+            <button class="danger-btn" type="button" (click)="eliminaRegolaRicorrente(regola.id)">Rimuovi</button>
+          </article>
+        </div>
+
+        <ng-template #noRecurring>
+          <div class="empty-state">Nessuna regola settimanale.</div>
+        </ng-template>
+      </section>
+    </section>
+  </main>
+
+  <app-footer></app-footer>
+</ion-content>

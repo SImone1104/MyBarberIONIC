@@ -1,12 +1,12 @@
 const db = require("../db/db");
 
 const User = {
-  create: ({ nome, cognome, email, password, telefono }) => {
+  create: ({ nome, cognome, email, password, telefono, ruolo = "user" }) => {
     return new Promise((resolve, reject) => {
-      const query = `INSERT INTO users (nome, cognome, email, password, telefono) VALUES (?, ?, ?, ?, ?)`;
-      db.run(query, [nome, cognome, email, password, telefono], function (err) {
+      const query = `INSERT INTO users (nome, cognome, email, password, telefono, ruolo) VALUES (?, ?, ?, ?, ?, ?)`;
+      db.run(query, [nome, cognome, email, password, telefono, ruolo], function (err) {
         if (err) reject(err);
-        else resolve({ id: this.lastID, nome, cognome, email, telefono });
+        else resolve({ id: this.lastID, nome, cognome, email, telefono, ruolo });
       });
     });
   },

@@ -365,10 +365,20 @@ h3 {
   transform: translateY(-1px);
 }
 
+.service-card:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
+}
+
 .service-card.selected {
   border-color: #007bff;
   background: linear-gradient(180deg, #f4f9ff 0%, #ffffff 100%);
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12), 0 14px 32px rgba(0, 105, 217, 0.12);
+}
+
+.service-card.selected:disabled {
+  opacity: 1;
 }
 
 /* Pallino radio custom dentro ogni card servizio. */

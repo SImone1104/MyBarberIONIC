@@ -1,0 +1,134 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="admin-shell">
+    <section class="admin-topbar">
+      <div>
+        <p class="admin-kicker">Area barbiere</p>
+        <h1>Statistiche</h1>
+        <p>Report su incassi, servizi richiesti e frequenza clienti.</p>
+      </div>
+    </section>
+
+    <nav class="admin-tabs" aria-label="Navigazione area barbiere">
+      <a routerLink="/barbiere/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/barbiere/agenda" routerLinkActive="active">Agenda</a>
+      <a routerLink="/barbiere/nuova-prenotazione" routerLinkActive="active">Nuova prenotazione</a>
+      <a routerLink="/barbiere/disponibilita" routerLinkActive="active">Disponibilità</a>
+      <a routerLink="/barbiere/clienti" routerLinkActive="active">Clienti</a>
+      <a routerLink="/barbiere/servizi" routerLinkActive="active">Servizi</a>
+      <a routerLink="/barbiere/contatti" routerLinkActive="active">Contatti</a>
+      <a routerLink="/barbiere/statistiche" routerLinkActive="active">Statistiche</a>
+    </nav>
+
+    <ng-container *ngIf="statistiche; else loadingStats">
+      <div class="metric-grid">
+        <article class="metric-card">
+          <span>Oggi</span>
+          <strong>{{ euro(statistiche.oggi.incasso) }}</strong>
+          <small>{{ statistiche.oggi.appuntamenti }} appuntamenti</small>
+        </article>
+        <article class="metric-card">
+          <span>Settimana</span>
+          <strong>{{ euro(statistiche.settimana.incasso) }}</strong>
+          <small>{{ statistiche.settimana.appuntamenti }} appuntamenti</small>
+        </article>
+        <article class="metric-card">
+          <span>Mese</span>
+          <strong>{{ euro(statistiche.mese.incasso) }}</strong>
+          <small>{{ statistiche.mese.appuntamenti }} appuntamenti</small>
+        </article>
+        <article class="metric-card">
+          <span>Servizi tracciati</span>
+          <strong>{{ statistiche.serviziRichiesti.length }}</strong>
+          <small>nel database prenotazioni</small>
+        </article>
+      </div>
+
+      <section class="admin-grid">
+        <div class="admin-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Servizi più richiesti</h2>
+              <p>Volume e incasso stimato per trattamento.</p>
+            </div>
+          </div>
+
+          <div class="stack-list" *ngIf="statistiche.serviziRichiesti.length > 0; else noServicesStats">
+            <article class="stat-row" *ngFor="let servizio of statistiche.serviziRichiesti">
+              <div>
+                <h3 class="row-title">{{ servizio.nome }}</h3>
+                <p class="row-meta">{{ servizio.totale }} richieste · {{ euro(servizio.incasso) }}</p>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="percent(servizio.totale, maxServizi())"></div>
+                </div>
+              </div>
+              <span class="status-pill">{{ servizio.servizio }}</span>
+            </article>
+          </div>
+
+          <ng-template #noServicesStats>
+            <div class="empty-state">Non ci sono ancora servizi da analizzare.</div>
+          </ng-template>
+        </div>
+
+        <aside class="admin-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Clienti frequenti</h2>
+              <p>Persone con più visite registrate.</p>
+            </div>
+          </div>
+
+          <div class="stack-list" *ngIf="statistiche.clientiFrequenti.length > 0; else noFrequentClients">
+            <article class="client-row" *ngFor="let cliente of statistiche.clientiFrequenti">
+              <div>
+                <h3 class="row-title">{{ cliente.nome }} {{ cliente.cognome }}</h3>
+                <p class="row-meta">{{ cliente.telefono }}</p>
+              </div>
+              <span class="price-pill">{{ cliente.totale }} visite</span>
+            </article>
+          </div>
+
+          <ng-template #noFrequentClients>
+            <div class="empty-state">Nessun cliente frequente.</div>
+          </ng-template>
+        </aside>
+      </section>
+
+      <section class="admin-panel" style="margin-top: 16px;">
+        <div class="panel-heading">
+          <div>
+            <h2>Andamento ultimi giorni</h2>
+            <p>Prenotazioni e incasso stimato per data.</p>
+          </div>
+        </div>
+
+        <div class="stack-list" *ngIf="statistiche.andamento.length > 0; else noTrend">
+          <article class="stat-row" *ngFor="let giorno of statistiche.andamento">
+            <div>
+              <h3 class="row-title">{{ dataBreve(giorno.data) }}</h3>
+              <p class="row-meta">{{ giorno.appuntamenti }} appuntamenti · {{ euro(giorno.incasso) }}</p>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="percent(giorno.appuntamenti, maxAndamento())"></div>
+              </div>
+            </div>
+            <span class="status-pill">{{ giorno.data }}</span>
+          </article>
+        </div>
+
+        <ng-template #noTrend>
+          <div class="empty-state">Ancora nessun andamento disponibile.</div>
+        </ng-template>
+      </section>
+    </ng-container>
+
+    <ng-template #loadingStats>
+      <div class="empty-state">{{ isLoading ? 'Caricamento statistiche...' : 'Statistiche non disponibili.' }}</div>
+    </ng-template>
+  </main>
+
+  <app-footer></app-footer>
+</ion-content>

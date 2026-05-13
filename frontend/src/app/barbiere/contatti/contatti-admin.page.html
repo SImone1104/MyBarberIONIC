@@ -1,0 +1,102 @@
+<ion-header class="ion-no-border">
+  <app-header></app-header>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <main class="admin-shell">
+    <section class="admin-topbar">
+      <div>
+        <p class="admin-kicker">Area barbiere</p>
+        <h1>Contatti salone</h1>
+        <p>Recapiti, indirizzo, mappa, orari e link social mostrati anche ai clienti.</p>
+      </div>
+    </section>
+
+    <nav class="admin-tabs" aria-label="Navigazione area barbiere">
+      <a routerLink="/barbiere/dashboard" routerLinkActive="active">Dashboard</a>
+      <a routerLink="/barbiere/agenda" routerLinkActive="active">Agenda</a>
+      <a routerLink="/barbiere/nuova-prenotazione" routerLinkActive="active">Nuova prenotazione</a>
+      <a routerLink="/barbiere/disponibilita" routerLinkActive="active">Disponibilita</a>
+      <a routerLink="/barbiere/clienti" routerLinkActive="active">Clienti</a>
+      <a routerLink="/barbiere/servizi" routerLinkActive="active">Servizi</a>
+      <a routerLink="/barbiere/contatti" routerLinkActive="active">Contatti</a>
+      <a routerLink="/barbiere/statistiche" routerLinkActive="active">Statistiche</a>
+    </nav>
+
+    <div class="feedback" *ngIf="messaggio" [class.success]="messaggioTipo === 'success'" [class.error]="messaggioTipo === 'error'">
+      {{ messaggio }}
+    </div>
+
+    <form class="form-panel" [formGroup]="contattiForm" (ngSubmit)="salva()">
+      <div class="panel-heading">
+        <div>
+          <h2>Dati pubblici</h2>
+          <p>Le modifiche vengono usate nella pagina Contatti e nel footer lato cliente.</p>
+        </div>
+      </div>
+
+      <div class="form-grid two">
+        <label class="form-field">
+          <span class="field-label">Nome salone</span>
+          <input type="text" formControlName="nome">
+        </label>
+        <label class="form-field">
+          <span class="field-label">Telefono</span>
+          <input type="text" formControlName="telefono">
+        </label>
+        <label class="form-field">
+          <span class="field-label">Email</span>
+          <input type="email" formControlName="email">
+        </label>
+        <label class="form-field">
+          <span class="field-label">Link indicazioni Google Maps</span>
+          <input type="url" formControlName="mapsUrl">
+        </label>
+        <label class="form-field full">
+          <span class="field-label">Indirizzo</span>
+          <input type="text" formControlName="indirizzo">
+        </label>
+        <label class="form-field">
+          <span class="field-label">Latitudine</span>
+          <input type="number" step="0.000001" formControlName="latitudine">
+        </label>
+        <label class="form-field">
+          <span class="field-label">Longitudine</span>
+          <input type="number" step="0.000001" formControlName="longitudine">
+        </label>
+        <label class="form-field full">
+          <span class="field-label">Orari</span>
+          <textarea formControlName="orari" rows="7" placeholder="Lunedi: Chiuso&#10;Martedi - Venerdi: 09:00 - 19:30"></textarea>
+        </label>
+      </div>
+
+      <div class="panel-heading secondary-heading">
+        <div>
+          <h2>Social</h2>
+          <p>Link mostrati nel footer.</p>
+        </div>
+      </div>
+
+      <div class="form-grid three">
+        <label class="form-field">
+          <span class="field-label">Instagram</span>
+          <input type="url" formControlName="instagramUrl">
+        </label>
+        <label class="form-field">
+          <span class="field-label">Facebook</span>
+          <input type="url" formControlName="facebookUrl">
+        </label>
+        <label class="form-field">
+          <span class="field-label">TikTok</span>
+          <input type="url" formControlName="tiktokUrl">
+        </label>
+      </div>
+
+      <div class="row-actions">
+        <button class="admin-btn" type="submit" [disabled]="contattiForm.invalid">Salva contatti</button>
+      </div>
+    </form>
+  </main>
+
+  <app-footer></app-footer>
+</ion-content>

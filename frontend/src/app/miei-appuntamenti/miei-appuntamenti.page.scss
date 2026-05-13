@@ -1,3 +1,16 @@
+ion-content::part(scroll) {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.appointments-page {
+  flex: 1 0 auto;
+}
+
+app-footer {
+  flex-shrink: 0;
+}
 
 
 ion-content {
@@ -74,6 +87,37 @@ ion-content {
   display: flex;
   flex-direction: column;
   gap: 14px;
+}
+
+.notification-section {
+  display: grid;
+  gap: 12px;
+}
+
+.notification-card {
+  padding: 18px;
+  border: 1px solid #f59e0b;
+  border-radius: 8px;
+  background: #fffbeb;
+}
+
+.notification-card span {
+  color: #92400e;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.notification-card h3 {
+  margin: 6px 0;
+  color: #111827;
+  font-size: 20px;
+}
+
+.notification-card p {
+  margin: 0;
+  color: #78350f;
+  line-height: 1.45;
 }
 
 .section-heading {
@@ -192,6 +236,11 @@ border-color: #e2e8f0;
   color: #475467;
 }
 
+.reschedule-status {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .duration-pill {
   background: #f4f0e7;
   color: #6f4e16;
@@ -254,6 +303,28 @@ border-color: #e2e8f0;
   cursor: pointer;
   font-weight: 900;
   transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-reschedule {
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid #111827;
+  border-radius: 8px;
+  background: #111827;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  cursor: pointer;
+  font-weight: 900;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.btn-reschedule:hover {
+  border-color: #2563eb;
+  background: #2563eb;
 }
 
 .btn-delete:hover {
@@ -328,6 +399,10 @@ border-color: #e2e8f0;
   }
 
   .btn-delete {
+    width: 100%;
+  }
+
+  .btn-reschedule {
     width: 100%;
   }
 }
