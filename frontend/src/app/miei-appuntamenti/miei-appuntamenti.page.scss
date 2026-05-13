@@ -293,6 +293,13 @@ border-color: #e2e8f0;
   overflow-wrap: anywhere;
 }
 
+.appointment-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+}
+
 .btn-delete {
   min-height: 42px;
   padding: 0 16px;
@@ -396,6 +403,10 @@ border-color: #e2e8f0;
 
   .appointment-card {
     grid-template-columns: 1fr;
+  }
+
+  .appointment-actions {
+    width: 100%;
   }
 
   .btn-delete {

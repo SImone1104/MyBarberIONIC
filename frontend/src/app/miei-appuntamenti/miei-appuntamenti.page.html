@@ -58,13 +58,15 @@
           </div>
         </div>
 
-        <a
-          *ngIf="richiedeRiprogrammazione(app); else annullaPrenotazione"
-          class="btn-reschedule"
-          [routerLink]="['/prenotazioni']"
-          [queryParams]="riprogrammaQueryParams(app)">
-          Cambia giorno
-        </a>
+        <div class="appointment-actions" *ngIf="richiedeRiprogrammazione(app); else annullaPrenotazione">
+          <a
+            class="btn-reschedule"
+            [routerLink]="['/prenotazioni']"
+            [queryParams]="riprogrammaQueryParams(app)">
+            Cambia giorno
+          </a>
+          <button class="btn-delete" type="button" (click)="rimuoviAppuntamento(app.id)">Annulla</button>
+        </div>
         <ng-template #annullaPrenotazione>
           <button class="btn-delete" type="button" (click)="rimuoviAppuntamento(app.id)">Annulla</button>
         </ng-template>
