@@ -398,6 +398,10 @@ function giorniGiaCopertiDaDisponibilita(disponibilita, oraInizio, oraFine) {
   );
 }
 
+function disponibilitaInConflittoParziale(disponibilita, oraInizio, oraFine) {
+  return disponibilita.filter((item) => !disponibilitaCopreIntervallo(item, oraInizio, oraFine));
+}
+
 async function regoleRicorrentiInConflittoConGiorni(giorni, oraInizio, oraFine) {
   const inizio = oraInMinuti(oraInizio);
   const fine = oraInMinuti(oraFine);
@@ -944,6 +948,19 @@ exports.creaDisponibilita = async (req, res) => {
       oraInizio,
       oraFine
     );
+    const conflittiParziali = disponibilitaInConflittoParziale(
+      [...blocchiInConflitto, ...regoleInConflitto],
+      oraInizio,
+      oraFine
+    );
+
+    if (conflittiParziali.length > 0) {
+      return res.status(409).json({
+        message: "Esiste gia un blocco o una regola ricorrente che si sovrappone solo in parte alla fascia selezionata",
+        disponibilita: conflittiParziali
+      });
+    }
+
     const giorniDaBloccare = giorni.filter((giorno) => !giorniGiaCoperti.has(giorno));
 
     const conflitti = await prenotazioniInConflitto(giorniDaBloccare, oraInizio, oraFine);
@@ -1255,6 +1272,13 @@ exports.updateServizio = async (req, res) => {
     const dettagli = Array.isArray(req.body.dettagli)
       ? req.body.dettagli.join("|")
       : String(req.body.dettagli ?? existing.dettagli ?? "");
+    const nome = String(req.body.nome ?? existing.nome ?? "").trim();
+    const prezzo = Number(req.body.prezzo ?? existing.prezzo);
+    const durataMinuti = Number(req.body.durataMinuti ?? req.body.durata_minuti ?? existing.durata_minuti);
+
+    if (!nome || !Number.isFinite(prezzo) || prezzo < 0 || !Number.isFinite(durataMinuti) || durataMinuti <= 0) {
+      return res.status(400).json({ message: "Nome, prezzo e durata validi sono obbligatori" });
+    }
 
     await dbRun(
       `
@@ -1263,10 +1287,10 @@ exports.updateServizio = async (req, res) => {
         WHERE id = ?
       `,
       [
-        req.body.nome ?? existing.nome,
+        nome,
         req.body.descrizione ?? existing.descrizione,
-        Number(req.body.prezzo ?? existing.prezzo),
-        Number(req.body.durataMinuti ?? req.body.durata_minuti ?? existing.durata_minuti),
+        prezzo,
+        durataMinuti,
         req.body.badge ?? existing.badge,
         req.body.immagine ?? existing.immagine,
         dettagli,
