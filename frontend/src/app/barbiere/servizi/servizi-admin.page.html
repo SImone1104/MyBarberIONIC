@@ -34,7 +34,6 @@
             <h2>Listino</h2>
             <p>{{ servizi.length }} servizi nel database.</p>
           </div>
-          <button class="ghost-btn" type="button" (click)="nuovoServizio()">Nuovo</button>
         </div>
 
         <div class="stack-list" *ngIf="servizi.length > 0; else noServices">

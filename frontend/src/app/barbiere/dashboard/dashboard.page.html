@@ -30,7 +30,7 @@
         <small>{{ appuntamentiOggi().length }} ancora in agenda</small>
       </article>
       <article class="metric-card">
-        <span>Incasso stimato</span>
+        <span>Incasso stimato di oggi</span>
         <strong>{{ incassoOggi() }}</strong>
         <small>Pagamento previsto in sede</small>
       </article>
@@ -40,7 +40,7 @@
         <small>Basato sulle prenotazioni salvate</small>
       </article>
       <article class="metric-card">
-        <span>Appuntamenti mese</span>
+        <span>Appuntamenti del mese</span>
         <strong>{{ statistiche?.mese?.appuntamenti || 0 }}</strong>
         <small>{{ euro(statistiche?.mese?.incasso || 0) }} stimati</small>
       </article>
