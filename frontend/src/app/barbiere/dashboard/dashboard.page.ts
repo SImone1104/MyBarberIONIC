@@ -21,7 +21,9 @@ export class BarbiereDashboardPage implements OnInit {
 
   constructor(private adminService: AdminService) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ionViewWillEnter(): void {
     this.caricaDashboard();
   }
 

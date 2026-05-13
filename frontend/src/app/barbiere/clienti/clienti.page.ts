@@ -22,8 +22,14 @@ export class BarbiereClientiPage implements OnInit {
 
   constructor(private adminService: AdminService) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ionViewWillEnter(): void {
     this.caricaClienti();
+
+    if (this.clienteSelezionato) {
+      this.ricaricaClienteSelezionato();
+    }
   }
 
   aggiornaRicerca(event: Event): void {
@@ -53,6 +59,16 @@ export class BarbiereClientiPage implements OnInit {
       },
       error: (err) => console.error('Errore dettaglio cliente:', err)
     });
+  }
+
+  private ricaricaClienteSelezionato(): void {
+    const cliente = this.clienteSelezionato;
+
+    if (!cliente) {
+      return;
+    }
+
+    this.selezionaCliente(cliente);
   }
 
   ultimoAppuntamento(cliente: AdminCliente): string {

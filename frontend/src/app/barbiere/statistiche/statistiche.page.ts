@@ -19,7 +19,14 @@ export class BarbiereStatistichePage implements OnInit {
 
   constructor(private adminService: AdminService) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ionViewWillEnter(): void {
+    this.caricaStatistiche();
+  }
+
+  caricaStatistiche(): void {
+    this.isLoading = true;
     this.adminService.getStatistiche().subscribe({
       next: (statistiche) => {
         this.statistiche = statistiche;

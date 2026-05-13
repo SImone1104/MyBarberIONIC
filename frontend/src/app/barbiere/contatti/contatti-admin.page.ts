@@ -38,7 +38,13 @@ export class BarbiereContattiPage implements OnInit {
     private formBuilder: FormBuilder
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ionViewWillEnter(): void {
+    this.caricaContatti();
+  }
+
+  caricaContatti(): void {
     this.adminService.getContattiSalone().subscribe({
       next: (contatti) => {
         this.contattiForm.patchValue({

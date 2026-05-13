@@ -36,7 +36,9 @@ export class BarbiereServiziPage implements OnInit {
     private formBuilder: FormBuilder
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ionViewWillEnter(): void {
     this.caricaServizi();
   }
 

@@ -32,8 +32,10 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
   slotOccupati: SlotOccupato[] = [];
   clienteMode: 'esistente' | 'nuovo' = 'esistente';
   isLoadingOrari = false;
+  isSubmitting = false;
   messaggio = '';
   messaggioTipo: 'success' | 'error' = 'success';
+  private richiestaOrariId = 0;
 
   finestreApertura = [
     { inizio: '09:00', fine: '13:00' },
@@ -61,20 +63,40 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.prenotazioneForm.get('data')?.valueChanges.subscribe(() => {
+      this.prenotazioneForm.patchValue({ ora: '' }, { emitEvent: false });
+      this.caricaOrariOccupati();
+    });
+    this.prenotazioneForm.get('servizio')?.valueChanges.subscribe(() => {
+      this.prenotazioneForm.patchValue({ ora: '' }, { emitEvent: false });
+      this.caricaOrariOccupati();
+    });
+  }
+
+  ionViewWillEnter(): void {
+    this.caricaDatiBase();
+
+    if (this.servizioSelezionato()) {
+      this.caricaOrariOccupati();
+    }
+  }
+
+  caricaDatiBase(): void {
     this.adminService.getClienti().subscribe({
       next: (clienti) => this.clienti = clienti,
       error: (err) => console.error('Errore clienti:', err)
     });
 
     this.adminService.getServizi().subscribe({
-      next: (servizi) => this.servizi = servizi.filter((servizio) => servizio.attivo),
-      error: (err) => console.error('Errore servizi:', err)
-    });
+      next: (servizi) => {
+        this.servizi = servizi.filter((servizio) => servizio.attivo);
 
-    this.prenotazioneForm.get('data')?.valueChanges.subscribe(() => this.caricaOrariOccupati());
-    this.prenotazioneForm.get('servizio')?.valueChanges.subscribe(() => {
-      this.prenotazioneForm.patchValue({ ora: '' }, { emitEvent: false });
-      this.caricaOrariOccupati();
+        if (this.servizioSelezionato() && !this.durataServizioSelezionato()) {
+          this.prenotazioneForm.patchValue({ servizio: '', ora: '' }, { emitEvent: false });
+          this.slotOccupati = [];
+        }
+      },
+      error: (err) => console.error('Errore servizi:', err)
     });
   }
 
@@ -85,14 +107,21 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
 
   caricaOrariOccupati(): void {
     const data = this.dataSelezionata();
+    const richiestaCorrente = ++this.richiestaOrariId;
 
     if (!data) {
+      this.slotOccupati = [];
+      this.isLoadingOrari = false;
       return;
     }
 
     this.isLoadingOrari = true;
     this.authService.getOrariOccupati(data).subscribe({
       next: (orari) => {
+        if (richiestaCorrente !== this.richiestaOrariId) {
+          return;
+        }
+
         this.slotOccupati = orari.map((slot) => ({
           ora: slot.ora,
           oraFine: slot.oraFine || slot.ora_fine || '',
@@ -102,6 +131,10 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
         this.cdr.detectChanges();
       },
       error: (err) => {
+        if (richiestaCorrente !== this.richiestaOrariId) {
+          return;
+        }
+
         console.error('Errore orari occupati admin:', err);
         this.slotOccupati = [];
         this.isLoadingOrari = false;
@@ -159,7 +192,7 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
   }
 
   onSubmit(): void {
-    if (this.prenotazioneForm.invalid) {
+    if (this.prenotazioneForm.invalid || this.isSubmitting) {
       return;
     }
 
@@ -174,6 +207,12 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
     }
 
     const value = this.prenotazioneForm.value;
+
+    if (this.slotNonDisponibile(value.ora || '')) {
+      this.mostraMessaggio('Scegli uno slot ancora disponibile.', 'error');
+      return;
+    }
+
     const payload = this.clienteMode === 'esistente'
       ? {
         userId: Number(value.userId),
@@ -195,13 +234,32 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
         note: value.note
       };
 
+    this.isSubmitting = true;
     this.adminService.creaPrenotazione(payload).subscribe({
       next: () => {
         this.mostraMessaggio('Prenotazione inserita in agenda.', 'success');
-        this.prenotazioneForm.patchValue({ ora: '', note: '' });
+        this.isSubmitting = false;
+
+        if (this.clienteMode === 'nuovo') {
+          this.clienteMode = 'esistente';
+          this.prenotazioneForm.patchValue({
+            userId: '',
+            nome: '',
+            cognome: '',
+            email: '',
+            telefono: '',
+            ora: '',
+            note: ''
+          });
+          this.caricaDatiBase();
+        } else {
+          this.prenotazioneForm.patchValue({ ora: '', note: '' });
+        }
+
         this.caricaOrariOccupati();
       },
       error: (err) => {
+        this.isSubmitting = false;
         const msg = err.error?.message || 'Prenotazione non salvata.';
         this.mostraMessaggio(msg, 'error');
       }

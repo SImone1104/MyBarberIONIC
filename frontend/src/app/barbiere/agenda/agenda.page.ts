@@ -39,11 +39,18 @@ export class BarbiereAgendaPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.caricaServizi();
+  }
+
+  ionViewWillEnter(): void {
+    this.caricaAgenda();
+  }
+
+  caricaServizi(): void {
     this.adminService.getServizi().subscribe({
       next: (servizi) => this.servizi = servizi.filter((servizio) => servizio.attivo),
       error: (err) => console.error('Errore servizi agenda:', err)
     });
-    this.caricaAgenda();
   }
 
   cambiaPeriodo(periodo: PeriodoAgenda): void {
@@ -147,17 +154,15 @@ export class BarbiereAgendaPage implements OnInit {
       return { data: this.dataFiltro };
     }
 
+    const fine = new Date(data);
+
     if (this.periodo === 'settimana') {
-      const inizio = new Date(data);
-      inizio.setDate(data.getDate() - ((data.getDay() + 6) % 7));
-      const fine = new Date(inizio);
-      fine.setDate(inizio.getDate() + 6);
-      return { da: this.formatDateInput(inizio), a: this.formatDateInput(fine) };
+      fine.setDate(data.getDate() + 7);
+      return { da: this.dataFiltro, a: this.formatDateInput(fine) };
     }
 
-    const inizioMese = new Date(data.getFullYear(), data.getMonth(), 1);
-    const fineMese = new Date(data.getFullYear(), data.getMonth() + 1, 0);
-    return { da: this.formatDateInput(inizioMese), a: this.formatDateInput(fineMese) };
+    fine.setDate(data.getDate() + 30);
+    return { da: this.dataFiltro, a: this.formatDateInput(fine) };
   }
 
   private formatDateInput(data: Date): string {

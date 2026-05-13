@@ -119,7 +119,9 @@
       </div>
 
       <div class="row-actions" style="margin-top: 18px;">
-        <button class="admin-btn" type="submit" [disabled]="prenotazioneForm.invalid">Salva in agenda</button>
+        <button class="admin-btn" type="submit" [disabled]="prenotazioneForm.invalid || isSubmitting || isLoadingOrari">
+          {{ isSubmitting ? 'Salvataggio...' : 'Salva in agenda' }}
+        </button>
       </div>
     </form>
   </main>

@@ -70,6 +70,13 @@ export class BarbiereDisponibilitaPage implements OnInit {
       }
     });
 
+  }
+
+  ionViewWillEnter(): void {
+    this.caricaDisponibilita();
+  }
+
+  caricaDisponibilita(): void {
     this.caricaBlocchi();
     this.caricaRegoleRicorrenti();
   }
