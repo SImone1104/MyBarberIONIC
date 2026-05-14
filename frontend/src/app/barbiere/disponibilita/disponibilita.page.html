@@ -151,12 +151,12 @@
         <div class="panel-heading">
           <div>
             <h2>Blocchi attivi</h2>
-            <p>{{ blocchi.length }} fasce registrate.</p>
+            <p>{{ blocchiVisibili().length }} fasce registrate.</p>
           </div>
         </div>
 
-        <div class="stack-list" *ngIf="blocchi.length > 0; else noBlocks">
-          <article class="block-row" *ngFor="let blocco of blocchi">
+        <div class="stack-list" *ngIf="blocchiVisibili().length > 0; else noBlocks">
+          <article class="block-row" *ngFor="let blocco of blocchiVisibili()">
             <div>
               <h3 class="row-title">{{ dataLabel(blocco.data) }}</h3>
               <p class="row-meta">
@@ -164,7 +164,7 @@
               </p>
               <p class="row-notes" *ngIf="blocco.motivo">{{ blocco.motivo }}</p>
             </div>
-            <button class="danger-btn" type="button" (click)="eliminaBlocco(blocco.id)">Rimuovi</button>
+            <button class="danger-btn" type="button" (click)="eliminaBlocco(blocco)">Rimuovi</button>
           </article>
         </div>
 

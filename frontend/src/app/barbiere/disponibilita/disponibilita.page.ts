@@ -12,6 +12,10 @@ type AzioneInAttesa = {
   payload: Record<string, unknown>;
 };
 
+type BloccoDisponibilitaVisibile = AdminBloccoDisponibilita & {
+  ids?: number[];
+};
+
 @Component({
   selector: 'app-barbiere-disponibilita',
   standalone: true,
@@ -111,6 +115,39 @@ export class BarbiereDisponibilitaPage implements OnInit {
     });
   }
 
+  blocchiVisibili(): BloccoDisponibilitaVisibile[] {
+    const gruppi = new Map<string, AdminBloccoDisponibilita[]>();
+
+    for (const blocco of this.blocchi) {
+      const chiave = `${blocco.data}|${blocco.motivo || ''}`;
+      gruppi.set(chiave, [...(gruppi.get(chiave) || []), blocco]);
+    }
+
+    const aggregati: BloccoDisponibilitaVisibile[] = [];
+
+    for (const blocchiGiorno of gruppi.values()) {
+      if (this.copreInteraGiornataConRegole(blocchiGiorno)) {
+        const primo = blocchiGiorno[0];
+
+        aggregati.push({
+          ...primo,
+          ids: blocchiGiorno.map((blocco) => blocco.id),
+          oraInizio: '00:00',
+          oraFine: '23:59',
+          interaGiornata: true
+        });
+        continue;
+      }
+
+      aggregati.push(...blocchiGiorno);
+    }
+
+    return aggregati.sort((a, b) => {
+      const dataCompare = b.data.localeCompare(a.data);
+      return dataCompare || a.oraInizio.localeCompare(b.oraInizio);
+    });
+  }
+
   creaBlocco(): void {
     if (this.bloccoForm.invalid) {
       return;
@@ -183,14 +220,23 @@ export class BarbiereDisponibilitaPage implements OnInit {
     this.mostraMessaggio('', 'success');
   }
 
-  eliminaBlocco(id: number): void {
-    this.adminService.deleteDisponibilita(id).subscribe({
-      next: () => {
-        this.mostraMessaggio('Blocco rimosso.', 'success');
-        this.caricaBlocchi();
-      },
-      error: () => this.mostraMessaggio('Rimozione non riuscita.', 'error')
-    });
+  eliminaBlocco(blocco: BloccoDisponibilitaVisibile): void {
+    const ids = blocco.ids?.length ? blocco.ids : [blocco.id];
+    let completati = 0;
+
+    for (const id of ids) {
+      this.adminService.deleteDisponibilita(id).subscribe({
+        next: () => {
+          completati += 1;
+
+          if (completati === ids.length) {
+            this.mostraMessaggio(ids.length > 1 ? 'Blocchi rimossi.' : 'Blocco rimosso.', 'success');
+            this.caricaBlocchi();
+          }
+        },
+        error: () => this.mostraMessaggio('Rimozione non riuscita.', 'error')
+      });
+    }
   }
 
   eliminaRegolaRicorrente(id: number): void {
@@ -274,6 +320,69 @@ export class BarbiereDisponibilitaPage implements OnInit {
   private pulisciConferma(): void {
     this.conflitti = [];
     this.azioneInAttesa = null;
+  }
+
+  private copreInteraGiornataConRegole(blocchiGiorno: AdminBloccoDisponibilita[]): boolean {
+    const data = blocchiGiorno[0]?.data;
+
+    if (!data || blocchiGiorno.some((blocco) => blocco.interaGiornata)) {
+      return true;
+    }
+
+    const intervalli = [
+      ...blocchiGiorno.map((blocco) => ({
+        inizio: this.oraInMinuti(blocco.oraInizio),
+        fine: this.oraInMinuti(blocco.oraFine)
+      })),
+      ...this.regoleRicorrenti
+        .filter((regola) => this.regolaAttivaPerData(regola, data))
+        .map((regola) => ({
+          inizio: regola.interaGiornata ? 0 : this.oraInMinuti(regola.oraInizio),
+          fine: regola.interaGiornata ? this.oraInMinuti('23:59') : this.oraInMinuti(regola.oraFine)
+        }))
+    ].sort((a, b) => a.inizio - b.inizio);
+
+    let copertoFinoA = 0;
+
+    for (const intervallo of intervalli) {
+      if (intervallo.inizio > copertoFinoA) {
+        return false;
+      }
+
+      copertoFinoA = Math.max(copertoFinoA, intervallo.fine);
+
+      if (copertoFinoA >= this.oraInMinuti('23:59')) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private regolaAttivaPerData(regola: AdminRegolaDisponibilita, data: string): boolean {
+    if (!regola.attiva || regola.giornoSettimana !== this.giornoSettimanaData(data)) {
+      return false;
+    }
+
+    if (regola.validaDal && data < regola.validaDal) {
+      return false;
+    }
+
+    if (regola.validaAl && data > regola.validaAl) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private giornoSettimanaData(data: string): number {
+    const [anno, mese, giorno] = data.split('-').map(Number);
+    return new Date(anno, mese - 1, giorno).getDay();
+  }
+
+  private oraInMinuti(ora: string): number {
+    const [ore, minuti] = ora.split(':').map(Number);
+    return ore * 60 + minuti;
   }
 
   private sincronizzaOrariInteraGiornata(interaGiornata: boolean, tipo: 'blocco' | 'regola'): void {
