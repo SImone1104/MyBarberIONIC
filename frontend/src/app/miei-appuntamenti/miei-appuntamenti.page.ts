@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../services/auth';
@@ -40,10 +40,11 @@ type Notifica = {
   templateUrl: './miei-appuntamenti.page.html',
   styleUrl: './miei-appuntamenti.page.scss',
 })
-export class MieiAppuntamentiPage implements OnInit {
+export class MieiAppuntamentiPage implements OnInit, OnDestroy {
   listaAppuntamenti: Appuntamento[] = [];
   notifiche: Notifica[] = [];
   servizi: ServizioOfferto[] = SERVIZI_OFFERTI;
+  private refreshTimer?: ReturnType<typeof setInterval>;
 
   constructor(
     public authService: AuthService,
@@ -54,6 +55,16 @@ export class MieiAppuntamentiPage implements OnInit {
     this.caricaServizi();
     this.caricaPrenotazioni();
     this.caricaNotifiche();
+    this.refreshTimer = setInterval(() => {
+      this.caricaPrenotazioni();
+      this.caricaNotifiche();
+    }, 15000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+    }
   }
 
   caricaServizi() {
@@ -74,6 +85,7 @@ export class MieiAppuntamentiPage implements OnInit {
         this.listaAppuntamenti = Array.isArray(data)
           ? [...data].sort((a, b) => this.creaDataAppuntamento(a).getTime() - this.creaDataAppuntamento(b).getTime())
           : [];
+        this.authService.aggiornaAppuntamentiDaGestire(this.notifiche, this.listaAppuntamenti);
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -86,6 +98,7 @@ export class MieiAppuntamentiPage implements OnInit {
     this.authService.getNotifiche().subscribe({
       next: (notifiche: Notifica[]) => {
         this.notifiche = Array.isArray(notifiche) ? notifiche : [];
+        this.authService.aggiornaAppuntamentiDaGestire(this.notifiche, this.listaAppuntamenti);
         this.cdr.detectChanges();
       },
       error: (err) => console.error('Errore notifiche appuntamenti:', err)
@@ -93,7 +106,15 @@ export class MieiAppuntamentiPage implements OnInit {
   }
 
   notificheAttive(): Notifica[] {
-    return this.notifiche.filter((notifica) => !notifica.letta);
+    const appuntamentiDaRiprogrammareIds = new Set(
+      this.listaAppuntamenti
+        .filter((appuntamento) => this.richiedeRiprogrammazione(appuntamento))
+        .map((appuntamento) => appuntamento.id)
+    );
+
+    return this.notifiche.filter((notifica) =>
+      !notifica.letta && appuntamentiDaRiprogrammareIds.has(Number(notifica.prenotazioneId))
+    );
   }
 
   rimuoviAppuntamento(id: number) {
@@ -101,6 +122,8 @@ export class MieiAppuntamentiPage implements OnInit {
       this.authService.eliminaPrenotazione(id).subscribe({
         next: (res) => {
           this.listaAppuntamenti = this.listaAppuntamenti.filter((a) => a.id !== id);
+          this.notifiche = this.notifiche.filter((notifica) => Number(notifica.prenotazioneId) !== id);
+          this.authService.aggiornaAppuntamentiDaGestire(this.notifiche, this.listaAppuntamenti);
           this.cdr.detectChanges();
           console.log('Eliminato:', res.message);
         },

@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth';
-import { finalize, timeout } from 'rxjs';
+import { Subscription, finalize, timeout } from 'rxjs';
 import { 
   IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonMenuButton,
   IonButton, IonIcon, IonSpinner 
@@ -20,12 +20,15 @@ import { Router } from '@angular/router'; // <--- AGGIUNGI QUESTO
   templateUrl: './profilo.page.html',
   styleUrl: './profilo.page.scss'
 })
-export class ProfiloPage implements OnInit {
+export class ProfiloPage implements OnInit, OnDestroy {
   profiloForm!: FormGroup;
   messaggio = '';
   messaggioErrore = '';
   isLoading = true;
   isSaving = false;
+  appuntamentiDaGestire = 0;
+
+  private badgeSub?: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -47,7 +50,16 @@ export class ProfiloPage implements OnInit {
   }
 
   ngOnInit(): void {
+    this.badgeSub = this.authService.appuntamentiDaGestire$.subscribe((totale) => {
+      this.appuntamentiDaGestire = totale;
+    });
+
+    this.authService.refreshAppuntamentiDaGestire().subscribe({ error: () => undefined });
     this.caricaProfilo();
+  }
+
+  ngOnDestroy(): void {
+    this.badgeSub?.unsubscribe();
   }
 
   caricaProfilo() {
@@ -124,6 +136,15 @@ export class ProfiloPage implements OnInit {
       }
     });
   }
+
+  mostraBadgeAppuntamenti(): boolean {
+    return !this.authService.isAdmin() && this.appuntamentiDaGestire > 0;
+  }
+
+  vaiAiMieiAppuntamenti() {
+    this.router.navigate(['/miei-appuntamenti']);
+  }
+
   eseguireLogout() {
   this.authService.logout();
   // Se hai una funzione per chiudere menu globali chiamala qui

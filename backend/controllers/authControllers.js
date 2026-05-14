@@ -669,22 +669,25 @@ exports.segnaNotificaLetta = async (req, res) => {
   }
 };
 
-exports.deletePrenotazione = (req, res) => {
-  const prenotazioneId = req.params.id;
-  const userId = req.user.id;
-  const query = `DELETE FROM prenotazioni WHERE id = ? AND user_id = ?`;
+exports.deletePrenotazione = async (req, res) => {
+  try {
+    const prenotazioneId = req.params.id;
+    const userId = req.user.id;
+    const result = await dbRun(`DELETE FROM prenotazioni WHERE id = ? AND user_id = ?`, [prenotazioneId, userId]);
 
-  db.run(query, [prenotazioneId, userId], function(err) {
-    if (err) {
-      return res.status(500).json({ error: err.message });
-    }
-
-    if (this.changes === 0) {
+    if (result.changes === 0) {
       return res.status(404).json({ message: "Prenotazione non trovata o non autorizzato" });
     }
 
+    await dbRun(
+      `UPDATE notifiche SET letta = 1 WHERE user_id = ? AND prenotazione_id = ?`,
+      [userId, prenotazioneId]
+    );
+
     res.json({ message: "Prenotazione eliminata con successo" });
-  });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
 
 exports.getServiziPubblici = async (_req, res) => {

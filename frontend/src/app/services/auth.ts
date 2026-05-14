@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, map, tap, throwError, timeout } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, map, of, tap, throwError, timeout } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { normalizzaServizioApi, ServizioOfferto } from '../shared/servizi';
 
@@ -9,6 +9,8 @@ import { normalizzaServizioApi, ServizioOfferto } from '../shared/servizi';
 })
 export class AuthService {
   private apiUrl = 'api/auth'; 
+  private appuntamentiDaGestireSubject = new BehaviorSubject<number>(0);
+  appuntamentiDaGestire$ = this.appuntamentiDaGestireSubject.asObservable();
 
   constructor(private http: HttpClient) { }
 
@@ -65,6 +67,7 @@ private hasLocalStorage(): boolean {
           const username = response.user?.nome || loginData.email.split('@')[0];
           localStorage.setItem('username', username);
           localStorage.setItem('role', response.user?.ruolo || 'user');
+          this.refreshAppuntamentiDaGestire().subscribe({ error: () => undefined });
         }
       })
     );
@@ -94,6 +97,8 @@ private hasLocalStorage(): boolean {
       localStorage.removeItem('username');
       localStorage.removeItem('role');
     }
+
+    this.appuntamentiDaGestireSubject.next(0);
   }
 
   isLoggedIn(): boolean {
@@ -178,7 +183,9 @@ private hasLocalStorage(): boolean {
 
   riprogrammaPrenotazione(id: number, datiPrenotazione: any): Observable<any> {
     return this.withAuthHeaders((headers) =>
-      this.http.put(`${this.apiUrl}/prenota/${id}/riprogramma`, datiPrenotazione, { headers })
+      this.http.put(`${this.apiUrl}/prenota/${id}/riprogramma`, datiPrenotazione, { headers }).pipe(
+        tap(() => this.refreshAppuntamentiDaGestire().subscribe({ error: () => undefined }))
+      )
     );
   }
 
@@ -196,7 +203,9 @@ private hasLocalStorage(): boolean {
 
   segnaNotificaLetta(id: number): Observable<any> {
     return this.withAuthHeaders((headers) =>
-      this.http.put(`${this.apiUrl}/notifiche/${id}/letta`, {}, { headers })
+      this.http.put(`${this.apiUrl}/notifiche/${id}/letta`, {}, { headers }).pipe(
+        tap(() => this.refreshAppuntamentiDaGestire().subscribe({ error: () => undefined }))
+      )
     );
   }
 
@@ -210,13 +219,45 @@ private hasLocalStorage(): boolean {
 
   eliminaPrenotazione(id: number): Observable<any> {
     return this.withAuthHeaders((headers) =>
-      this.http.delete(`${this.apiUrl}/prenota/${id}`, { headers })
+      this.http.delete(`${this.apiUrl}/prenota/${id}`, { headers }).pipe(
+        tap(() => this.refreshAppuntamentiDaGestire().subscribe({ error: () => undefined }))
+      )
     );
   }
 
   getServiziDisponibili(): Observable<ServizioOfferto[]> {
     return this.http.get<any[]>(`${this.apiUrl}/servizi`).pipe(
       map((servizi) => servizi.map((servizio) => normalizzaServizioApi(servizio)))
+    );
+  }
+
+  aggiornaAppuntamentiDaGestire(notifiche: any[] = [], prenotazioni: any[] = []): number {
+    const appuntamentiDaRiprogrammare = prenotazioni.filter((prenotazione) => prenotazione.stato === 'da_riprogrammare');
+    const appuntamentiDaRiprogrammareIds = new Set(appuntamentiDaRiprogrammare.map((prenotazione) => Number(prenotazione.id)));
+    const notificheAttiveCollegate = notifiche.filter((notifica) =>
+      !notifica.letta && appuntamentiDaRiprogrammareIds.has(Number(notifica.prenotazioneId))
+    );
+    const totale = Math.max(appuntamentiDaRiprogrammare.length, notificheAttiveCollegate.length);
+
+    this.appuntamentiDaGestireSubject.next(totale);
+    return totale;
+  }
+
+  refreshAppuntamentiDaGestire(): Observable<number> {
+    if (!this.isLoggedIn() || this.isAdmin()) {
+      this.appuntamentiDaGestireSubject.next(0);
+      return of(0);
+    }
+
+    return forkJoin({
+      notifiche: this.getNotifiche().pipe(catchError(() => of([]))),
+      prenotazioni: this.getPrenotazioni().pipe(catchError(() => of([])))
+    }).pipe(
+      map(({ notifiche, prenotazioni }) => this.aggiornaAppuntamentiDaGestire(notifiche, prenotazioni)),
+      catchError(() => {
+        this.appuntamentiDaGestireSubject.next(0);
+        return of(0);
+      })
     );
   }
 }

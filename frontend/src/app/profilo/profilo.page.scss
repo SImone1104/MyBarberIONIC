@@ -89,6 +89,38 @@ h1 {
   color: #667085;
 }
 
+.profile-alert-badge {
+  min-height: 28px;
+  margin-top: 10px;
+  padding: 0 10px 0 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid rgba(249, 115, 22, 0.38);
+  border-radius: 999px;
+  background: #fff7ed;
+  color: #9a3412;
+  font-size: 12px;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(249, 115, 22, 0.14);
+}
+
+.profile-alert-badge span {
+  width: 10px;
+  height: 10px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #f97316;
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.18);
+}
+
+.profile-alert-badge:hover {
+  border-color: rgba(249, 115, 22, 0.68);
+  background: #ffedd5;
+}
+
 .loading-box {
   padding: 18px;
   border-radius: 8px;

@@ -19,6 +19,15 @@
       <div>
         <h2>{{ profiloForm.get('nome')?.value || 'Utente' }} {{ profiloForm.get('cognome')?.value || '' }}</h2>
         <p>{{ profiloForm.get('email')?.value || 'Email non disponibile' }}</p>
+        <button
+          *ngIf="mostraBadgeAppuntamenti()"
+          type="button"
+          class="profile-alert-badge"
+          (click)="vaiAiMieiAppuntamenti()"
+          aria-label="Vai agli appuntamenti da gestire">
+          <span aria-hidden="true"></span>
+          Avviso appuntamenti
+        </button>
       </div>
     </div>
 

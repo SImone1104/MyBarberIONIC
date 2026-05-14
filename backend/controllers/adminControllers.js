@@ -791,6 +791,11 @@ exports.updatePrenotazione = async (req, res) => {
       [userId, data, ora, prenotazione.oraFine, prenotazione.durataMinuti, prenotazione.servizioNormalizzato, note || "", id]
     );
 
+    await dbRun(
+      `UPDATE notifiche SET letta = 1 WHERE prenotazione_id = ?`,
+      [id]
+    );
+
     res.json({ message: "Prenotazione aggiornata" });
   } catch (err) {
     res.status(err.status || 500).json({ message: err.message, error: err.message });
@@ -804,6 +809,11 @@ exports.deletePrenotazione = async (req, res) => {
     if (result.changes === 0) {
       return res.status(404).json({ message: "Prenotazione non trovata" });
     }
+
+    await dbRun(
+      `UPDATE notifiche SET letta = 1 WHERE prenotazione_id = ?`,
+      [req.params.id]
+    );
 
     res.json({ message: "Prenotazione eliminata" });
   } catch (err) {

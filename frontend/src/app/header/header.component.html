@@ -54,15 +54,20 @@
       <div *ngIf="authService.isLoggedIn()" class="user-dropdown-container">
         <button
           class="user-btn"
+          [class.has-alerts]="mostraBadgeAppuntamenti()"
           type="button"
           (click)="toggleDropdown()"
           [attr.aria-expanded]="dropdownOpen"
-          aria-label="Apri menu profilo">
+          [attr.aria-label]="mostraBadgeAppuntamenti() ? 'Apri menu profilo, ci sono appuntamenti da gestire' : 'Apri menu profilo'">
           <span class="user-avatar">{{ authService.getUsername().charAt(0).toUpperCase() }}</span>
           <span class="user-copy">
             <span class="user-label">Area personale</span>
             <strong>{{ authService.getUsername() }}</strong>
           </span>
+          <span
+            *ngIf="mostraBadgeAppuntamenti()"
+            class="alert-badge user-alert-badge"
+            aria-label="Appuntamenti da gestire"></span>
           <span class="chevron" aria-hidden="true"></span>
         </button>
 
@@ -80,8 +85,12 @@
           <a class="dropdown-item" routerLink="/profilo" (click)="closeMenus()">
             <span>Il mio profilo</span>
           </a>
-          <a class="dropdown-item" routerLink="/miei-appuntamenti" (click)="closeMenus()">
+          <a class="dropdown-item appointments-dropdown-item" routerLink="/miei-appuntamenti" (click)="closeMenus()">
             <span>I miei appuntamenti</span>
+            <span
+              *ngIf="mostraBadgeAppuntamenti()"
+              class="alert-badge dropdown-alert-badge"
+              aria-label="Appuntamenti da gestire"></span>
           </a>
           <a class="dropdown-item" *ngIf="authService.isAdmin()" routerLink="/barbiere/dashboard" (click)="closeMenus()">
             <span>Area barbiere</span>
@@ -99,6 +108,10 @@
       class="mobile-header-action appointments-action"
       [attr.aria-label]="authService.isAdmin() ? 'Vai all area barbiere' : 'Vai ai miei appuntamenti'">
       <ion-icon name="calendar-number-outline"></ion-icon>
+      <span
+        *ngIf="mostraBadgeAppuntamenti()"
+        class="alert-badge mobile-alert-badge"
+        aria-label="Appuntamenti da gestire"></span>
     </a>
   </nav>
 </header>

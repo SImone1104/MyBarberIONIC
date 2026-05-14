@@ -143,6 +143,7 @@ ion-header, ion-toolbar {
 
 // Pulsante Utente Loggato
 .user-btn {
+  position: relative;
   min-height: 42px;
   display: inline-flex;
   align-items: center;
@@ -154,6 +155,28 @@ ion-header, ion-toolbar {
   padding: 6px 14px 6px 7px;
   cursor: pointer;
   gap: 12px;
+}
+
+.user-btn.has-alerts {
+  border-color: rgba(249, 115, 22, 0.72);
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.14);
+}
+
+.alert-badge {
+  width: 12px;
+  height: 12px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: #f97316;
+  border: 2px solid #181a1f;
+  box-shadow: 0 8px 18px rgba(249, 115, 22, 0.35);
+}
+
+.user-alert-badge {
+  position: absolute;
+  top: -7px;
+  right: -6px;
 }
 
 .user-avatar {
@@ -231,6 +254,18 @@ ion-header, ion-toolbar {
   background: transparent;
   transition: background 0.2s ease;
   gap: 12px;
+}
+
+.appointments-dropdown-item {
+  justify-content: space-between;
+}
+
+.dropdown-alert-badge {
+  flex: 0 0 auto;
+  margin-left: auto;
+  width: 10px;
+  height: 10px;
+  border-width: 0;
 }
 
 .dropdown-item:hover {
@@ -400,6 +435,11 @@ ion-header, ion-toolbar {
     height: 48px;
     padding: 0;
     border-radius: 50%;
+  }
+
+  .user-alert-badge {
+    top: -3px;
+    right: -2px;
   }
 
   .user-dropdown-container {
@@ -710,6 +750,7 @@ ion-header, ion-toolbar {
   }
 
   .mobile-header-action {
+    position: relative;
     width: 46px;
     height: 46px;
     display: inline-grid;
@@ -732,5 +773,12 @@ ion-header, ion-toolbar {
 
   .appointments-action {
     grid-column: 3;
+  }
+
+  .mobile-alert-badge {
+    position: absolute;
+    top: 2px;
+    right: 0;
+    border-color: #242830;
   }
 }
