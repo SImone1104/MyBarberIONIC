@@ -309,7 +309,7 @@ export class BarbiereDisponibilitaPage implements OnInit {
     const dettagli: string[] = [];
 
     if (response.creati && response.creati > 1) {
-      dettagli.push(`${response.creati} giorni creati`);
+      dettagli.push(`${response.creati} blocchi creati`);
     }
 
     if (response.ignorati && response.ignorati > 0) {

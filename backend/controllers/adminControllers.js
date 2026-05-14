@@ -379,27 +379,81 @@ async function blocchiEsistentiInConflitto(giorni, oraInizio, oraFine) {
   );
 }
 
-function disponibilitaCopreIntervallo(disponibilita, oraInizio, oraFine) {
+function intervalloDisponibilita(disponibilita) {
   if (disponibilita.intera_giornata || disponibilita.interaGiornata) {
-    return true;
+    return { inizio: 0, fine: oraInMinuti("23:59") };
   }
 
-  const inizioEsistente = oraInMinuti(disponibilita.ora_inizio || disponibilita.oraInizio);
-  const fineEsistente = oraInMinuti(disponibilita.ora_fine || disponibilita.oraFine);
-
-  return inizioEsistente <= oraInMinuti(oraInizio) && fineEsistente >= oraInMinuti(oraFine);
+  return {
+    inizio: oraInMinuti(disponibilita.ora_inizio || disponibilita.oraInizio),
+    fine: oraInMinuti(disponibilita.ora_fine || disponibilita.oraFine)
+  };
 }
 
-function giorniGiaCopertiDaDisponibilita(disponibilita, oraInizio, oraFine) {
-  return new Set(
-    disponibilita
-      .filter((item) => item.data && disponibilitaCopreIntervallo(item, oraInizio, oraFine))
-      .map((item) => item.data)
-  );
+function sottraiIntervalli(intervallo, coperture) {
+  return coperture
+    .sort((a, b) => a.inizio - b.inizio)
+    .reduce((scoperti, copertura) => {
+      const prossimi = [];
+
+      for (const scoperto of scoperti) {
+        if (copertura.fine <= scoperto.inizio || copertura.inizio >= scoperto.fine) {
+          prossimi.push(scoperto);
+          continue;
+        }
+
+        if (copertura.inizio > scoperto.inizio) {
+          prossimi.push({ inizio: scoperto.inizio, fine: Math.min(copertura.inizio, scoperto.fine) });
+        }
+
+        if (copertura.fine < scoperto.fine) {
+          prossimi.push({ inizio: Math.max(copertura.fine, scoperto.inizio), fine: scoperto.fine });
+        }
+      }
+
+      return prossimi;
+    }, [intervallo])
+    .filter((scoperto) => scoperto.fine > scoperto.inizio);
 }
 
-function disponibilitaInConflittoParziale(disponibilita, oraInizio, oraFine) {
-  return disponibilita.filter((item) => !disponibilitaCopreIntervallo(item, oraInizio, oraFine));
+function fasceScoperteDaDisponibilita(giorni, disponibilita, oraInizio, oraFine, interaGiornata) {
+  const inizio = oraInMinuti(oraInizio);
+  const fine = oraInMinuti(oraFine);
+
+  return giorni.flatMap((giorno) => {
+    const coperture = disponibilita
+      .filter((item) => item.data === giorno)
+      .map(intervalloDisponibilita);
+    const scoperti = sottraiIntervalli({ inizio, fine }, coperture);
+
+    if (interaGiornata) {
+      return scoperti.length === 0
+        ? []
+        : [{ data: giorno, oraInizio, oraFine, interaGiornata: true }];
+    }
+
+    return scoperti.map((scoperto) => ({
+      data: giorno,
+      oraInizio: minutiInOra(scoperto.inizio),
+      oraFine: minutiInOra(scoperto.fine),
+      interaGiornata: false
+    }));
+  });
+}
+
+async function prenotazioniInConflittoConFasce(fasce) {
+  const conflittiById = new Map();
+
+  for (const fascia of fasce) {
+    const conflitti = await prenotazioniInConflitto([fascia.data], fascia.oraInizio, fascia.oraFine);
+
+    for (const conflitto of conflitti) {
+      conflittiById.set(conflitto.id, conflitto);
+    }
+  }
+
+  return Array.from(conflittiById.values())
+    .sort((a, b) => `${a.data} ${a.ora}`.localeCompare(`${b.data} ${b.ora}`));
 }
 
 async function regoleRicorrentiInConflittoConGiorni(giorni, oraInizio, oraFine) {
@@ -953,27 +1007,15 @@ exports.creaDisponibilita = async (req, res) => {
     const giorni = dateRange(data, dataFine);
     const blocchiInConflitto = await blocchiEsistentiInConflitto(giorni, oraInizio, oraFine);
     const regoleInConflitto = await regoleRicorrentiInConflittoConGiorni(giorni, oraInizio, oraFine);
-    const giorniGiaCoperti = giorniGiaCopertiDaDisponibilita(
+    const fasceDaBloccare = fasceScoperteDaDisponibilita(
+      giorni,
       [...blocchiInConflitto, ...regoleInConflitto],
       oraInizio,
-      oraFine
-    );
-    const conflittiParziali = disponibilitaInConflittoParziale(
-      [...blocchiInConflitto, ...regoleInConflitto],
-      oraInizio,
-      oraFine
+      oraFine,
+      interaGiornata
     );
 
-    if (conflittiParziali.length > 0) {
-      return res.status(409).json({
-        message: "Esiste gia un blocco o una regola ricorrente che si sovrappone solo in parte alla fascia selezionata",
-        disponibilita: conflittiParziali
-      });
-    }
-
-    const giorniDaBloccare = giorni.filter((giorno) => !giorniGiaCoperti.has(giorno));
-
-    const conflitti = await prenotazioniInConflitto(giorniDaBloccare, oraInizio, oraFine);
+    const conflitti = await prenotazioniInConflittoConFasce(fasceDaBloccare);
 
     if (conflitti.length > 0 && !confermaRiprogrammazione) {
       return res.status(409).json({
@@ -985,16 +1027,16 @@ exports.creaDisponibilita = async (req, res) => {
 
     const blocchiCreati = [];
 
-    for (const giorno of giorniDaBloccare) {
+    for (const fascia of fasceDaBloccare) {
       const result = await dbRun(
         `
           INSERT INTO disponibilita_blocchi (data, ora_inizio, ora_fine, intera_giornata, motivo)
           VALUES (?, ?, ?, ?, ?)
         `,
-        [giorno, oraInizio, oraFine, interaGiornata ? 1 : 0, motivo]
+        [fascia.data, fascia.oraInizio, fascia.oraFine, fascia.interaGiornata ? 1 : 0, motivo]
       );
 
-      blocchiCreati.push({ id: result.id, data: giorno });
+      blocchiCreati.push({ id: result.id, data: fascia.data, oraInizio: fascia.oraInizio, oraFine: fascia.oraFine });
     }
 
     if (conflitti.length > 0) {
@@ -1017,7 +1059,7 @@ exports.creaDisponibilita = async (req, res) => {
           : "Il periodo selezionato era gia coperto da blocchi o regole ricorrenti",
       id: blocchiCreati[0]?.id,
       creati: blocchiCreati.length,
-      ignorati: giorni.length - giorniDaBloccare.length,
+      ignorati: giorni.length - new Set(blocchiCreati.map((blocco) => blocco.data)).size,
       blocchi: blocchiCreati,
       conflitti: conflitti.length
     });

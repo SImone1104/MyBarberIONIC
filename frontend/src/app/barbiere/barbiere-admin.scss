@@ -277,6 +277,12 @@ ion-content {
   gap: 6px;
 }
 
+.field-hint {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .form-field.full {
   grid-column: 1 / -1;
 }

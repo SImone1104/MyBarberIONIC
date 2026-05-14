@@ -142,16 +142,37 @@ export class BarbiereAgendaPage implements OnInit {
     }).format(this.parseDateInput(appuntamento.data));
   }
 
+  get intervalloConsideratoLabel(): string {
+    const intervallo = this.intervalloPeriodo();
+    const dataInizio = this.formatDateLabel(intervallo.da);
+
+    if (this.periodo === 'giorno') {
+      return dataInizio;
+    }
+
+    return `${dataInizio} - ${this.formatDateLabel(intervallo.a)}`;
+  }
+
   private mostraMessaggio(messaggio: string, tipo: 'success' | 'error'): void {
     this.messaggio = messaggio;
     this.messaggioTipo = tipo;
   }
 
   private parametriPeriodo(): Record<string, string> {
+    const intervallo = this.intervalloPeriodo();
+
+    if (this.periodo === 'giorno') {
+      return { data: intervallo.da };
+    }
+
+    return { da: intervallo.da, a: intervallo.a };
+  }
+
+  private intervalloPeriodo(): { da: string; a: string } {
     const data = this.parseDateInput(this.dataFiltro);
 
     if (this.periodo === 'giorno') {
-      return { data: this.dataFiltro };
+      return { da: this.dataFiltro, a: this.dataFiltro };
     }
 
     const fine = new Date(data);
@@ -175,5 +196,13 @@ export class BarbiereAgendaPage implements OnInit {
   private parseDateInput(data: string): Date {
     const [anno, mese, giorno] = data.split('-').map(Number);
     return new Date(anno, mese - 1, giorno);
+  }
+
+  private formatDateLabel(data: string): string {
+    return new Intl.DateTimeFormat('it-IT', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(this.parseDateInput(data));
   }
 }
