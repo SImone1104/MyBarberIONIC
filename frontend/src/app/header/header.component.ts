@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { calendarNumberOutline, callOutline } from 'ionicons/icons';
+import { calendarNumberOutline, callOutline, closeOutline, menuOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../services/auth'; // Controlla che il nome sia corretto
 
@@ -16,13 +16,14 @@ import { AuthService } from '../services/auth'; // Controlla che il nome sia cor
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   dropdownOpen = false;
+  barberMenuOpen = false;
   appuntamentiDaGestire = 0;
 
   private badgeSub?: Subscription;
   private badgeRefreshTimer?: ReturnType<typeof setInterval>;
 
   constructor(public authService: AuthService, private router: Router) {
-    addIcons({ calendarNumberOutline, callOutline });
+    addIcons({ calendarNumberOutline, callOutline, closeOutline, menuOutline });
   }
 
   ngOnInit(): void {
@@ -47,10 +48,21 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   toggleDropdown() {
     this.dropdownOpen = !this.dropdownOpen;
+    if (this.dropdownOpen) {
+      this.barberMenuOpen = false;
+    }
+  }
+
+  toggleBarberMenu() {
+    this.barberMenuOpen = !this.barberMenuOpen;
+    if (this.barberMenuOpen) {
+      this.dropdownOpen = false;
+    }
   }
 
   closeMenus() {
     this.dropdownOpen = false;
+    this.barberMenuOpen = false;
   }
 
   mostraBadgeAppuntamenti(): boolean {

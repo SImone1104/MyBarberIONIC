@@ -1,8 +1,49 @@
 <header class="site-header">
   <nav class="navbar" aria-label="Navigazione principale">
-    <a routerLink="/contatti" class="mobile-header-action contact-action" aria-label="Vai ai contatti">
-      <ion-icon name="call-outline"></ion-icon>
-    </a>
+    <button
+      *ngIf="authService.isAdmin(); else mobileContactAction"
+      class="mobile-header-action barber-menu-action contact-action"
+      type="button"
+      (click)="toggleBarberMenu()"
+      [attr.aria-expanded]="barberMenuOpen"
+      aria-controls="barberMobileMenu"
+      aria-label="Apri menu area barbiere">
+      <ion-icon name="menu-outline"></ion-icon>
+    </button>
+
+    <ng-template #mobileContactAction>
+      <a routerLink="/contatti" class="mobile-header-action contact-action" aria-label="Vai ai contatti">
+        <ion-icon name="call-outline"></ion-icon>
+      </a>
+    </ng-template>
+
+    <div class="barber-menu-backdrop" *ngIf="barberMenuOpen" (click)="closeMenus()"></div>
+
+    <aside
+      id="barberMobileMenu"
+      class="barber-mobile-menu"
+      [class.open]="barberMenuOpen"
+      *ngIf="authService.isAdmin()"
+      aria-label="Menu mobile area barbiere">
+      <div class="barber-menu-heading">
+        <div>
+          <span>Area barbiere</span>
+          <strong>Gestione salone</strong>
+        </div>
+        <button class="barber-menu-close" type="button" (click)="closeMenus()" aria-label="Chiudi menu area barbiere">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </div>
+
+      <a routerLink="/barbiere/dashboard" routerLinkActive="active" (click)="closeMenus()">Dashboard</a>
+      <a routerLink="/barbiere/agenda" routerLinkActive="active" (click)="closeMenus()">Agenda</a>
+      <a routerLink="/barbiere/nuova-prenotazione" routerLinkActive="active" (click)="closeMenus()">Nuova prenotazione</a>
+      <a routerLink="/barbiere/disponibilita" routerLinkActive="active" (click)="closeMenus()">Disponibilita</a>
+      <a routerLink="/barbiere/clienti" routerLinkActive="active" (click)="closeMenus()">Clienti</a>
+      <a routerLink="/barbiere/servizi" routerLinkActive="active" (click)="closeMenus()">Servizi</a>
+      <a routerLink="/barbiere/contatti" routerLinkActive="active" (click)="closeMenus()">Contatti</a>
+      <a routerLink="/barbiere/statistiche" routerLinkActive="active" (click)="closeMenus()">Statistiche</a>
+    </aside>
 
     <a routerLink="/home" class="brand" (click)="closeMenus()" aria-label="Vai alla home">
       <img src="assets/logo.svg" alt="Logo MyBarber" class="brand-logo">
@@ -104,9 +145,9 @@
     </div>
 
     <a
-      [routerLink]="authService.isAdmin() ? '/barbiere/dashboard' : '/miei-appuntamenti'"
+      routerLink="/miei-appuntamenti"
       class="mobile-header-action appointments-action"
-      [attr.aria-label]="authService.isAdmin() ? 'Vai all area barbiere' : 'Vai ai miei appuntamenti'">
+      aria-label="Vai ai miei appuntamenti">
       <ion-icon name="calendar-number-outline"></ion-icon>
       <span
         *ngIf="mostraBadgeAppuntamenti()"

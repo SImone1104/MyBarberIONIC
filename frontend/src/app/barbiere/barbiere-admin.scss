@@ -524,3 +524,297 @@ textarea:focus {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+@media (max-width: 640px) {
+  ion-content {
+    --background: #f4f7fb;
+  }
+
+  .admin-shell {
+    width: 100%;
+    margin: 86px 0 28px;
+    padding: 0 12px 18px;
+    box-sizing: border-box;
+  }
+
+  .admin-topbar {
+    gap: 10px;
+    margin-bottom: 12px;
+    padding: 2px 2px 0;
+  }
+
+  .admin-kicker {
+    margin-bottom: 4px;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+
+  .admin-topbar h1 {
+    font-size: 25px;
+    line-height: 1.12;
+  }
+
+  .admin-topbar p {
+    margin-top: 6px;
+    font-size: 14px;
+    line-height: 1.42;
+  }
+
+  .admin-tabs {
+    display: none;
+  }
+
+  .quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .quick-actions a,
+  .admin-btn,
+  .ghost-btn,
+  .danger-btn {
+    min-height: 46px;
+    padding: 0 14px;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .metric-card {
+    min-height: 102px;
+    padding: 13px;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.06);
+  }
+
+  .metric-card span,
+  .field-label,
+  .muted-label {
+    font-size: 10px;
+    line-height: 1.25;
+    letter-spacing: 0;
+  }
+
+  .metric-card strong {
+    margin-top: 8px;
+    font-size: 23px;
+    line-height: 1.08;
+    overflow-wrap: anywhere;
+  }
+
+  .metric-card small {
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.25;
+  }
+
+  .admin-grid,
+  .admin-left-stack {
+    gap: 12px;
+  }
+
+  .admin-panel,
+  .form-panel,
+  .list-card {
+    border-radius: 8px;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  }
+
+  .admin-panel,
+  .form-panel {
+    padding: 14px;
+  }
+
+  .panel-heading {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .panel-heading + .panel-heading,
+  .form-grid + .panel-heading {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .panel-heading h2 {
+    font-size: 18px;
+    line-height: 1.18;
+  }
+
+  .panel-heading p {
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .segmented {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  .segmented button {
+    min-height: 38px;
+    padding: 0 8px;
+    border-radius: 7px;
+    font-size: 13px;
+  }
+
+  .filters,
+  .form-grid,
+  .form-grid.two,
+  .form-grid.three {
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .form-field {
+    gap: 5px;
+  }
+
+  input,
+  select,
+  textarea {
+    min-height: 48px;
+    padding: 11px 12px;
+    font-size: 15px;
+  }
+
+  textarea {
+    min-height: 104px;
+  }
+
+  .time-range-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .time-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .time-slot {
+    min-height: 56px;
+    padding: 0 8px;
+    font-size: 14px;
+    line-height: 1.15;
+  }
+
+  .appointment-list,
+  .stack-list {
+    gap: 9px;
+  }
+
+  .appointment-row,
+  .client-row,
+  .service-row,
+  .block-row,
+  .stat-row {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #ffffff;
+  }
+
+  .appointment-row.today {
+    border-color: #60a5fa;
+    background: #eff6ff;
+    box-shadow: inset 4px 0 0 #2563eb;
+  }
+
+  .row-title {
+    font-size: 16px;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+  }
+
+  .row-meta,
+  .row-notes {
+    font-size: 12.5px;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .row-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .row-actions .admin-btn,
+  .row-actions .ghost-btn,
+  .row-actions .danger-btn {
+    flex: 1 1 128px;
+  }
+
+  .status-pill,
+  .price-pill {
+    width: fit-content;
+    max-width: 100%;
+    min-height: 32px;
+    padding: 8px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.1;
+    white-space: normal;
+  }
+
+  .appointment-row > .price-pill,
+  .stat-row > .price-pill {
+    align-self: flex-start;
+  }
+
+  .empty-state,
+  .feedback {
+    padding: 14px;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .form-panel > .row-actions:last-child {
+    position: sticky;
+    bottom: max(10px, env(safe-area-inset-bottom));
+    z-index: 15;
+    margin: 16px -6px -6px;
+    padding: 8px;
+    border: 1px solid #d8e0eb;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+    backdrop-filter: blur(12px);
+  }
+
+  .form-panel > .row-actions:last-child .admin-btn {
+    min-height: 52px;
+  }
+
+  .form-panel > button.admin-btn[type='submit'] {
+    width: 100%;
+    min-height: 50px;
+    margin-top: 14px;
+  }
+
+  .image-picker {
+    align-items: stretch;
+  }
+
+  .image-picker .ghost-btn {
+    width: 100%;
+  }
+
+  .image-preview {
+    width: 100%;
+  }
+}
