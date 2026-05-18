@@ -26,6 +26,7 @@ ion-content {
 .admin-shell {
   width: min(1180px, 92vw);
   margin: 128px auto 44px;
+  margin-top: calc(104px + var(--ion-safe-area-top) + 24px);
   color: #111827;
 }
 
@@ -513,7 +514,7 @@ textarea:focus {
 @media (max-width: 640px) {
   .admin-shell {
     width: min(94vw, 100%);
-    margin-top: 104px;
+    margin-top: calc(78px + var(--ion-safe-area-top) + 18px);
   }
 
   .admin-topbar h1 {
@@ -532,7 +533,7 @@ textarea:focus {
 
   .admin-shell {
     width: 100%;
-    margin: 86px 0 28px;
+    margin: calc(78px + var(--ion-safe-area-top) + 18px) 0 28px;
     padding: 0 12px 18px;
     box-sizing: border-box;
   }

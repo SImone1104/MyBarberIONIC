@@ -102,8 +102,21 @@
       <div class="panel-heading">
         <div>
           <h2>Slot disponibili</h2>
-          <p>{{ isLoadingOrari ? 'Verifica disponibilità in corso...' : 'Gli orari occupati o bloccati non sono selezionabili.' }}</p>
+          <p>
+            {{
+              isLoadingOrari
+                ? 'Verifica disponibilità in corso...'
+                : (erroreCaricamentoOrari
+                  ? 'Disponibilità non verificata. Riprova il controllo.'
+                  : 'Gli orari occupati o bloccati non sono selezionabili.')
+            }}
+          </p>
         </div>
+      </div>
+
+      <div class="feedback error" *ngIf="erroreCaricamentoOrari">
+        Disponibilità non verificata.
+        <button type="button" class="ghost-btn" (click)="riprovaCaricamentoOrari()">Riprova</button>
       </div>
 
       <div class="time-grid">

@@ -1,8 +1,8 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subscription } from 'rxjs';
 import { AuthService } from '../services/auth'; // <--- IMPORTA IL SERVIZIO
 import { SERVIZI_OFFERTI, ServizioOfferto } from '../shared/servizi';
 import { 
@@ -41,7 +41,7 @@ type SlotOrario = {
   imports: [CommonModule, ReactiveFormsModule,IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonMenuButton,
     IonButton, IonIcon, IonSpinner,HeaderComponent,FooterComponent]
 })
-export class PrenotazioniPage implements OnInit {
+export class PrenotazioniPage implements OnInit, OnDestroy {
   // Form principale: contiene data, ora, servizio e note della prenotazione.
   prenotazioneForm!: FormGroup;
 
@@ -64,6 +64,7 @@ export class PrenotazioniPage implements OnInit {
   // Se una risposta vecchia arriva dopo una risposta nuova, viene ignorata.
   private richiestaOrariId = 0;
   private timeoutMessaggioId: ReturnType<typeof setTimeout> | null = null;
+  private orariSub?: Subscription;
 
   giorniCalendario: GiornoCalendario[] = [];
 
@@ -110,6 +111,14 @@ export class PrenotazioniPage implements OnInit {
     this.giorniCalendario = this.creaGiorniCalendario(this.meseVisualizzato);
     this.caricaParametriRiprogrammazione();
     this.caricaServizi();
+  }
+
+  ngOnDestroy(): void {
+    this.orariSub?.unsubscribe();
+
+    if (this.timeoutMessaggioId) {
+      clearTimeout(this.timeoutMessaggioId);
+    }
   }
 
   private caricaParametriRiprogrammazione() {
@@ -487,6 +496,7 @@ export class PrenotazioniPage implements OnInit {
   // Recupera dal backend gli orari occupati nella data scelta.
   caricaOrariOccupati(data: string) {
     const richiestaCorrente = ++this.richiestaOrariId;
+    this.orariSub?.unsubscribe();
 
     // Appena cambia giorno svuotiamo gli slot occupati precedenti e mostriamo lo stato di caricamento.
     // Questo evita il bug visivo in cui, per qualche istante, gli slot del nuovo giorno sembrano liberi.
@@ -495,7 +505,7 @@ export class PrenotazioniPage implements OnInit {
     this.erroreCaricamentoOrari = false;
     this.cdr.detectChanges();
 
-    this.authService.getOrariOccupati(data).subscribe({
+    this.orariSub = this.authService.getOrariOccupati(data).subscribe({
       next: (orari) => {
         if (richiestaCorrente !== this.richiestaOrariId || data !== this.dataSelezionata()) {
           return;
@@ -503,13 +513,13 @@ export class PrenotazioniPage implements OnInit {
 
         this.slotOccupati = this.normalizzaSlotOccupati(orari);
         this.erroreCaricamentoOrari = false;
+        this.isLoadingOrari = false;
         const oraSelezionata = this.oraSelezionata();
 
         if (oraSelezionata && this.slotNonDisponibile(oraSelezionata)) {
           this.prenotazioneForm.patchValue({ ora: '' });
         }
 
-        this.isLoadingOrari = false;
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -527,20 +537,27 @@ export class PrenotazioniPage implements OnInit {
   }
 
   private normalizzaSlotOccupati(orari: any[]): SlotOccupato[] {
-    return orari.map((slot) => {
+    return (orari || []).reduce<SlotOccupato[]>((slots, slot) => {
       if (typeof slot === 'string') {
-        return { ora: slot, oraFine: '', durataMinuti: 30 };
+        slots.push({ ora: slot, oraFine: '', durataMinuti: 30 });
+        return slots;
+      }
+
+      if (!slot?.ora) {
+        return slots;
       }
 
       const durataMinuti = slot.durataMinuti || slot.durata_minuti || this.servizioOccupato(slot.servizio || '')?.durataMinuti || 30;
 
-      return {
+      slots.push({
         ora: slot.ora,
         oraFine: slot.oraFine || slot.ora_fine || this.minutiInOra(this.oraInMinuti(slot.ora) + durataMinuti),
         durataMinuti,
         servizio: slot.servizio
-      };
-    });
+      });
+
+      return slots;
+    }, []);
   }
 
   private aggiungiGiorni(data: string, giorni: number): string {

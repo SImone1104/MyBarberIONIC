@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { IonContent, IonHeader } from '@ionic/angular/standalone';
@@ -7,6 +7,7 @@ import { HeaderComponent } from '../../header/header.component';
 import { FooterComponent } from '../../footer/footer.component';
 import { AdminCliente, AdminService, AdminServizio } from '../../services/admin';
 import { AuthService } from '../../services/auth';
+import { Subscription } from 'rxjs';
 
 type SlotOccupato = {
   ora: string;
@@ -26,16 +27,18 @@ type SlotOrario = {
   templateUrl: './nuova-prenotazione.page.html',
   styleUrls: ['../barbiere-admin.scss']
 })
-export class BarbiereNuovaPrenotazionePage implements OnInit {
+export class BarbiereNuovaPrenotazionePage implements OnInit, OnDestroy {
   clienti: AdminCliente[] = [];
   servizi: AdminServizio[] = [];
   slotOccupati: SlotOccupato[] = [];
   clienteMode: 'esistente' | 'nuovo' = 'esistente';
   isLoadingOrari = false;
+  erroreCaricamentoOrari = false;
   isSubmitting = false;
   messaggio = '';
   messaggioTipo: 'success' | 'error' = 'success';
   private richiestaOrariId = 0;
+  private orariSub?: Subscription;
 
   finestreApertura = [
     { inizio: '09:00', fine: '13:00' },
@@ -73,6 +76,10 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.orariSub?.unsubscribe();
+  }
+
   ionViewWillEnter(): void {
     this.caricaDatiBase();
 
@@ -108,26 +115,33 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
   caricaOrariOccupati(): void {
     const data = this.dataSelezionata();
     const richiestaCorrente = ++this.richiestaOrariId;
+    this.orariSub?.unsubscribe();
 
     if (!data) {
       this.slotOccupati = [];
       this.isLoadingOrari = false;
+      this.erroreCaricamentoOrari = false;
       return;
     }
 
+    this.slotOccupati = [];
     this.isLoadingOrari = true;
-    this.authService.getOrariOccupati(data).subscribe({
+    this.erroreCaricamentoOrari = false;
+    this.orariSub = this.authService.getOrariOccupati(data).subscribe({
       next: (orari) => {
         if (richiestaCorrente !== this.richiestaOrariId) {
           return;
         }
 
-        this.slotOccupati = orari.map((slot) => ({
-          ora: slot.ora,
-          oraFine: slot.oraFine || slot.ora_fine || '',
-          durataMinuti: slot.durataMinuti || slot.durata_minuti
-        }));
+        this.slotOccupati = this.normalizzaSlotOccupati(orari);
+        this.erroreCaricamentoOrari = false;
         this.isLoadingOrari = false;
+
+        const oraSelezionata = this.oraSelezionata();
+        if (oraSelezionata && this.slotNonDisponibile(oraSelezionata)) {
+          this.prenotazioneForm.patchValue({ ora: '' }, { emitEvent: false });
+        }
+
         this.cdr.detectChanges();
       },
       error: (err) => {
@@ -137,10 +151,16 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
 
         console.error('Errore orari occupati admin:', err);
         this.slotOccupati = [];
+        this.erroreCaricamentoOrari = true;
         this.isLoadingOrari = false;
         this.mostraMessaggio('Non riesco a verificare gli slot.', 'error');
+        this.cdr.detectChanges();
       }
     });
+  }
+
+  riprovaCaricamentoOrari(): void {
+    this.caricaOrariOccupati();
   }
 
   slotOrari(): SlotOrario[] {
@@ -173,7 +193,7 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
     const durata = this.durataServizioSelezionato();
     const data = this.dataSelezionata();
 
-    if (this.isLoadingOrari || !durata || !data) {
+    if (this.isLoadingOrari || this.erroreCaricamentoOrari || !durata || !data) {
       return true;
     }
 
@@ -301,6 +321,29 @@ export class BarbiereNuovaPrenotazionePage implements OnInit {
       : esistenteInizio + (slot.durataMinuti || 30);
 
     return nuovoInizio < esistenteFine && nuovoFine > esistenteInizio;
+  }
+
+  private normalizzaSlotOccupati(orari: any[]): SlotOccupato[] {
+    return (orari || []).reduce<SlotOccupato[]>((slots, slot) => {
+      if (typeof slot === 'string') {
+        slots.push({ ora: slot, oraFine: '', durataMinuti: 30 });
+        return slots;
+      }
+
+      if (!slot?.ora) {
+        return slots;
+      }
+
+      const durataMinuti = slot.durataMinuti || slot.durata_minuti || 30;
+
+      slots.push({
+        ora: slot.ora,
+        oraFine: slot.oraFine || slot.ora_fine || this.minutiInOra(this.oraInMinuti(slot.ora) + durataMinuti),
+        durataMinuti
+      });
+
+      return slots;
+    }, []);
   }
 
   private oraInMinuti(ora: string): number {

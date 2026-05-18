@@ -3,7 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { IonIcon } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { calendarNumberOutline, callOutline, closeOutline, menuOutline } from 'ionicons/icons';
+import { calendarNumberOutline, closeOutline, locationOutline, menuOutline } from 'ionicons/icons';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../services/auth'; // Controlla che il nome sia corretto
 
@@ -23,7 +23,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private badgeRefreshTimer?: ReturnType<typeof setInterval>;
 
   constructor(public authService: AuthService, private router: Router) {
-    addIcons({ calendarNumberOutline, callOutline, closeOutline, menuOutline });
+    addIcons({ calendarNumberOutline, closeOutline, locationOutline, menuOutline });
   }
 
   ngOnInit(): void {
