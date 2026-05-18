@@ -47,9 +47,14 @@ export class HomePage implements OnInit {
 
   ngOnInit(): void {
     this.caricaServizi();
+  }
 
+  ionViewWillEnter(): void {
     if (this.authService.isLoggedIn()) {
       this.caricaProssimoAppuntamento();
+    } else {
+      this.prossimoAppuntamento = null;
+      this.caricamentoAppuntamento = false;
     }
   }
 

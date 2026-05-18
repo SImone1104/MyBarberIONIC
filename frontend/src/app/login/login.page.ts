@@ -19,7 +19,7 @@ export class LoginPage implements OnInit {
   messaggio: string = "";
   isErrore: boolean = false; // <-- NUOVA VARIABILE
   isLoading = false;
-  private returnUrl = '/layout/home';
+  private returnUrl = '/home';
 
   constructor(
     private formBuilder: FormBuilder,
