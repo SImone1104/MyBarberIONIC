@@ -73,7 +73,7 @@ ion-content {
 /* Base comune per tutti i bottoni action */
 .primary-action,
 .secondary-action,
-.service-footer a {
+.service-footer .booking-link {
   min-height: 48px; /* Allineato a cta-button */
   padding: 13px 20px;
   border-radius: 8px;
@@ -98,7 +98,7 @@ ion-content {
 /* Hover universale per le azioni */
 .primary-action:hover,
 .secondary-action:hover,
-.service-footer a:hover {
+.service-detail-card:hover .service-footer .booking-link {
   transform: translateY(-1px);
   background: rgba(255, 255, 255, 0.14);
   border-color: rgba(255, 255, 255, 0.6);
@@ -129,6 +129,22 @@ ion-content {
   grid-template-columns: 290px minmax(0, 1fr);
   overflow: hidden;
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.service-detail-card:hover,
+.service-detail-card:focus-visible {
+  border-color: #b8c7dd;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
+  transform: translateY(-1px);
+}
+
+.service-detail-card:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.28);
+  outline-offset: 3px;
 }
 
 .service-media {
@@ -224,7 +240,7 @@ ion-content {
 }
 
 /* Specifichiamo uno stile diverso per i bottoni dentro le card bianche */
-.service-footer a {
+.service-footer .booking-link {
 background: linear-gradient(
 145deg,
 rgba(37, 99, 235, 0.85),
@@ -238,7 +254,8 @@ rgba(15, 23, 42, 0.95)
 }
 
 /* Hover per i bottoni nelle card */
-.service-footer a:hover {
+.service-detail-card:hover .service-footer .booking-link,
+.service-detail-card:focus-visible .service-footer .booking-link {
    background: linear-gradient(
     145deg,
     rgba(59, 130, 246, 1), /* Blu più acceso */
@@ -301,7 +318,7 @@ rgba(15, 23, 42, 0.95)
     /* 5. Elimina il margin-top: auto che spinge il bottone nel vuoto */
     margin-top: 10px; 
     
-    a {
+    .booking-link {
       width: 100%; /* Bottone a tutta larghezza per facilitare il click col pollice */
       box-sizing: border-box;
     }
@@ -330,7 +347,7 @@ rgba(15, 23, 42, 0.95)
     margin-top: 10px; /* Spazio minimo tra prezzi e bottone */
   }
   
-  .service-footer a {
+  .service-footer .booking-link {
     width: 100%; /* Il bottone occupa tutta la larghezza, tipico dei telefoni */
   }
 

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { AuthService } from '../services/auth'; // <--- IMPORTA IL SERVIZIO
 import { SERVIZI_OFFERTI, ServizioOfferto } from '../shared/servizi';
@@ -65,6 +65,8 @@ export class PrenotazioniPage implements OnInit, OnDestroy {
   private richiestaOrariId = 0;
   private timeoutMessaggioId: ReturnType<typeof setTimeout> | null = null;
   private orariSub?: Subscription;
+  private queryParamsSub?: Subscription;
+  private inizializzazioneDataEseguita = false;
 
   giorniCalendario: GiornoCalendario[] = [];
 
@@ -109,20 +111,37 @@ export class PrenotazioniPage implements OnInit, OnDestroy {
   ngOnInit() {
     // All'apertura della pagina inizializza calendario e data odierna.
     this.giorniCalendario = this.creaGiorniCalendario(this.meseVisualizzato);
-    this.caricaParametriRiprogrammazione();
+    this.ascoltaParametriPrenotazione();
     this.caricaServizi();
   }
 
   ngOnDestroy(): void {
     this.orariSub?.unsubscribe();
+    this.queryParamsSub?.unsubscribe();
 
     if (this.timeoutMessaggioId) {
       clearTimeout(this.timeoutMessaggioId);
     }
   }
 
-  private caricaParametriRiprogrammazione() {
-    const riprenota = Number(this.route.snapshot.queryParamMap.get('riprenota'));
+  private ascoltaParametriPrenotazione() {
+    if (!this.route.queryParamMap) {
+      this.applicaParametriPrenotazione(this.route.snapshot.queryParamMap);
+      return;
+    }
+
+    this.queryParamsSub = this.route.queryParamMap.subscribe((params) => {
+      this.applicaParametriPrenotazione(params);
+    });
+  }
+
+  private applicaParametriPrenotazione(params: ParamMap) {
+    this.caricaParametriRiprogrammazione(params);
+    this.applicaServizioDaParametri(params);
+  }
+
+  private caricaParametriRiprogrammazione(params: ParamMap) {
+    const riprenota = Number(params.get('riprenota'));
     this.prenotazioneDaRiprogrammareId = Number.isFinite(riprenota) && riprenota > 0 ? riprenota : null;
   }
 
@@ -133,25 +152,33 @@ export class PrenotazioniPage implements OnInit, OnDestroy {
           this.servizi = servizi;
         }
 
-        this.applicaServizioDaHome();
+        this.applicaServizioDaParametri(this.route.snapshot.queryParamMap);
       },
       error: (err) => {
         console.error('Errore caricamento servizi:', err);
-        this.applicaServizioDaHome();
+        this.applicaServizioDaParametri(this.route.snapshot.queryParamMap);
       }
     });
   }
 
-  private applicaServizioDaHome() {
-    const servizio = this.route.snapshot.queryParamMap.get('servizio');
+  private applicaServizioDaParametri(params: ParamMap) {
+    const servizio = params.get('servizio');
 
     if (servizio && this.servizioByValore(servizio)) {
+      if (this.servizioSelezionato() === servizio && this.dataSelezionata()) {
+        return;
+      }
+
       this.prenotazioneForm.patchValue({ servizio, ora: '' });
+      this.inizializzazioneDataEseguita = true;
       this.prenotaPrimaPossibile();
       return;
     }
 
-    this.selezionaData(this.dataMinima);
+    if (!this.inizializzazioneDataEseguita) {
+      this.inizializzazioneDataEseguita = true;
+      this.selezionaData(this.dataMinima);
+    }
   }
 
   private async prenotaPrimaPossibile() {

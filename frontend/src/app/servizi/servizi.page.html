@@ -18,7 +18,12 @@
     </section>
 
     <section class="service-showcase">
-      <article class="service-detail-card" *ngFor="let servizio of servizi">
+      <a
+        class="service-detail-card"
+        *ngFor="let servizio of servizi"
+        [routerLink]="['/prenotazioni']"
+        [queryParams]="{ servizio: servizio.valore }"
+        [attr.aria-label]="'Prenota ' + servizio.nome">
         <div class="service-media">
           <img [src]="servizio.immagine" [alt]="servizio.nome" loading="lazy">
           <span>{{ servizio.badge }}</span>
@@ -44,14 +49,12 @@
           </div>
 
           <div class="service-footer">
-            <a
-              [routerLink]="['/prenotazioni']"
-              [queryParams]="{ servizio: servizio.valore }">
+            <span class="booking-link">
               Prenota
-            </a>
+            </span>
           </div>
         </div>
-      </article>
+      </a>
     </section>
 
   </div>
