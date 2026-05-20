@@ -4,7 +4,7 @@ import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/
 import { provideIonicAngular } from '@ionic/angular/standalone'; // Fondamentale per Ionic!
 
 import { routes } from './app.routes';
-import { httpIntInterceptor } from './http-int.interceptor'; // Usa quello del prof
+import { httpIntInterceptor } from './http-int-interceptor'; // Usa quello del prof
 
 export const appConfig: ApplicationConfig = {
   providers: [
