@@ -3,10 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { AuthService } from '../services/auth';
 import { Subscription, finalize, timeout } from 'rxjs';
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonMenuButton,
-  IonButton, IonIcon, IonSpinner 
-} from '@ionic/angular/standalone';
+import { IonContent, IonHeader, IonIcon } from '@ionic/angular/standalone';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { Router } from '@angular/router'; // <--- AGGIUNGI QUESTO
@@ -15,8 +12,7 @@ import { Router } from '@angular/router'; // <--- AGGIUNGI QUESTO
 @Component({
   selector: 'app-profilo',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonMenuButton,
-    IonButton, IonIcon, IonSpinner,HeaderComponent,FooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, IonContent, IonHeader, IonIcon, HeaderComponent, FooterComponent],
   templateUrl: './profilo.page.html',
   styleUrl: './profilo.page.scss'
 })

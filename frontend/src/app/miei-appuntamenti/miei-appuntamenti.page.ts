@@ -5,10 +5,7 @@ import { AuthService } from '../services/auth';
 import { SERVIZI_OFFERTI, ServizioOfferto, servizioByValore } from '../shared/servizi';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonMenuButton,
-  IonButton, IonIcon, IonSpinner 
-} from '@ionic/angular/standalone';
+import { IonContent, IonHeader } from '@ionic/angular/standalone';
 
 type Appuntamento = {
   id: number;
@@ -35,8 +32,7 @@ type Notifica = {
 @Component({
   selector: 'app-miei-appuntamenti',
   standalone: true,
-  imports: [CommonModule, RouterLink,IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonMenuButton,
-    IonButton, IonIcon, IonSpinner,HeaderComponent,FooterComponent],
+  imports: [CommonModule, RouterLink, IonContent, IonHeader, HeaderComponent, FooterComponent],
   templateUrl: './miei-appuntamenti.page.html',
   styleUrl: './miei-appuntamenti.page.scss',
 })

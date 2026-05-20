@@ -5,10 +5,7 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { firstValueFrom, Subscription } from 'rxjs';
 import { AuthService } from '../services/auth'; // <--- IMPORTA IL SERVIZIO
 import { SERVIZI_OFFERTI, ServizioOfferto } from '../shared/servizi';
-import { 
-  IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonMenuButton,
-  IonButton, IonIcon, IonSpinner 
-} from '@ionic/angular/standalone';
+import { IonContent, IonHeader } from '@ionic/angular/standalone';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 
@@ -38,8 +35,7 @@ type SlotOrario = {
   templateUrl: './prenotazioni.page.html',
   styleUrls: ['./prenotazioni.page.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule,IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonMenuButton,
-    IonButton, IonIcon, IonSpinner,HeaderComponent,FooterComponent]
+  imports: [CommonModule, ReactiveFormsModule, IonContent, IonHeader, HeaderComponent, FooterComponent]
 })
 export class PrenotazioniPage implements OnInit, OnDestroy {
   // Form principale: contiene data, ora, servizio e note della prenotazione.

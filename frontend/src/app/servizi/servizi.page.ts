@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { IonHeader, IonContent, IonToolbar, IonTitle } from '@ionic/angular/standalone';
+import { IonHeader, IonContent } from '@ionic/angular/standalone';
 import { HeaderComponent } from '../header/header.component';
 import { FooterComponent } from '../footer/footer.component';
 import { AuthService } from '../services/auth';
@@ -15,8 +15,6 @@ import { SERVIZI_OFFERTI, ServizioOfferto } from '../shared/servizi';
     RouterLink, 
     IonHeader, 
     IonContent, 
-    IonToolbar, 
-    IonTitle,
     HeaderComponent,
     FooterComponent
   ],
