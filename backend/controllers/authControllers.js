@@ -1,8 +1,13 @@
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+// contiene la logica vera delle richieste.
+
+
+
+
+//carico i moduli necessari
+const bcrypt = require("bcrypt"); // serve principalmente per proteggere le password.
+const jwt = require("jsonwebtoken"); //Un token JWT è una stringa firmata che il server genera dopo un login corretto. Serve a riconoscere l’utente nelle richieste successive.
 const User = require("../models/userModel");
 const db = require("../db/db");
-
 const SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
 const DURATE_SERVIZI = {
@@ -31,35 +36,43 @@ const FINESTRE_APERTURA = [
 
 const SLOT_STEP_MINUTI = 30;
 
+// serve a convertire un orario nel formato in un numero intero che rappresenta i minuti totali dall’inizio della giornata. ("08:30" → 8 ore e 30 minuti → 8 * 60 + 30 = 510)
 function oraInMinuti(ora) {
   const [ore, minuti] = String(ora || "").split(":").map(Number);
   return ore * 60 + minuti;
 }
 
+// serve a controllare se una data ha il formato YYYY-MM-DD:
 function formatoDataValido(data) {
   const valore = String(data || "");
 
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(valore)) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(valore)) {  // se il formato è corretto ritorna true
     return false;
   }
 
-  const [anno, mese, giorno] = valore.split("-").map(Number);
-  const dataVerificata = new Date(anno, mese - 1, giorno);
+  const [anno, mese, giorno] = valore.split("-").map(Number); //crea un array ["2026","06","18"] (con split) -> [2026,06,18] (con map viene trasformato in intero)
+  const dataVerificata = new Date(anno, mese - 1, giorno); //In js i mesi partono da 0 ecco perco mese-1
 
   return dataVerificata.getFullYear() === anno
     && dataVerificata.getMonth() === mese - 1
     && dataVerificata.getDate() === giorno;
 }
 
+
+//serve a trasformare una stringa nel formato "YYYY-MM-DD" in un oggetto JavaScript di tipo Date
 function parseDateInput(data) {
   const [anno, mese, giorno] = data.split("-").map(Number);
   return new Date(anno, mese - 1, giorno);
 }
 
+
+
+//La funzione riceve una data, e  restituisce un numero da 0 a 6. 0->Domenica  6->sabato
 function giornoSettimana(data) {
   return parseDateInput(data).getDay();
 }
 
+//serve a verificare se una stringa rappresenta un orario valido nel formato: HH:MM
 function formatoOraValido(ora) {
   if (!/^\d{2}:\d{2}$/.test(String(ora || ""))) {
     return false;
@@ -75,7 +88,7 @@ function formatoOraValido(ora) {
 }
 
 function minutiInOra(minutiTotali) {
-  const ore = String(Math.floor(minutiTotali / 60)).padStart(2, "0");
+  const ore = String(Math.floor(minutiTotali / 60)).padStart(2, "0"); // aggiunge uno zero all’inizio se la stringa ha meno di 2 caratteri.
   const minuti = String(minutiTotali % 60).padStart(2, "0");
   return `${ore}:${minuti}`;
 }
@@ -141,6 +154,8 @@ async function getServizioAttivo(servizio) {
   );
 }
 
+
+//Controlla se la mia prenotazione è bloccato da regola a blocchi o da regola settiminale
 async function slotBloccato(data, ora, durataMinuti) {
   const inizio = oraInMinuti(ora);
   const fine = inizio + durataMinuti;
@@ -194,7 +209,7 @@ async function slotBloccato(data, ora, durataMinuti) {
     [giornoSettimana(data), data, data, fine, inizio]
   );
 
-  return !!bloccoRicorrente;
+  return !!bloccoRicorrente; //converto bloccoRicorrente in bool
 }
 
 function calcolaOraFine(ora, durataMinuti) {
@@ -212,6 +227,7 @@ function slotDentroOrarioApertura(ora, durataMinuti) {
   });
 }
 
+//Qui controlla che l’orario inizi su uno slot previsto.
 function slotAllineatoAllaDurata(ora, durataMinuti) {
   const inizio = oraInMinuti(ora);
 
@@ -221,12 +237,14 @@ function slotAllineatoAllaDurata(ora, durataMinuti) {
   });
 }
 
+
+//Serve a impedire prenotazioni già scadute.
 function slotNelPassato(data, ora) {
   const [anno, mese, giorno] = data.split("-").map(Number);
   const [ore, minuti] = ora.split(":").map(Number);
   const inizioSlot = new Date(anno, mese - 1, giorno, ore, minuti, 0, 0);
 
-  return inizioSlot <= new Date();
+  return inizioSlot <= new Date();  //New date da la data attuale
 }
 
 function intervalliSovrapposti(nuovoInizio, nuovoFine, prenotazione) {
@@ -276,6 +294,7 @@ const FINE_PRENOTAZIONE_SQL = `
   END
 `;
 
+//FUNZIONE REGISTRAZIONE
 exports.register = async (req, res) => {
   try {
     const nomeUtente = (req.body.nome || "").trim();
@@ -307,7 +326,8 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+//FUNZIONE LOGIN
+exports.login = async (req, res) => {  // In Node.js con CommonJS, exports serve a rendere qualcosa disponibile fuori dal file.
   try {
     const email = (req.body.email || "").trim().toLowerCase();
     const password = req.body.password || "";
@@ -324,6 +344,7 @@ exports.login = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 exports.getProfile = async (req, res) => {
   try {
@@ -375,9 +396,20 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+
+/*creaPrenotazione:
+1. legge i dati della richiesta
+2. valida input
+3. identifica utente autenticato
+4. normalizza il servizio
+5. calcola durata e ora fine
+6. controlla orari, passato e blocchi
+7. verifica sovrapposizioni
+8. inserisce nel DB
+9. restituisce risposta HTTP */
 exports.creaPrenotazione = async (req, res) => {
   try {
-    const { data, ora, servizio, note } = req.body;
+    const { data, ora, servizio, note } = req.body;  //prende il body della richiesta
     const userId = req.user.id;
 
     if (!data || !ora || !servizio) {
@@ -450,6 +482,59 @@ exports.creaPrenotazione = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+
+/*
+Esempio risposta:
+
+[
+  {
+    "ora": "10:00",
+    "oraFine": "10:30",
+    "durataMinuti": 30,
+    "servizio": "taglio"
+  },
+  {
+    "ora": "12:00",
+    "oraFine": "13:00",
+    "durataMinuti": 60,
+    "servizio": "Blocco: pausa",
+    "blocco": true
+  },
+  {
+    "ora": "15:00",
+    "oraFine": "19:00",
+    "durataMinuti": 240,
+    "servizio": "Chiusura: pomeriggio chiuso",
+    "blocco": true,
+    "ricorrente": true
+  }
+]
+
+
+Questo array è utili per rendere indipsonbili gli slot nel front end
+
+
+Frontend seleziona una data
+        ↓
+GET /api/auth/orari-occupati?data=...
+        ↓
+backend valida la data
+        ↓
+legge prenotazioni di quel giorno
+        ↓
+legge blocchi puntuali di quel giorno
+        ↓
+legge regole ricorrenti valide per quel giorno
+        ↓
+trasforma tutto in intervalli
+        ↓
+manda array al frontend
+        ↓
+frontend disabilita gli slot occupati
+
+*/
 
 exports.getOrariOccupati = async (req, res) => {
   try {
@@ -536,6 +621,47 @@ exports.getOrariOccupati = async (req, res) => {
   }
 };
 
+
+/* Frontend apre "Miei appuntamenti"
+        ↓
+GET /api/auth/miei-appuntamenti
+        ↓
+authMiddleware verifica token
+        ↓
+req.user.id
+        ↓
+SELECT * FROM prenotazioni WHERE user_id = ?
+        ↓
+risposta con appuntamenti dell’utente
+
+Possibile risposta:
+
+[
+  {
+    "id": 3,
+    "user_id": 7,
+    "data": "2026-05-20",
+    "ora": "10:30",
+    "ora_fine": "11:00",
+    "durata_minuti": 30,
+    "servizio": "taglio",
+    "note": "",
+    "stato": "confermata"
+  },
+  {
+    "id": 4,
+    "user_id": 7,
+    "data": "2026-05-25",
+    "ora": "15:00",
+    "ora_fine": "16:00",
+    "durata_minuti": 60,
+    "servizio": "completo",
+    "note": "Vorrei taglio corto",
+    "stato": "confermata"
+  }
+]
+ */
+
 exports.getPrenotazioniUtente = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -549,6 +675,34 @@ exports.getPrenotazioniUtente = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+
+
+/* Utente sceglie nuova data/ora
+        ↓
+PUT /api/auth/prenota/:id/riprogramma
+        ↓
+authMiddleware verifica token
+        ↓
+cerca prenotazione con id + user_id
+        ↓
+controlla stato = da_riprogrammare
+        ↓
+valida nuova data/ora
+        ↓
+usa il servizio già presente nella prenotazione
+        ↓
+calcola durata e ora fine
+        ↓
+controlla aperture, passato, blocchi
+        ↓
+UPDATE con NOT EXISTS per evitare sovrapposizioni
+        ↓
+segna notifiche collegate come lette
+        ↓
+risponde ok
+ */
 
 exports.riprogrammaPrenotazione = async (req, res) => {
   try {
@@ -615,10 +769,12 @@ exports.riprogrammaPrenotazione = async (req, res) => {
       [data, ora, oraFine, durataMinuti, prenotazioneId, userId, prenotazioneId, data, nuovoFine, nuovoInizio]
     );
 
+    //Se nessuna riga è stata modificata allora
     if (result.changes === 0) {
       return res.status(409).json({ message: "Questo slot si sovrappone a una prenotazione esistente" });
     }
 
+    //Dopo che è stato correttamente riprogrammato -> aggiorniamo il db notifiche cosi che all utente non spunti piu la notifica/avviso
     await dbRun(
       `UPDATE notifiche SET letta = 1 WHERE user_id = ? AND prenotazione_id = ?`,
       [userId, prenotazioneId]
@@ -629,6 +785,10 @@ exports.riprogrammaPrenotazione = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+
+
+
 
 exports.getNotificheUtente = async (req, res) => {
   try {
@@ -652,6 +812,9 @@ exports.getNotificheUtente = async (req, res) => {
   }
 };
 
+
+//Non utilizzata () --> perche una notifica viene considera letta quando l utente effetivamnete riprogramma l' appuntamento e cio viene fatto in riprogrammaPrenotazione
+/*
 exports.segnaNotificaLetta = async (req, res) => {
   try {
     const result = await dbRun(
@@ -668,6 +831,31 @@ exports.segnaNotificaLetta = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+*/
+
+
+
+
+/*Frontend clicca elimina
+        ↓
+DELETE /api/auth/prenota/:id
+        ↓
+authMiddleware verifica token
+        ↓
+req.params.id = prenotazione da eliminare
+req.user.id = utente loggato
+        ↓
+DELETE FROM prenotazioni
+WHERE id = ? AND user_id = ?
+        ↓
+se changes = 0 → 404
+        ↓
+UPDATE notifiche SET letta = 1
+WHERE user_id = ? AND prenotazione_id = ?
+        ↓
+risposta ok
+ */
 
 exports.deletePrenotazione = async (req, res) => {
   try {
@@ -690,6 +878,22 @@ exports.deletePrenotazione = async (req, res) => {
   }
 };
 
+
+
+/*
+Frontend apre pagina servizi
+        ↓
+GET /api/auth/servizi
+        ↓
+backend legge tabella servizi
+        ↓
+filtra attivo = 1
+        ↓
+trasforma dati DB in JSON frontend-friendly
+        ↓
+risponde con array servizi
+
+*/
 exports.getServiziPubblici = async (_req, res) => {
   try {
     const rows = await dbAll(
@@ -717,6 +921,8 @@ exports.getServiziPubblici = async (_req, res) => {
   }
 };
 
+
+//Quando clicchero la sezione contatti questo metodo servire a caricare i dati del salone
 exports.getContattiSalonePubblici = async (_req, res) => {
   try {
     const row = await dbGet(`SELECT * FROM contatti_salone WHERE id = 1`);

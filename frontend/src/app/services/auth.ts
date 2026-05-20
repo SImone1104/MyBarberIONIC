@@ -201,13 +201,14 @@ private hasLocalStorage(): boolean {
     );
   }
 
+  /*
   segnaNotificaLetta(id: number): Observable<any> {
     return this.withAuthHeaders((headers) =>
       this.http.put(`${this.apiUrl}/notifiche/${id}/letta`, {}, { headers }).pipe(
         tap(() => this.refreshAppuntamentiDaGestire().subscribe({ error: () => undefined }))
       )
     );
-  }
+  }*/
 
   getOrariOccupati(data: string): Observable<any[]> {
     return this.withAuthHeaders((headers) =>

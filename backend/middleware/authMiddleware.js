@@ -1,3 +1,5 @@
+//I Middleware controllano che il token sia valido q
+
 const jwt = require("jsonwebtoken");
 
 const SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
