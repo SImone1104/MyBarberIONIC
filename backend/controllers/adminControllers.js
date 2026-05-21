@@ -955,11 +955,11 @@ exports.getCliente = async (req, res) => {
 
 exports.getDisponibilita = async (req, res) => {
   try {
-    const params = [];
-    let filtro = "";
+    const params = [oggiInput()];
+    let filtro = "WHERE data >= ?";
 
     if (req.query.data) {
-      filtro = "WHERE data = ?";
+      filtro += " AND data = ?";
       params.push(req.query.data);
     }
 
@@ -998,6 +998,10 @@ exports.creaDisponibilita = async (req, res) => {
 
     if (parseDateInput(dataFine) < parseDateInput(data)) {
       return res.status(400).json({ message: "La data di fine deve essere successiva o uguale alla data di inizio" });
+    }
+
+    if (parseDateInput(data) < parseDateInput(oggiInput())) {
+      return res.status(400).json({ message: "Non puoi creare blocchi in date passate" });
     }
 
     if (oraInMinuti(oraFine) <= oraInMinuti(oraInizio)) {
@@ -1089,8 +1093,10 @@ exports.getDisponibilitaRicorrente = async (_req, res) => {
         SELECT id, giorno_settimana, ora_inizio, ora_fine, intera_giornata, motivo, valida_dal, valida_al, attiva
         FROM disponibilita_regole
         WHERE attiva = 1
+          AND (valida_al IS NULL OR valida_al >= ?)
         ORDER BY giorno_settimana ASC, ora_inizio ASC
-      `
+      `,
+      [oggiInput()]
     );
 
     res.json(rows.map(serializzaRegolaDisponibilita));
@@ -1124,6 +1130,14 @@ exports.creaDisponibilitaRicorrente = async (req, res) => {
 
     if (validaAl && parseDateInput(validaAl) < parseDateInput(validaDal)) {
       return res.status(400).json({ message: "La data fine validita deve essere successiva o uguale alla data iniziale" });
+    }
+
+    if (parseDateInput(validaDal) < parseDateInput(oggiInput())) {
+      return res.status(400).json({ message: "Non puoi creare regole ricorrenti con inizio nel passato" });
+    }
+
+    if (validaAl && parseDateInput(validaAl) < parseDateInput(oggiInput())) {
+      return res.status(400).json({ message: "La data fine validita non puo essere nel passato" });
     }
 
     if (oraInMinuti(oraFine) <= oraInMinuti(oraInizio)) {

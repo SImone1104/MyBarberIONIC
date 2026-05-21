@@ -30,6 +30,7 @@ export class BarbiereDisponibilitaPage implements OnInit {
   private azioneInAttesa: AzioneInAttesa | null = null;
   messaggio = '';
   messaggioTipo: 'success' | 'error' = 'success';
+  oggiInput = this.formatDateInput(new Date());
 
   giorniSettimana = [
     { valore: 1, label: 'Lunedi' },
@@ -42,8 +43,8 @@ export class BarbiereDisponibilitaPage implements OnInit {
   ];
 
   bloccoForm = this.formBuilder.group({
-    data: [this.formatDateInput(new Date()), Validators.required],
-    dataFine: [this.formatDateInput(new Date()), Validators.required],
+    data: [this.oggiInput, Validators.required],
+    dataFine: [this.oggiInput, Validators.required],
     interaGiornata: [false],
     oraInizio: ['09:00', Validators.required],
     oraFine: ['09:30', Validators.required],
@@ -56,7 +57,7 @@ export class BarbiereDisponibilitaPage implements OnInit {
     oraInizio: ['09:00', Validators.required],
     oraFine: ['19:00', Validators.required],
     motivo: ['Chiusura settimanale'],
-    validaDal: [this.formatDateInput(new Date()), Validators.required],
+    validaDal: [this.oggiInput, Validators.required],
     validaAl: ['']
   });
 
@@ -107,7 +108,7 @@ export class BarbiereDisponibilitaPage implements OnInit {
 
   caricaRegoleRicorrenti(): void {
     this.adminService.getDisponibilitaRicorrente().subscribe({
-      next: (regole) => this.regoleRicorrenti = regole,
+      next: (regole) => this.regoleRicorrenti = regole.filter((regola) => this.regolaNonScaduta(regola)),
       error: (err) => {
         console.error('Errore regole ricorrenti:', err);
         this.mostraMessaggio('Non riesco a caricare le chiusure ricorrenti.', 'error');
@@ -118,7 +119,7 @@ export class BarbiereDisponibilitaPage implements OnInit {
   blocchiVisibili(): BloccoDisponibilitaVisibile[] {
     const gruppi = new Map<string, AdminBloccoDisponibilita[]>();
 
-    for (const blocco of this.blocchi) {
+    for (const blocco of this.blocchi.filter((item) => !this.dataNelPassato(item.data))) {
       const chiave = `${blocco.data}|${blocco.motivo || ''}`;
       gruppi.set(chiave, [...(gruppi.get(chiave) || []), blocco]);
     }
@@ -155,6 +156,11 @@ export class BarbiereDisponibilitaPage implements OnInit {
 
     const payload = this.payloadBlocco();
 
+    if (this.dataNelPassato(String(payload['data'] || '')) || this.dataNelPassato(String(payload['dataFine'] || payload['data'] || ''))) {
+      this.mostraMessaggio('Non puoi creare blocchi in date passate.', 'error');
+      return;
+    }
+
     this.adminService.creaDisponibilita(payload).subscribe({
       next: (response) => {
         this.pulisciConferma();
@@ -172,6 +178,16 @@ export class BarbiereDisponibilitaPage implements OnInit {
     }
 
     const payload = this.payloadRegolaRicorrente();
+
+    if (this.dataNelPassato(String(payload['validaDal'] || ''))) {
+      this.mostraMessaggio('Non puoi creare regole settimanali con inizio nel passato.', 'error');
+      return;
+    }
+
+    if (payload['validaAl'] && this.dataNelPassato(String(payload['validaAl']))) {
+      this.mostraMessaggio('La data fine validita non puo essere nel passato.', 'error');
+      return;
+    }
 
     this.adminService.creaDisponibilitaRicorrente(payload).subscribe({
       next: (response) => {
@@ -373,6 +389,14 @@ export class BarbiereDisponibilitaPage implements OnInit {
     }
 
     return true;
+  }
+
+  private regolaNonScaduta(regola: AdminRegolaDisponibilita): boolean {
+    return !regola.validaAl || regola.validaAl >= this.oggiInput;
+  }
+
+  private dataNelPassato(data: string): boolean {
+    return !!data && data < this.oggiInput;
   }
 
   private giornoSettimanaData(data: string): number {
