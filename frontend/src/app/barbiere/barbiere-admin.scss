@@ -463,6 +463,50 @@ textarea:focus {
   margin-top: 26px;
 }
 
+.availability-panel {
+  align-self: start;
+}
+
+.availability-list {
+  max-height: min(44vh, 420px);
+  padding-right: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.availability-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.availability-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.availability-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.availability-row {
+  padding: 12px;
+}
+
+.availability-row .row-title {
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.availability-row .danger-btn {
+  min-height: 38px;
+  padding: 0 12px;
+  white-space: nowrap;
+}
+
+.recurring-list {
+  max-height: min(34vh, 300px);
+}
+
 .secondary-heading {
   margin-top: 24px;
 }

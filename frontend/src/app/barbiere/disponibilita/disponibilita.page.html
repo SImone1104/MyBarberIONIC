@@ -147,7 +147,7 @@
         </section>
       </div>
 
-      <section class="admin-panel">
+      <section class="admin-panel availability-panel">
         <div class="panel-heading">
           <div>
             <h2>Blocchi attivi</h2>
@@ -155,8 +155,8 @@
           </div>
         </div>
 
-        <div class="stack-list" *ngIf="blocchiVisibili().length > 0; else noBlocks">
-          <article class="block-row" *ngFor="let blocco of blocchiVisibili()">
+        <div class="stack-list availability-list" *ngIf="blocchiVisibili().length > 0; else noBlocks">
+          <article class="block-row availability-row" *ngFor="let blocco of blocchiVisibili()">
             <div>
               <h3 class="row-title">{{ dataLabel(blocco.data) }}</h3>
               <p class="row-meta">
@@ -179,8 +179,8 @@
           </div>
         </div>
 
-        <div class="stack-list" *ngIf="regoleRicorrenti.length > 0; else noRecurring">
-          <article class="block-row" *ngFor="let regola of regoleRicorrenti">
+        <div class="stack-list availability-list recurring-list" *ngIf="regoleRicorrenti.length > 0; else noRecurring">
+          <article class="block-row availability-row" *ngFor="let regola of regoleRicorrenti">
             <div>
               <h3 class="row-title">Ogni {{ giornoLabel(regola.giornoSettimana) }}</h3>
               <p class="row-meta">
