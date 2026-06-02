@@ -76,6 +76,7 @@ export type AdminStatistiche = {
   oggi: { appuntamenti: number; incasso: number };
   settimana: { appuntamenti: number; incasso: number };
   mese: { appuntamenti: number; incasso: number };
+  anno: { appuntamenti: number; incasso: number };
   serviziRichiesti: Array<{ servizio: string; nome: string; totale: number; incasso: number }>;
   clientiFrequenti: Array<{ id: number; nome: string; cognome: string; telefono: string; totale: number }>;
   andamento: Array<{ data: string; appuntamenti: number; incasso: number }>;

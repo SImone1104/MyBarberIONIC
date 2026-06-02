@@ -1410,8 +1410,8 @@ exports.getStatistiche = async (_req, res) => {
     fineSettimana.setDate(inizioSettimana.getDate() + 6);
     const inizioMese = new Date(today.getFullYear(), today.getMonth(), 1);
     const fineMese = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    const quattordiciGiorniFa = new Date(today);
-    quattordiciGiorniFa.setDate(today.getDate() - 13);
+    const inizioAnno = new Date(today.getFullYear(), 0, 1);
+    const fineAnno = new Date(today.getFullYear(), 11, 31);
 
     const prezzoSql = `
       COALESCE(
@@ -1439,10 +1439,11 @@ exports.getStatistiche = async (_req, res) => {
       params
     );
 
-    const [oggi, settimana, mese, serviziRichiesti, clientiFrequenti, andamento] = await Promise.all([
+    const [oggi, settimana, mese, anno, serviziRichiesti, clientiFrequenti, andamentoRows] = await Promise.all([
       riepilogo("p.data = ?", [yyyyMmDd(today)]),
       riepilogo("p.data >= ? AND p.data <= ?", [yyyyMmDd(inizioSettimana), yyyyMmDd(fineSettimana)]),
       riepilogo("p.data >= ? AND p.data <= ?", [yyyyMmDd(inizioMese), yyyyMmDd(fineMese)]),
+      riepilogo("p.data >= ? AND p.data <= ?", [yyyyMmDd(inizioAnno), yyyyMmDd(fineAnno)]),
       dbAll(
         `
           SELECT p.servizio, COALESCE(s.nome, p.servizio) AS nome, COUNT(*) AS totale, COALESCE(SUM(${prezzoSql}), 0) AS incasso
@@ -1476,14 +1477,29 @@ exports.getStatistiche = async (_req, res) => {
           GROUP BY p.data
           ORDER BY p.data ASC
         `,
-        [yyyyMmDd(quattordiciGiorniFa), yyyyMmDd(today)]
+        [yyyyMmDd(inizioSettimana), yyyyMmDd(fineSettimana)]
       )
     ]);
+
+    const andamentoByData = new Map(andamentoRows.map((row) => [row.data, row]));
+    const andamento = Array.from({ length: 5 }, (_, index) => {
+      const data = new Date(inizioSettimana);
+      data.setDate(inizioSettimana.getDate() + index + 1);
+      const dataFormattata = yyyyMmDd(data);
+      const row = andamentoByData.get(dataFormattata);
+
+      return {
+        data: dataFormattata,
+        appuntamenti: row?.appuntamenti || 0,
+        incasso: row?.incasso || 0
+      };
+    });
 
     res.json({
       oggi,
       settimana,
       mese,
+      anno,
       serviziRichiesti,
       clientiFrequenti,
       andamento

@@ -59,4 +59,10 @@ export class BarbiereStatistichePage implements OnInit {
     const [anno, mese, giorno] = data.split('-').map(Number);
     return new Intl.DateTimeFormat('it-IT', { day: '2-digit', month: 'short' }).format(new Date(anno, mese - 1, giorno));
   }
+
+  giornoSettimana(data: string): string {
+    const [anno, mese, giorno] = data.split('-').map(Number);
+    return new Intl.DateTimeFormat('it-IT', { weekday: 'long' })
+      .format(new Date(anno, mese - 1, giorno));
+  }
 }

@@ -507,6 +507,40 @@ textarea:focus {
   max-height: min(34vh, 300px);
 }
 
+.frequent-clients-list {
+  max-height: min(44vh, 420px);
+  padding-right: 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.frequent-clients-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.frequent-clients-list::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #cbd5e1;
+}
+
+.frequent-clients-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.frequent-client-row {
+  padding: 12px;
+}
+
+.frequent-client-row .row-title {
+  font-size: 15px;
+  line-height: 1.25;
+}
+
+.frequent-client-row .price-pill {
+  white-space: nowrap;
+}
+
 .agenda-calendar-card {
   margin-bottom: 16px;
   padding: 14px;

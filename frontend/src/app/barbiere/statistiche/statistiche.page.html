@@ -41,9 +41,9 @@
           <small>{{ statistiche.mese.appuntamenti }} appuntamenti</small>
         </article>
         <article class="metric-card">
-          <span>Servizi richiesti</span>
-          <strong>{{ statistiche.serviziRichiesti.length }}</strong>
-          <small></small>
+          <span>Anno</span>
+          <strong>{{ euro(statistiche.anno.incasso) }}</strong>
+          <small>{{ statistiche.anno.appuntamenti }} appuntamenti</small>
         </article>
       </div>
 
@@ -65,7 +65,6 @@
                   <div class="bar-fill" [style.width.%]="percent(servizio.totale, maxServizi())"></div>
                 </div>
               </div>
-              <span class="status-pill">{{ servizio.servizio }}</span>
             </article>
           </div>
 
@@ -82,8 +81,8 @@
             </div>
           </div>
 
-          <div class="stack-list" *ngIf="statistiche.clientiFrequenti.length > 0; else noFrequentClients">
-            <article class="client-row" *ngFor="let cliente of statistiche.clientiFrequenti">
+          <div class="stack-list frequent-clients-list" *ngIf="statistiche.clientiFrequenti.length > 0; else noFrequentClients">
+            <article class="client-row frequent-client-row" *ngFor="let cliente of statistiche.clientiFrequenti">
               <div>
                 <h3 class="row-title">{{ cliente.nome }} {{ cliente.cognome }}</h3>
                 <p class="row-meta">{{ cliente.telefono }}</p>
@@ -101,26 +100,25 @@
       <section class="admin-panel" style="margin-top: 16px;">
         <div class="panel-heading">
           <div>
-            <h2>Andamento ultimi giorni</h2>
-            <p>Prenotazioni e incasso stimato per data.</p>
+            <h2>Andamento settimana corrente</h2>
+            <p>Prenotazioni e incasso stimato giorno per giorno.</p>
           </div>
         </div>
 
         <div class="stack-list" *ngIf="statistiche.andamento.length > 0; else noTrend">
           <article class="stat-row" *ngFor="let giorno of statistiche.andamento">
             <div>
-              <h3 class="row-title">{{ dataBreve(giorno.data) }}</h3>
-              <p class="row-meta">{{ giorno.appuntamenti }} appuntamenti · {{ euro(giorno.incasso) }}</p>
+              <h3 class="row-title">{{ giornoSettimana(giorno.data) }}</h3>
+              <p class="row-meta">{{ giorno.appuntamenti }} appuntamenti - {{ euro(giorno.incasso) }}</p>
               <div class="bar-track">
                 <div class="bar-fill" [style.width.%]="percent(giorno.appuntamenti, maxAndamento())"></div>
               </div>
             </div>
-            <span class="status-pill">{{ giorno.data }}</span>
           </article>
         </div>
 
         <ng-template #noTrend>
-          <div class="empty-state">Ancora nessun andamento disponibile.</div>
+          <div class="empty-state">Ancora nessun andamento disponibile per questa settimana.</div>
         </ng-template>
       </section>
     </ng-container>
