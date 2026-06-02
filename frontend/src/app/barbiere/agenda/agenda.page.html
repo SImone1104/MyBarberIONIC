@@ -32,21 +32,70 @@
       <div class="panel-heading">
         <div>
           <h2>Calendario operativo</h2>
-          <p>{{ appuntamenti.length }} appuntamenti nel periodo selezionato.</p>
-        </div>
-        <div class="segmented">
-          <button type="button" [class.active]="periodo === 'giorno'" (click)="cambiaPeriodo('giorno')">Giorno</button>
-          <button type="button" [class.active]="periodo === 'settimana'" (click)="cambiaPeriodo('settimana')">Settimana</button>
-          <button type="button" [class.active]="periodo === 'mese'" (click)="cambiaPeriodo('mese')">Mese</button>
+          <p>
+            {{ appuntamentiConfermatiPeriodo() }} appuntamenti confermati nel periodo selezionato
+            <span *ngIf="appuntamentiDaRiprogrammarePeriodo() > 0">
+              · {{ appuntamentiDaRiprogrammarePeriodo() }} da riprogrammare
+            </span>
+          </p>
         </div>
       </div>
 
-      <div class="filters">
-        <label class="form-field">
-          <span class="field-label">Data riferimento</span>
-          <input type="date" [value]="dataFiltro" (change)="aggiornaData($event)">
-          <small class="field-hint">{{ intervalloConsideratoLabel }}</small>
-        </label>
+      <div class="agenda-calendar-card">
+        <div class="calendar-toolbar">
+          <div>
+            <span class="field-label">Intervallo agenda</span>
+            <strong>{{ intervalloConsideratoLabel }}</strong>
+          </div>
+          <div class="month-controls">
+            <button type="button" class="month-btn" (click)="cambiaMese(-1)" aria-label="Mese precedente">&lsaquo;</button>
+            <strong>{{ meseLabel() }}</strong>
+            <button type="button" class="month-btn" (click)="cambiaMese(1)" aria-label="Mese successivo">&rsaquo;</button>
+          </div>
+        </div>
+
+        <div class="calendar-month agenda-calendar">
+          <span class="weekday" *ngFor="let giorno of giorniSettimana">{{ giorno }}</span>
+
+          <button
+            type="button"
+            class="day-card agenda-day"
+            *ngFor="let giorno of giorniCalendario"
+            [class.selected]="isInizioIntervallo(giorno.data) || isFineIntervallo(giorno.data)"
+            [class.range-start]="isInizioIntervallo(giorno.data)"
+            [class.range-end]="isFineIntervallo(giorno.data)"
+            [class.in-range]="isNelIntervallo(giorno.data)"
+            [class.outside-month]="!giorno.isCurrentMonth"
+            [class.today]="giorno.isToday"
+            (click)="selezionaGiorno(giorno.data)">
+            <strong>{{ giorno.numero }}</strong>
+            <span *ngIf="giorno.isToday">Oggi</span>
+            <div class="agenda-day-badges">
+              <small *ngIf="appuntamentiDelGiorno(giorno.data) > 0">
+                {{ appuntamentiDelGiorno(giorno.data) }} app.
+              </small>
+              <small class="warning-badge" *ngIf="appuntamentiDaRiprogrammareDelGiorno(giorno.data) > 0">
+                {{ appuntamentiDaRiprogrammareDelGiorno(giorno.data) }} avviso
+              </small>
+            </div>
+          </button>
+        </div>
+
+        <div class="agenda-range-controls">
+          <label class="form-field">
+            <span class="field-label">Dal giorno</span>
+            <input type="date" [value]="dataInizioFiltro" (change)="aggiornaDataInizio($event)">
+          </label>
+          <label class="form-field">
+            <span class="field-label">Al giorno</span>
+            <input type="date" [value]="dataFineFiltro" [attr.min]="dataInizioFiltro" (change)="aggiornaDataFine($event)">
+          </label>
+          <div class="range-presets">
+            <button class="ghost-btn" type="button" (click)="selezionaPreset(1)">Solo giorno</button>
+            <button class="ghost-btn" type="button" (click)="selezionaPreset(7)">7 giorni</button>
+            <button class="ghost-btn" type="button" (click)="selezionaPreset(30)">30 giorni</button>
+          </div>
+        </div>
       </div>
 
       <div class="appointment-list" *ngIf="appuntamenti.length > 0; else emptyAgenda">
@@ -59,7 +108,6 @@
           </div>
           <div class="row-actions">
             <span class="status-pill warning" *ngIf="app.stato === 'da_riprogrammare'">Da riprogrammare</span>
-            <span class="price-pill">{{ euro(app.prezzo) }}</span>
             <button class="ghost-btn" type="button" (click)="iniziaModifica(app)">Modifica</button>
             <button class="danger-btn" type="button" (click)="eliminaPrenotazione(app.id)">Annulla</button>
           </div>

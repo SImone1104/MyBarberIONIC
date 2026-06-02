@@ -7,7 +7,12 @@ import { HeaderComponent } from '../../header/header.component';
 import { FooterComponent } from '../../footer/footer.component';
 import { AdminPrenotazione, AdminService, AdminServizio } from '../../services/admin';
 
-type PeriodoAgenda = 'giorno' | 'settimana' | 'mese';
+type GiornoAgenda = {
+  data: string;
+  numero: string;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+};
 
 @Component({
   selector: 'app-barbiere-agenda',
@@ -19,8 +24,11 @@ type PeriodoAgenda = 'giorno' | 'settimana' | 'mese';
 export class BarbiereAgendaPage implements OnInit {
   appuntamenti: AdminPrenotazione[] = [];
   servizi: AdminServizio[] = [];
-  periodo: PeriodoAgenda = 'giorno';
-  dataFiltro = this.formatDateInput(new Date());
+  dataInizioFiltro = this.formatDateInput(new Date());
+  dataFineFiltro = this.formatDateInput(new Date());
+  meseVisualizzato = new Date();
+  giorniCalendario: GiornoAgenda[] = [];
+  giorniSettimana = ['Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab', 'Dom'];
   modificaId: number | null = null;
   messaggio = '';
   messaggioTipo: 'success' | 'error' = 'success';
@@ -39,6 +47,7 @@ export class BarbiereAgendaPage implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.giorniCalendario = this.creaGiorniCalendario(this.meseVisualizzato);
     this.caricaServizi();
   }
 
@@ -53,13 +62,60 @@ export class BarbiereAgendaPage implements OnInit {
     });
   }
 
-  cambiaPeriodo(periodo: PeriodoAgenda): void {
-    this.periodo = periodo;
+  selezionaGiorno(data: string): void {
+    if (this.intervalloSingolo() || data < this.dataInizioFiltro) {
+      this.dataInizioFiltro = data;
+      this.dataFineFiltro = data;
+    } else {
+      this.dataFineFiltro = data;
+    }
+
     this.caricaAgenda();
   }
 
-  aggiornaData(event: Event): void {
-    this.dataFiltro = (event.target as HTMLInputElement).value;
+  aggiornaDataInizio(event: Event): void {
+    const data = (event.target as HTMLInputElement).value;
+
+    if (!data) {
+      return;
+    }
+
+    this.dataInizioFiltro = data;
+
+    if (this.dataFineFiltro < data) {
+      this.dataFineFiltro = data;
+    }
+
+    this.meseVisualizzato = this.parseDateInput(data);
+    this.giorniCalendario = this.creaGiorniCalendario(this.meseVisualizzato);
+    this.caricaAgenda();
+  }
+
+  aggiornaDataFine(event: Event): void {
+    const data = (event.target as HTMLInputElement).value;
+
+    if (!data) {
+      return;
+    }
+
+    this.dataFineFiltro = data < this.dataInizioFiltro ? this.dataInizioFiltro : data;
+    this.caricaAgenda();
+  }
+
+  cambiaMese(direzione: number): void {
+    this.meseVisualizzato = new Date(
+      this.meseVisualizzato.getFullYear(),
+      this.meseVisualizzato.getMonth() + direzione,
+      1
+    );
+    this.giorniCalendario = this.creaGiorniCalendario(this.meseVisualizzato);
+  }
+
+  selezionaPreset(giorni: number): void {
+    const inizio = this.parseDateInput(this.dataInizioFiltro);
+    const fine = new Date(inizio);
+    fine.setDate(inizio.getDate() + giorni - 1);
+    this.dataFineFiltro = this.formatDateInput(fine);
     this.caricaAgenda();
   }
 
@@ -142,15 +198,53 @@ export class BarbiereAgendaPage implements OnInit {
     }).format(this.parseDateInput(appuntamento.data));
   }
 
-  get intervalloConsideratoLabel(): string {
-    const intervallo = this.intervalloPeriodo();
-    const dataInizio = this.formatDateLabel(intervallo.da);
+  meseLabel(): string {
+    return new Intl.DateTimeFormat('it-IT', { month: 'long', year: 'numeric' })
+      .format(this.meseVisualizzato);
+  }
 
-    if (this.periodo === 'giorno') {
-      return dataInizio;
+  get intervalloConsideratoLabel(): string {
+    if (this.intervalloSingolo()) {
+      return this.formatDateLabel(this.dataInizioFiltro);
     }
 
-    return `${dataInizio} - ${this.formatDateLabel(intervallo.a)}`;
+    return `${this.formatDateLabel(this.dataInizioFiltro)} - ${this.formatDateLabel(this.dataFineFiltro)}`;
+  }
+
+  appuntamentiDelGiorno(data: string): number {
+    return this.appuntamenti.filter((app) => app.data === data && this.appuntamentoConfermato(app)).length;
+  }
+
+  appuntamentiDaRiprogrammareDelGiorno(data: string): number {
+    return this.appuntamenti.filter((app) => app.data === data && app.stato === 'da_riprogrammare').length;
+  }
+
+  appuntamentiConfermatiPeriodo(): number {
+    return this.appuntamenti.filter((app) => this.appuntamentoConfermato(app)).length;
+  }
+
+  appuntamentiDaRiprogrammarePeriodo(): number {
+    return this.appuntamenti.filter((app) => app.stato === 'da_riprogrammare').length;
+  }
+
+  isInizioIntervallo(data: string): boolean {
+    return data === this.dataInizioFiltro;
+  }
+
+  isFineIntervallo(data: string): boolean {
+    return data === this.dataFineFiltro;
+  }
+
+  isNelIntervallo(data: string): boolean {
+    return data >= this.dataInizioFiltro && data <= this.dataFineFiltro;
+  }
+
+  private intervalloSingolo(): boolean {
+    return this.dataInizioFiltro === this.dataFineFiltro;
+  }
+
+  private appuntamentoConfermato(appuntamento: AdminPrenotazione): boolean {
+    return (appuntamento.stato || 'confermata') === 'confermata';
   }
 
   private mostraMessaggio(messaggio: string, tipo: 'success' | 'error'): void {
@@ -159,31 +253,34 @@ export class BarbiereAgendaPage implements OnInit {
   }
 
   private parametriPeriodo(): Record<string, string> {
-    const intervallo = this.intervalloPeriodo();
-
-    if (this.periodo === 'giorno') {
-      return { data: intervallo.da };
+    if (this.intervalloSingolo()) {
+      return { data: this.dataInizioFiltro };
     }
 
-    return { da: intervallo.da, a: intervallo.a };
+    return { da: this.dataInizioFiltro, a: this.dataFineFiltro };
   }
 
-  private intervalloPeriodo(): { da: string; a: string } {
-    const data = this.parseDateInput(this.dataFiltro);
+  private creaGiorniCalendario(meseCorrente: Date): GiornoAgenda[] {
+    const anno = meseCorrente.getFullYear();
+    const mese = meseCorrente.getMonth();
+    const primoGiornoMese = new Date(anno, mese, 1);
+    const ultimoGiornoMese = new Date(anno, mese + 1, 0);
+    const offsetInizio = (primoGiornoMese.getDay() + 6) % 7;
+    const giorniDaMostrare = Math.ceil((offsetInizio + ultimoGiornoMese.getDate()) / 7) * 7;
+    const dataInizioCalendario = new Date(anno, mese, 1 - offsetInizio);
 
-    if (this.periodo === 'giorno') {
-      return { da: this.dataFiltro, a: this.dataFiltro };
-    }
+    return Array.from({ length: giorniDaMostrare }, (_, index) => {
+      const data = new Date(dataInizioCalendario);
+      data.setDate(dataInizioCalendario.getDate() + index);
+      const dataFormattata = this.formatDateInput(data);
 
-    const fine = new Date(data);
-
-    if (this.periodo === 'settimana') {
-      fine.setDate(data.getDate() + 7);
-      return { da: this.dataFiltro, a: this.formatDateInput(fine) };
-    }
-
-    fine.setDate(data.getDate() + 30);
-    return { da: this.dataFiltro, a: this.formatDateInput(fine) };
+      return {
+        data: dataFormattata,
+        numero: String(data.getDate()),
+        isCurrentMonth: data.getMonth() === mese,
+        isToday: dataFormattata === this.formatDateInput(new Date())
+      };
+    });
   }
 
   private formatDateInput(data: Date): string {

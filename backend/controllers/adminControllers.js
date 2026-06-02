@@ -1406,7 +1406,10 @@ exports.getStatistiche = async (_req, res) => {
 
     const inizioSettimana = new Date(today);
     inizioSettimana.setDate(today.getDate() - ((today.getDay() + 6) % 7));
+    const fineSettimana = new Date(inizioSettimana);
+    fineSettimana.setDate(inizioSettimana.getDate() + 6);
     const inizioMese = new Date(today.getFullYear(), today.getMonth(), 1);
+    const fineMese = new Date(today.getFullYear(), today.getMonth() + 1, 0);
     const quattordiciGiorniFa = new Date(today);
     quattordiciGiorniFa.setDate(today.getDate() - 13);
 
@@ -1438,8 +1441,8 @@ exports.getStatistiche = async (_req, res) => {
 
     const [oggi, settimana, mese, serviziRichiesti, clientiFrequenti, andamento] = await Promise.all([
       riepilogo("p.data = ?", [yyyyMmDd(today)]),
-      riepilogo("p.data >= ?", [yyyyMmDd(inizioSettimana)]),
-      riepilogo("p.data >= ?", [yyyyMmDd(inizioMese)]),
+      riepilogo("p.data >= ? AND p.data <= ?", [yyyyMmDd(inizioSettimana), yyyyMmDd(fineSettimana)]),
+      riepilogo("p.data >= ? AND p.data <= ?", [yyyyMmDd(inizioMese), yyyyMmDd(fineMese)]),
       dbAll(
         `
           SELECT p.servizio, COALESCE(s.nome, p.servizio) AS nome, COUNT(*) AS totale, COALESCE(SUM(${prezzoSql}), 0) AS incasso
@@ -1468,11 +1471,12 @@ exports.getStatistiche = async (_req, res) => {
           FROM prenotazioni p
           LEFT JOIN servizi s ON s.valore = LOWER(TRIM(p.servizio))
           WHERE p.data >= ?
+            AND p.data <= ?
             AND ${soloConfermateSql}
           GROUP BY p.data
           ORDER BY p.data ASC
         `,
-        [yyyyMmDd(quattordiciGiorniFa)]
+        [yyyyMmDd(quattordiciGiorniFa), yyyyMmDd(today)]
       )
     ]);
 

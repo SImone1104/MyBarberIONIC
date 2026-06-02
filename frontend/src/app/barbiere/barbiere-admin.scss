@@ -507,6 +507,212 @@ textarea:focus {
   max-height: min(34vh, 300px);
 }
 
+.agenda-calendar-card {
+  margin-bottom: 16px;
+  padding: 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.calendar-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+
+.calendar-toolbar strong {
+  display: block;
+  margin-top: 4px;
+  color: #111827;
+}
+
+.month-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 220px;
+  padding: 8px 12px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.06);
+  text-transform: capitalize;
+}
+
+.month-controls strong {
+  min-width: 140px;
+  margin: 0;
+  text-align: center;
+  font-weight: 900;
+}
+
+.month-btn {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid rgba(37, 99, 235, 0.15);
+  border-radius: 50%;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  cursor: pointer;
+  font-size: 20px;
+  transition: all 0.2s ease;
+}
+
+.month-btn:hover {
+  background: #2563eb;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.calendar-month {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.agenda-calendar {
+  padding: 10px;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.weekday {
+  display: grid;
+  place-items: center;
+  min-height: 28px;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.day-card {
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+}
+
+.agenda-day {
+  position: relative;
+  min-height: 72px;
+  padding: 9px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  transition: all 0.2s ease;
+}
+
+.agenda-day strong {
+  color: #111827;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.agenda-day span,
+.agenda-day small {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.agenda-day-badges {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.agenda-day small {
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.agenda-day .warning-badge {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.agenda-day:hover {
+  border-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+.agenda-day.today:not(.selected) {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.agenda-day.outside-month strong,
+.agenda-day.outside-month span {
+  color: #94a3b8;
+}
+
+.agenda-day.in-range {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.agenda-day.selected {
+  border-color: #1d4ed8;
+  background: linear-gradient(145deg, #2563eb, #111827);
+  box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+}
+
+.agenda-day.selected strong,
+.agenda-day.selected span {
+  color: #ffffff;
+}
+
+.agenda-day.selected small {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+}
+
+.agenda-day.selected .warning-badge {
+  background: rgba(253, 230, 138, 0.92);
+  color: #78350f;
+}
+
+.agenda-day.range-end:not(.range-start)::after {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.agenda-day.range-end:not(.range-start)::after {
+  content: "Fine";
+}
+
+.agenda-range-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+  gap: 12px;
+  align-items: end;
+  margin-top: 12px;
+}
+
+.range-presets {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .secondary-heading {
   margin-top: 24px;
 }
@@ -548,6 +754,24 @@ textarea:focus {
 
   .admin-topbar {
     flex-direction: column;
+  }
+
+  .calendar-toolbar,
+  .agenda-range-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .month-controls {
+    width: 100%;
+  }
+
+  .range-presets {
+    justify-content: flex-start;
   }
 
   .row-actions {
@@ -751,6 +975,29 @@ textarea:focus {
     padding: 0 8px;
     font-size: 14px;
     line-height: 1.15;
+  }
+
+  .agenda-calendar-card {
+    padding: 10px;
+  }
+
+  .agenda-calendar {
+    gap: 5px;
+    padding: 8px;
+  }
+
+  .agenda-day {
+    min-height: 58px;
+    padding: 7px;
+  }
+
+  .agenda-day strong {
+    font-size: 17px;
+  }
+
+  .agenda-day span,
+  .agenda-day small {
+    font-size: 9px;
   }
 
   .appointment-list,
