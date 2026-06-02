@@ -507,8 +507,22 @@ textarea:focus {
   max-height: min(34vh, 300px);
 }
 
+.frequent-clients-panel {
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  max-height: min(62vh, 520px);
+  overflow: hidden;
+}
+
+.frequent-clients-panel .panel-heading {
+  flex: 0 0 auto;
+}
+
 .frequent-clients-list {
-  max-height: min(44vh, 420px);
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: min(42vh, 340px);
   padding-right: 4px;
   overflow-y: auto;
   overscroll-behavior: contain;
@@ -1032,6 +1046,14 @@ textarea:focus {
   .agenda-day span,
   .agenda-day small {
     font-size: 9px;
+  }
+
+  .frequent-clients-panel {
+    max-height: none;
+  }
+
+  .frequent-clients-list {
+    max-height: 320px;
   }
 
   .appointment-list,
