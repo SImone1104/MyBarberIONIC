@@ -432,6 +432,8 @@ db.all("PRAGMA table_info(prenotazioni)", (err, columns) => {
   });
 });
 
+
+//Questo impedisce due prenotazioni con stessa data e stessa ora.
 db.serialize(() => {
   db.run(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_prenotazioni_data_ora

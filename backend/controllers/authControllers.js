@@ -311,7 +311,7 @@ exports.register = async (req, res) => {
     if (existingUser) return res.status(400).json({ message: "User already exists" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
+    const user = await User.create({  //create crea e aggiunge nel db
       nome: nomeUtente,
       cognome: cognomeUtente,
       email: emailUtente,
@@ -337,6 +337,7 @@ exports.login = async (req, res) => {  // In Node.js con CommonJS, exports serve
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
+    //Struttura dentro il token
     const token = jwt.sign({ id: user.id, email: user.email, ruolo: user.ruolo || "user" }, SECRET, { expiresIn: "1h" });
     const { password: passwordHash, ...safeUser } = user;
     res.json({ token, user: safeUser });
@@ -345,6 +346,23 @@ exports.login = async (req, res) => {  // In Node.js con CommonJS, exports serve
   }
 };
 
+/*La risposta a login sarà (del backend al frontend)
+{
+    "token": "<JWT_TOKEN>",
+    "user": {
+      Payload del token:
+        "id": 3,
+        "nome": "Vittorio",
+        "cognome": "Rossi",
+        "email": "vittorio@gmail.com",
+        "telefono": "334566543",
+        "ruolo": "user"
+    }
+}
+
+e se decodifico il token ottengo anche 2 ulteriori campi iat e exp rispettivamente timestamp di creazione e di scadenza per vedere fino a quando è valido
+
+*/
 
 exports.getProfile = async (req, res) => {
   try {

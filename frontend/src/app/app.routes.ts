@@ -32,12 +32,12 @@ export const routes: Routes = [
   {
     path: 'prenotazioni',
     loadComponent: () => import('./prenotazioni/prenotazioni.page').then(m => m.PrenotazioniPage),
-    canActivate: [authGuard] 
+    canActivate: [authGuard]  //Vai in auth-guard.ts e ritoenera true se l' utente è loggato , falso altrimenti -->Quando è true carica la pagina
   },
   {
     path: 'miei-appuntamenti',
     loadComponent: () => import('./miei-appuntamenti/miei-appuntamenti.page').then(m => m.MieiAppuntamentiPage),
-    canActivate: [authGuard]
+    canActivate: [authGuard] //prima di caricare questa pagina bisogna vedere se l' utente è autenticato
   },
   {
     path: 'profilo',

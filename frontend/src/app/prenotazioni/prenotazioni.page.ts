@@ -91,16 +91,16 @@ export class PrenotazioniPage implements OnInit, OnDestroy {
 
   constructor(
     private formBuilder: FormBuilder, 
-    private authService: AuthService, // <--- INIETTA IL SERVIZIO
+    private authService: AuthService, // <--- INIETTA IL SERVIZIO (backend)
     private route: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef // forza aggiornamento UI quando serve
   ) {
     // Definizione dei controlli e dei campi obbligatori del form.
     this.prenotazioneForm = this.formBuilder.group({
       data: ['', Validators.required],
       ora: ['', Validators.required],
       servizio: ['', Validators.required],
-      note: ['']
+      note: ['']  //nota come questo campo non è obbligatorio
     });
   }
 

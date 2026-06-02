@@ -10,7 +10,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideIonicAngular(), // Questo abilita i componenti Ionic (Bottoni, Menu, ecc.)
-    provideHttpClient(
+    provideHttpClient( //permette l invio delle richieste al backend
       withFetch(), 
       withInterceptors([httpIntInterceptor]) // Collega il backend con IP/Localhost
     ),

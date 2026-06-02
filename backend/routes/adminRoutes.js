@@ -4,7 +4,10 @@ const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
 const adminController = require("../controllers/adminControllers");
 
-router.use(authMiddleware, adminMiddleware);
+router.use(authMiddleware, adminMiddleware); //Questa riga protegge tutte le rotte admin.
+/*prima controlla token valido
+poi controlla ruolo admin
+solo dopo entra nei controller admin*/
 
 router.get("/prenotazioni", adminController.getPrenotazioni);
 router.post("/prenotazioni", adminController.creaPrenotazione);

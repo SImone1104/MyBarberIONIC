@@ -4,6 +4,9 @@ import { BehaviorSubject, Observable, forkJoin, map, of, tap, throwError, timeou
 import { catchError } from 'rxjs/operators';
 import { normalizzaServizioApi, ServizioOfferto } from '../shared/servizi';
 
+
+// Angular crea una sola istanza globale di AuthService
+//e la rende disponibile in tutta l’app
 @Injectable({
   providedIn: 'root'
 })
@@ -21,7 +24,7 @@ private hasLocalStorage(): boolean {
   private isTokenExpired(token: string): boolean {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now();
+      return typeof payload.exp === 'number' && payload.exp * 1000 <= Date.now(); //per ottenere il campo exp del token e confrontare con date.now per vedere se è scaduto o meno
     } catch {
       return true;
     }
@@ -30,11 +33,13 @@ private hasLocalStorage(): boolean {
   private authHeadersOrError(): HttpHeaders {
     const token = this.getToken();
 
+    //Controllo sul token
     if (!token || this.isTokenExpired(token)) {
       this.logout();
       throw { status: 401, message: 'Sessione scaduta' };
     }
 
+    //Aggiunge il campo Authorization nell header della richiesta
     return new HttpHeaders({
       Authorization: `Bearer ${token}`
     });
@@ -48,6 +53,28 @@ private hasLocalStorage(): boolean {
     }
   }
 
+//Flusso completo
+  /*AuthService.login()
+  ↓
+this.http.post("api/auth/login", loginData)
+  ↓
+httpIntInterceptor
+  ↓
+POST http://localhost:3000/api/auth/login
+  ↓
+server.js
+  ↓
+app.use('/api/auth', authRoutes)
+  ↓
+authRoutes.js
+  ↓
+router.post('/login', authController.login)
+  ↓
+authControllers.js
+  ↓
+exports.login(req, res)*/
+
+  //I campi che salvo in localStorage(se esiste)
   login(credentials: any): Observable<any> {
     if (this.hasLocalStorage()) {
       localStorage.removeItem('token');
@@ -88,7 +115,7 @@ private hasLocalStorage(): boolean {
       telefono: (userData.telefono || userData.cellulare || '').trim()
     };
 
-    return this.http.post(`${this.apiUrl}/register`, registrationData);
+    return this.http.post(`${this.apiUrl}/register`, registrationData); // questo url verra inizialmente intercettato da http-int-interceptor
   }
 
   logout() {
@@ -149,6 +176,7 @@ private hasLocalStorage(): boolean {
     return this.isLoggedIn() && this.getRole() === 'admin';
   }
 
+  //Se esiste un local storage -> prendi il token
   getToken(): string | null {
     if (this.hasLocalStorage()) {
       return localStorage.getItem('token');

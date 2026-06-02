@@ -15,7 +15,7 @@ export const httpIntInterceptor: HttpInterceptorFn = (req, next) => {
 
   // 1. Applichiamo la baseUrl del prof
   apiReq = req.clone({
-    url: `${baseUrl}/${req.url}`
+    url: `${baseUrl}/${req.url}` //Importante
   });
 
   // 2. AGGIUNTA: Se esiste un token, lo inseriamo nell'header
@@ -28,12 +28,12 @@ export const httpIntInterceptor: HttpInterceptorFn = (req, next) => {
     });
   }
   
-  return next(apiReq).pipe(
+  return next(apiReq).pipe( //URL completo e pronto per essere mandato al backend
     catchError((error: HttpErrorResponse) => {
       if (error.status === 401) {
         console.error('Sessione scaduta o non autorizzato. Redirect al login...');
         
-        // Seguiamo il consiglio del prof: svuotiamo il localStorage
+        //svuotiamo il localStorage
         localStorage.clear(); 
         router.navigate(['/login']);
       }
