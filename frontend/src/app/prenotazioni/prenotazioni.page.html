@@ -55,6 +55,14 @@
         <input type="hidden" formControlName="servizio">
       </div>
 
+      <button
+        type="button"
+        class="quick-slot-btn"
+        [disabled]="!servizioSelezionato() || isLoadingOrari"
+        (click)="prenotaPrimaPossibile()">
+        Trova prima disponibilità
+      </button>
+
       <!-- Sezione calendario: permette di scegliere il giorno della prenotazione. -->
       <div class="booking-picker">
         <div class="picker-header">

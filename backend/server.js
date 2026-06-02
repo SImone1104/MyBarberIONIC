@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express'); //per creare il server
 const cors = require('cors'); //permette al frontend Angular di comunicare con il backend
 const db = require('./db/db');  //db apre/prepara il database SQLite
@@ -30,11 +32,9 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-// Aggiungiamo '0.0.0.0' per dire al server di accettare connessioni da qualunque IP nella rete
-
-//
-app.listen(PORT, 'localhost', () => {
-  console.log(`Server avviato su http://localhost:${PORT}`);
+// Accetta connessioni anche da altri dispositivi sulla stessa rete.
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server avviato su http://0.0.0.0:${PORT}`);
 });
 
 /*

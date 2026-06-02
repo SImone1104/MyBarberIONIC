@@ -177,7 +177,7 @@ export class PrenotazioniPage implements OnInit, OnDestroy {
     }
   }
 
-  private async prenotaPrimaPossibile() {
+  public async prenotaPrimaPossibile() {
     const servizio = this.servizioSelezionato();
 
     if (!this.servizioByValore(servizio)) {

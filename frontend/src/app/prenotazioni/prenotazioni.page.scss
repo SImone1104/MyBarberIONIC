@@ -113,6 +113,52 @@ h3 {
   box-shadow: 0 18px 40px rgba(16, 24, 40, 0.07);
 }
 
+.quick-slot-btn {
+  width: 100%;
+  min-height: 52px;
+  margin: 0 0 18px;
+  padding: 13px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff; /* Con questo sfondo scuro, il testo DEVE essere bianco */
+
+  /* IL TUO GRADIENTE */
+  background: linear-gradient(
+    145deg,
+    rgba(37, 99, 235, 0.85), /* Blu intenso */
+    rgba(15, 23, 42, 0.95)   /* Blu notte/Nero */
+  );
+
+  /* Bordo sottile per definire i bordi con il gradiente */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+
+  /* Ombra profonda coordinata */
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.3);
+
+  transition: all 0.3s ease;
+}
+
+.quick-slot-btn:hover:not(:disabled) {
+  /* Invertiamo o schiariamo leggermente il gradiente all'hover */
+  background: linear-gradient(
+    145deg,
+    rgba(37, 99, 235, 1),
+    rgba(30, 41, 59, 1)
+  );
+  transform: translateY(-2px);
+  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.2);
+}
+
+.quick-slot-btn:disabled {
+  background: #e5e7eb;
+  border-color: #d0d5dd;
+  color: #98a2b3;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .service-header {
   padding-bottom: 16px;
   border-bottom: 1px solid #e6edf5;
