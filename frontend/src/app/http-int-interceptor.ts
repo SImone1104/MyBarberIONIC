@@ -5,10 +5,9 @@ import { catchError, throwError } from 'rxjs';
 
 export const httpIntInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
-  
-  // USA L'IP DEL TUO SERVER (192.168.1.7) INVECE DI LOCALHOST
-  const baseUrl = 'http://localhost:3000'; 
-  
+
+  const browserHost = window.location.hostname || 'localhost';
+  const baseUrl = `http://${browserHost}:3000`;
 
   const token = localStorage.getItem('token');
   let apiReq = req;

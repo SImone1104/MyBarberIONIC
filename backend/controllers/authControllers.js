@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 const db = require("../db/db");
+const emailService = require("../services/emailService");
 
 const SECRET = process.env.JWT_SECRET || "dev-secret-change-me";
 
@@ -136,7 +137,7 @@ async function getServizioAttivo(servizio) {
   const servizioNormalizzato = normalizzaServizio(servizio);
 
   return dbGet(
-    `SELECT valore, durata_minuti FROM servizi WHERE valore = ? AND attivo = 1`,
+    `SELECT valore, nome, durata_minuti FROM servizi WHERE valore = ? AND attivo = 1`,
     [servizioNormalizzato]
   );
 }
@@ -390,6 +391,7 @@ exports.creaPrenotazione = async (req, res) => {
 
     const servizioNormalizzato = normalizzaServizio(servizio);
     const servizioConfigurato = await getServizioAttivo(servizioNormalizzato);
+    const utente = await User.findById(userId);
 
     if (!servizioConfigurato && !DURATE_SERVIZI[servizioNormalizzato]) {
       return res.status(400).json({ message: "Servizio non valido" });
@@ -443,7 +445,25 @@ exports.creaPrenotazione = async (req, res) => {
         return res.status(409).json({ message: "Questo orario si sovrappone a una prenotazione esistente" });
       }
 
-      res.status(201).json({ message: "Prenotazione salvata!", id: this.lastID, oraFine, durataMinuti });
+      const prenotazioneId = this.lastID;
+
+      res.status(201).json({ message: "Prenotazione salvata!", id: prenotazioneId, oraFine, durataMinuti });
+
+      emailService.inviaConfermaPrenotazione({
+        utente,
+        prenotazione: {
+          id: prenotazioneId,
+          data,
+          ora,
+          oraFine,
+          durataMinuti,
+          servizio: servizioNormalizzato,
+          servizioNome: servizioConfigurato?.nome || servizioNormalizzato,
+          note: note || ""
+        }
+      }).catch((emailErr) => {
+        console.error("Errore invio email conferma prenotazione:", emailErr.message);
+      });
     });
   } catch (err) {
     console.error("Errore try-catch:", err.message);
@@ -673,6 +693,21 @@ exports.deletePrenotazione = async (req, res) => {
   try {
     const prenotazioneId = req.params.id;
     const userId = req.user.id;
+    const prenotazione = await dbGet(
+      `
+        SELECT p.*, s.nome AS servizio_nome
+        FROM prenotazioni p
+        LEFT JOIN servizi s ON s.valore = LOWER(TRIM(p.servizio))
+        WHERE p.id = ? AND p.user_id = ?
+      `,
+      [prenotazioneId, userId]
+    );
+
+    if (!prenotazione) {
+      return res.status(404).json({ message: "Prenotazione non trovata o non autorizzato" });
+    }
+
+    const utente = await User.findById(userId);
     const result = await dbRun(`DELETE FROM prenotazioni WHERE id = ? AND user_id = ?`, [prenotazioneId, userId]);
 
     if (result.changes === 0) {
@@ -685,6 +720,22 @@ exports.deletePrenotazione = async (req, res) => {
     );
 
     res.json({ message: "Prenotazione eliminata con successo" });
+
+    emailService.inviaCancellazionePrenotazione({
+      utente,
+      prenotazione: {
+        id: prenotazione.id,
+        data: prenotazione.data,
+        ora: prenotazione.ora,
+        oraFine: prenotazione.ora_fine,
+        durataMinuti: prenotazione.durata_minuti || durataServizio(prenotazione.servizio),
+        servizio: prenotazione.servizio,
+        servizioNome: prenotazione.servizio_nome || prenotazione.servizio,
+        note: prenotazione.note || ""
+      }
+    }).catch((emailErr) => {
+      console.error("Errore invio email cancellazione prenotazione:", emailErr.message);
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

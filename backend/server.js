@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const db = require('./db/db');
@@ -28,7 +30,7 @@ app.get('/', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-// Aggiungiamo '0.0.0.0' per dire al server di accettare connessioni da qualunque IP nella rete
-app.listen(PORT, 'localhost', () => {
-  console.log(`Server avviato su http://localhost:${PORT}`);
+// Accetta connessioni anche da altri dispositivi sulla stessa rete.
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server avviato su http://0.0.0.0:${PORT}`);
 });

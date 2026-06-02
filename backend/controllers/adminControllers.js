@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const db = require("../db/db");
+const emailService = require("../services/emailService");
 
 const DURATE_SERVIZI = {
   taglio: 30,
@@ -613,6 +614,14 @@ async function notificaRiprogrammazione(conflitti, motivo) {
         `Il tuo appuntamento del ${prenotazione.data} alle ${prenotazione.ora} non e piu disponibile${motivo ? `: ${motivo}` : "."}. Scegli un nuovo giorno dalla tua area appuntamenti.`
       ]
     );
+
+    emailService.inviaAvvisoDaRiprogrammare({
+      utente: prenotazione.cliente,
+      prenotazione,
+      motivo
+    }).catch((emailErr) => {
+      console.error("Errore invio email appuntamento da riprogrammare:", emailErr.message);
+    });
   }
 }
 
