@@ -1,4 +1,4 @@
-# MyBarberIONIC
+# MyBarber
 
 Progetto web/mobile per la gestione di un salone da barbiere, composto da:
 
@@ -83,28 +83,22 @@ Dovresti vedere un messaggio simile a:
 Il server e' attivo e funzionante!
 ```
 
-## 4. Creare o aggiornare l'admin
+## 4. Account di prova
 
-Il progetto contiene uno script per creare o aggiornare l'utente amministratore/barbiere.
+Al primo avvio del backend vengono creati automaticamente i due account di
+prova.
 
-Da dentro la cartella `backend` esegui:
-
-```bash
-npm run seed:admin
-```
-
-Credenziali admin predefinite:
+Credenziali amministratore/barbiere:
 
 ```text
 Email: admin@mybarber.local
 Password: Admin123!
 ```
 
-Utenti di esempio creati dal backend:
+Utente standard di esempio creato dal backend:
 
 ```text
 mario@example.com / password1
-lucia@example.com / password2
 ```
 
 ## 5. Installare le dipendenze del frontend
