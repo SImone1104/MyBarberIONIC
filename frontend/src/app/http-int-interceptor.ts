@@ -12,7 +12,6 @@ export const httpIntInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('token');
   let apiReq = req;
 
-  // 1. Applichiamo la baseUrl del prof
   apiReq = req.clone({
     url: `${baseUrl}/${req.url}` //Importante
   });

@@ -48,3 +48,12 @@ Desktop.ini
 android/
 ios/
 capacitor.config.json.bak
+
+#doc latex 
+*.aux
+*.log
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.out
