@@ -488,42 +488,35 @@ async function putData() {
   try {
     const saltRounds = 10;
     const hash1 = await bcrypt.hash('password1', saltRounds);
-    const hash2 = await bcrypt.hash('password2', saltRounds);
 
     db.run(
-      `INSERT OR IGNORE INTO users (id, nome, cognome, email, password, telefono, ruolo) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [1, 'Mario', 'Rossi', 'mario@example.com', hash1.toString(), '3331112222', 'user'],
-      (err) => { if (err) console.error(err); }
-    );
-
-    db.run(
-      `INSERT OR IGNORE INTO users (id, nome, cognome, email, password, telefono, ruolo) VALUES (?, ?, ?, ?, ?, ?, ?)`,
-      [2, 'Lucia', 'Bianchi', 'lucia@example.com', hash2.toString(), '3332221111', 'user'],
+      `
+        INSERT INTO users (nome, cognome, email, password, telefono, ruolo)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(email) DO UPDATE SET
+          nome = excluded.nome,
+          cognome = excluded.cognome,
+          password = excluded.password,
+          telefono = excluded.telefono,
+          ruolo = excluded.ruolo
+      `,
+      ['Mario', 'Rossi', 'mario@example.com', hash1.toString(), '3331112222', 'user'],
       (err) => { if (err) console.error(err); }
     );
 
     const adminHash = await bcrypt.hash('Admin123!', saltRounds);
     db.run(
-      `INSERT OR IGNORE INTO users (nome, cognome, email, password, telefono, ruolo) VALUES (?, ?, ?, ?, ?, ?)`,
+      `
+        INSERT INTO users (nome, cognome, email, password, telefono, ruolo)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(email) DO UPDATE SET
+          nome = excluded.nome,
+          cognome = excluded.cognome,
+          password = excluded.password,
+          telefono = excluded.telefono,
+          ruolo = excluded.ruolo
+      `,
       ['Barbiere', 'Admin', 'admin@mybarber.local', adminHash.toString(), '3330000000', 'admin'],
-      (err) => { if (err) console.error(err); }
-    );
-
-    db.run(
-      `UPDATE users SET nome = ?, cognome = ?, telefono = ? WHERE id = ? AND nome IS NULL`,
-      ['Mario', 'Rossi', '3331112222', 1],
-      (err) => { if (err) console.error(err); }
-    );
-
-    db.run(
-      `UPDATE users SET nome = ?, cognome = ?, telefono = ? WHERE id = ? AND nome IS NULL`,
-      ['Lucia', 'Bianchi', '3332221111', 2],
-      (err) => { if (err) console.error(err); }
-    );
-
-    db.run(
-      `UPDATE users SET ruolo = ? WHERE email = ?`,
-      ['admin', 'admin@mybarber.local'],
       (err) => { if (err) console.error(err); }
     );
 
