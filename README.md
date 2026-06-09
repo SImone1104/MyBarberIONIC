@@ -1,11 +1,9 @@
 # MyBarber
 
-Progetto web/mobile per la gestione di un salone da barbiere, composto da:
+Progetto per la gestione di un salone da barbiere, composto da:
 
 - `backend`: server Node.js/Express con database SQLite.
 - `frontend`: applicazione Ionic/Angular.
-
-Questa guida spiega come scaricare il progetto da GitHub per la prima volta e avviare sia database/backend sia sito/frontend.
 
 ## Requisiti
 
@@ -32,7 +30,6 @@ git clone <URL_DEL_REPOSITORY>
 cd MyBarberIONIC
 ```
 
-Sostituisci `<URL_DEL_REPOSITORY>` con il link reale del repository GitHub.
 
 ## 2. Installare le dipendenze del backend
 
@@ -43,26 +40,10 @@ cd backend
 npm install
 ```
 
-In alternativa, se vuoi installare esattamente le versioni salvate nel `package-lock.json`:
-
-```bash
-npm ci
-```
-
 ## 3. Configurare il backend
 
-Sempre dentro la cartella `backend`, crea il file `.env` copiando la
-configurazione di esempio:
+Sempre dentro la cartella `backend`, crea il file `.env` e copiando il contenuto del file `.env.example` 
 
-```bash
-cp .env.example .env
-```
-
-Su Windows, nel Prompt dei comandi, usa:
-
-```bat
-copy .env.example .env
-```
 
 La configurazione fornita avvia il progetto con l'invio delle email
 disattivato. Le funzionalita principali restano disponibili.
@@ -89,17 +70,6 @@ backend/db/database.sqlite
 
 Il file del database non e' presente su GitHub perche' e' un file locale generato durante l'esecuzione. Il backend crea automaticamente le tabelle principali, tra cui utenti, prenotazioni, servizi, disponibilita, notifiche e contatti del salone.
 
-Per verificare che il backend funzioni, apri nel browser:
-
-```text
-http://localhost:3000
-```
-
-Dovresti vedere un messaggio simile a:
-
-```text
-Il server e' attivo e funzionante!
-```
 
 ## 5. Account di prova
 
@@ -116,7 +86,8 @@ Password: Admin123!
 Utente standard di esempio creato dal backend:
 
 ```text
-mario@example.com / password1
+Email: mario@example.com 
+Password: password1
 ```
 
 ## 6. Installare le dipendenze del frontend
@@ -128,12 +99,6 @@ Apri un secondo terminale nella cartella principale del progetto, poi esegui:
 ```bash
 cd frontend
 npm install
-```
-
-Oppure:
-
-```bash
-npm ci
 ```
 
 ## 7. Avviare il sito
@@ -158,4 +123,3 @@ Il frontend comunica con il backend tramite:
 http://localhost:3000
 ```
 
-Quindi, per usare login, registrazione, prenotazioni e area barbiere, il backend deve restare acceso.
