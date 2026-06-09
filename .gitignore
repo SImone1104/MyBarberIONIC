@@ -51,6 +51,7 @@ ios/
 capacitor.config.json.bak
 
 #doc latex 
+DocumentazioneMybarber/
 *.aux
 *.log
 *.toc

@@ -12,6 +12,50 @@ const db = new sqlite3.Database(databasePath, (err) => {
 db.configure("busyTimeout", 5000);
 
 // 1. Tabella Utenti (Esistente)
+const userColumns = [
+  { name: "nome", definition: "TEXT" },
+  { name: "cognome", definition: "TEXT" },
+  { name: "telefono", definition: "TEXT" },
+  { name: "ruolo", definition: "TEXT DEFAULT 'user'" }
+];
+
+function aggiornaSchemaUsers() {
+  db.all("PRAGMA table_info(users)", (err, columns) => {
+    if (err) {
+      console.error("Errore lettura colonne users:", err.message);
+      return;
+    }
+
+    const existingColumns = columns.map((column) => column.name);
+    const missingColumns = userColumns.filter((column) => !existingColumns.includes(column.name));
+
+    if (missingColumns.length === 0) {
+      db.run(`UPDATE users SET ruolo = 'user' WHERE ruolo IS NULL OR ruolo = ''`, (updateErr) => {
+        if (updateErr) console.error("Errore aggiornamento ruoli users:", updateErr.message);
+        putData();
+      });
+      return;
+    }
+
+    let columnsToAdd = missingColumns.length;
+
+    missingColumns.forEach((column) => {
+      db.run(`ALTER TABLE users ADD COLUMN ${column.name} ${column.definition}`, (alterErr) => {
+        if (alterErr) console.error(`Errore aggiunta colonna ${column.name}:`, alterErr.message);
+
+        columnsToAdd--;
+
+        if (columnsToAdd === 0) {
+          db.run(`UPDATE users SET ruolo = 'user' WHERE ruolo IS NULL OR ruolo = ''`, (updateErr) => {
+            if (updateErr) console.error("Errore aggiornamento ruoli users:", updateErr.message);
+            putData();
+          });
+        }
+      });
+    });
+  });
+}
+
 db.run(`
   CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,51 +66,13 @@ db.run(`
     telefono TEXT,
     ruolo TEXT DEFAULT 'user'
   )
-`);
-
-const userColumns = [
-  { name: "nome", definition: "TEXT" },
-  { name: "cognome", definition: "TEXT" },
-  { name: "telefono", definition: "TEXT" },
-  { name: "ruolo", definition: "TEXT DEFAULT 'user'" }
-];
-
-db.all("PRAGMA table_info(users)", (err, columns) => {
+`, (err) => {
   if (err) {
-    console.error("Errore lettura colonne users:", err.message);
+    console.error("Errore creazione tabella users:", err.message);
     return;
   }
 
-  const existingColumns = columns.map((column) => column.name);
-
-  const missingColumns = userColumns.filter((column) => !existingColumns.includes(column.name));
-
-  if (missingColumns.length === 0) {
-    db.run(`UPDATE users SET ruolo = 'user' WHERE ruolo IS NULL OR ruolo = ''`, (err) => {
-      if (err) console.error("Errore aggiornamento ruoli users:", err.message);
-      putData();
-    });
-    return;
-  }
-
-  let columnsToAdd = missingColumns.length;
-
-  missingColumns.forEach((column) => {
-    if (!existingColumns.includes(column.name)) {
-      db.run(`ALTER TABLE users ADD COLUMN ${column.name} ${column.definition}`, (err) => {
-        if (err) console.error(`Errore aggiunta colonna ${column.name}:`, err.message);
-
-        columnsToAdd--;
-
-        if (columnsToAdd === 0) {
-          db.run(`UPDATE users SET ruolo = 'user' WHERE ruolo IS NULL OR ruolo = ''`, (err) => {
-            if (err) console.error("Errore aggiornamento ruoli users:", err.message);
-            putData();
-          });
-        }
-      });
-    }
-  });
+  aggiornaSchemaUsers();
 });
 
 const serviziDefault = [
@@ -162,27 +168,6 @@ db.run(`
 });
 
 // 2. NUOVA Tabella Prenotazioni
-db.run(`
-  CREATE TABLE IF NOT EXISTS prenotazioni (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    data TEXT NOT NULL,
-    ora TEXT NOT NULL,
-    ora_fine TEXT,
-    durata_minuti INTEGER,
-    servizio TEXT,
-    note TEXT,
-    stato TEXT DEFAULT 'confermata',
-    FOREIGN KEY (user_id) REFERENCES users(id)
-  )
-`, (err) => {
-  if (err) {
-    console.error("Errore creazione tabella prenotazioni:", err.message);
-  } else {
-    console.log("Tabella prenotazioni pronta!");
-  }
-});
-
 db.run(`
   CREATE TABLE IF NOT EXISTS disponibilita_blocchi (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -400,41 +385,7 @@ function aggiornaDuratePrenotazioniEsistenti() {
   });
 }
 
-db.all("PRAGMA table_info(prenotazioni)", (err, columns) => {
-  if (err) {
-    console.error("Errore lettura colonne prenotazioni:", err.message);
-    return;
-  }
-
-  const existingColumns = columns.map((column) => column.name);
-
-  const colonneMancanti = prenotazioneColumns.filter((column) => !existingColumns.includes(column.name));
-
-  if (colonneMancanti.length === 0) {
-    aggiornaDuratePrenotazioniEsistenti();
-    return;
-  }
-
-  let colonneDaAggiornare = colonneMancanti.length;
-
-  colonneMancanti.forEach((column) => {
-    db.run(`ALTER TABLE prenotazioni ADD COLUMN ${column.name} ${column.definition}`, (err) => {
-      if (err) {
-        console.error(`Errore aggiunta colonna ${column.name}:`, err.message);
-      }
-
-      colonneDaAggiornare--;
-
-      if (colonneDaAggiornare === 0) {
-        aggiornaDuratePrenotazioniEsistenti();
-      }
-    });
-  });
-});
-
-
-//Questo impedisce due prenotazioni con stessa data e stessa ora.
-db.serialize(() => {
+function configuraVincoliPrenotazioni() {
   db.run(`
     CREATE UNIQUE INDEX IF NOT EXISTS idx_prenotazioni_data_ora
     ON prenotazioni (data, ora)
@@ -482,6 +433,67 @@ db.serialize(() => {
       console.error("Errore creazione trigger aggiornamento prenotazioni:", err.message);
     }
   });
+}
+
+function completaSchemaPrenotazioni() {
+  aggiornaDuratePrenotazioniEsistenti();
+  configuraVincoliPrenotazioni();
+}
+
+function aggiornaSchemaPrenotazioni() {
+  db.all("PRAGMA table_info(prenotazioni)", (err, columns) => {
+    if (err) {
+      console.error("Errore lettura colonne prenotazioni:", err.message);
+      return;
+    }
+
+    const existingColumns = columns.map((column) => column.name);
+    const colonneMancanti = prenotazioneColumns.filter((column) => !existingColumns.includes(column.name));
+
+    if (colonneMancanti.length === 0) {
+      completaSchemaPrenotazioni();
+      return;
+    }
+
+    let colonneDaAggiornare = colonneMancanti.length;
+
+    colonneMancanti.forEach((column) => {
+      db.run(`ALTER TABLE prenotazioni ADD COLUMN ${column.name} ${column.definition}`, (alterErr) => {
+        if (alterErr) {
+          console.error(`Errore aggiunta colonna ${column.name}:`, alterErr.message);
+        }
+
+        colonneDaAggiornare--;
+
+        if (colonneDaAggiornare === 0) {
+          completaSchemaPrenotazioni();
+        }
+      });
+    });
+  });
+}
+
+db.run(`
+  CREATE TABLE IF NOT EXISTS prenotazioni (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    data TEXT NOT NULL,
+    ora TEXT NOT NULL,
+    ora_fine TEXT,
+    durata_minuti INTEGER,
+    servizio TEXT,
+    note TEXT,
+    stato TEXT DEFAULT 'confermata',
+    FOREIGN KEY (user_id) REFERENCES users(id)
+  )
+`, (err) => {
+  if (err) {
+    console.error("Errore creazione tabella prenotazioni:", err.message);
+    return;
+  }
+
+  console.log("Tabella prenotazioni pronta!");
+  aggiornaSchemaPrenotazioni();
 });
 
 async function putData() {
