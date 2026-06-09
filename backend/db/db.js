@@ -177,9 +177,9 @@ db.run(`
   )
 `, (err) => {
   if (err) {
-    console.error("❌ Errore creazione tabella prenotazioni:", err.message);
+    console.error("Errore creazione tabella prenotazioni:", err.message);
   } else {
-    console.log("✅ Tabella prenotazioni pronta!");
+    console.log("Tabella prenotazioni pronta!");
   }
 });
 
