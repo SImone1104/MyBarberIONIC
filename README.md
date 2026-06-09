@@ -49,7 +49,25 @@ In alternativa, se vuoi installare esattamente le versioni salvate nel `package-
 npm ci
 ```
 
-## 3. Avviare backend e database
+## 3. Configurare il backend
+
+Sempre dentro la cartella `backend`, crea il file `.env` copiando la
+configurazione di esempio:
+
+```bash
+cp .env.example .env
+```
+
+Su Windows, nel Prompt dei comandi, usa:
+
+```bat
+copy .env.example .env
+```
+
+La configurazione fornita avvia il progetto con l'invio delle email
+disattivato. Le funzionalita principali restano disponibili.
+
+## 4. Avviare backend e database
 
 Sempre dentro la cartella `backend`, avvia il server:
 
@@ -83,7 +101,7 @@ Dovresti vedere un messaggio simile a:
 Il server e' attivo e funzionante!
 ```
 
-## 4. Account di prova
+## 5. Account di prova
 
 Al primo avvio del backend vengono creati automaticamente i due account di
 prova.
@@ -101,7 +119,7 @@ Utente standard di esempio creato dal backend:
 mario@example.com / password1
 ```
 
-## 5. Installare le dipendenze del frontend
+## 6. Installare le dipendenze del frontend
 
 Lascia il backend acceso nel primo terminale.
 
@@ -118,7 +136,7 @@ Oppure:
 npm ci
 ```
 
-## 6. Avviare il sito
+## 7. Avviare il sito
 
 Sempre dentro la cartella `frontend`, avvia l'app Ionic/Angular:
 
@@ -141,4 +159,3 @@ http://localhost:3000
 ```
 
 Quindi, per usare login, registrazione, prenotazioni e area barbiere, il backend deve restare acceso.
-
