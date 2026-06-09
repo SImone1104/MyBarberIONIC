@@ -1,21 +1,19 @@
 ion-content {
-  --background: #f8fafc; /* Lo sfondo che si vede ai lati dei riquadri */
+  --background: #f8fafc;
   --padding-top: 0;
   --padding-bottom: 0;
   --padding-start: 0;
   --padding-end: 0;
 }
 
-
 .servizi-page {
   display: flex;
   flex-direction: column;
   gap: 28px;
-  
-  /* --- IL TRUCCO PER L'IDENTITÀ --- */
-  width: 92%;           /* Lascia i bordini bianchi */
-  max-width: 1100px;    /* Larghezza identica alla Home */
-  margin: 85px auto 40px auto; /* 85px risolve il problema "sotto l'header" */
+
+  width: 92%;
+  max-width: 1100px;
+  margin: 85px auto 40px auto;
   margin-top: calc(104px + var(--ion-safe-area-top) + 20px);
 
   box-sizing: border-box;
@@ -70,23 +68,21 @@ ion-content {
   gap: 12px;
 }
 
-/* Base comune per tutti i bottoni action */
 .primary-action,
 .secondary-action,
 .service-footer .booking-link {
-  min-height: 48px; /* Allineato a cta-button */
+  min-height: 48px;
   padding: 13px 20px;
   border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 15px;
-  font-weight: 600; /* Peso leggibile per il glassmorphism */
+  font-weight: 600;
   text-decoration: none;
   cursor: pointer;
   transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  
-  /* Stile Glassmorphism condiviso */
+
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -95,7 +91,6 @@ ion-content {
   color: #ffffff;
 }
 
-/* Hover universale per le azioni */
 .primary-action:hover,
 .secondary-action:hover,
 .service-detail-card:hover .service-footer .booking-link {
@@ -151,7 +146,7 @@ ion-content {
   position: relative;
   min-height: 100%;
   background: #111827;
-  
+
 }
 
 .service-media img {
@@ -165,23 +160,20 @@ ion-content {
   position: absolute;
   top: 18px;
   left: 18px;
-  padding: 7px 12px; /* Leggermente più largo per estetica */
+  padding: 7px 12px;
   border-radius: 999px;
-  
-  /* Effetto Vetro */
-  background: rgba(242, 242, 243, 0.25); /* Blu molto trasparente */
+
+  background: rgba(242, 242, 243, 0.25);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  
-  /* Bordo sottile per definire la forma sul fondo immagine */
+
   border: 1px solid rgba(255, 255, 255, 0.3);
-  
+
   color: #ffffff;
   font-size: 12px;
   font-weight: 900;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  
-  /* Opzionale: per farlo risaltare ancora di più */
+
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -239,7 +231,6 @@ ion-content {
   justify-content: flex-end;
 }
 
-/* Specifichiamo uno stile diverso per i bottoni dentro le card bianche */
 .service-footer .booking-link {
 background: linear-gradient(
 145deg,
@@ -253,12 +244,11 @@ rgba(15, 23, 42, 0.95)
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-/* Hover per i bottoni nelle card */
 .service-detail-card:hover .service-footer .booking-link,
 .service-detail-card:focus-visible .service-footer .booking-link {
    background: linear-gradient(
     145deg,
-    rgba(59, 130, 246, 1), /* Blu più acceso */
+    rgba(59, 130, 246, 1),
     rgba(30, 41, 59, 1) ) ;
     transform: translateY(-2px);
 }
@@ -266,28 +256,26 @@ rgba(15, 23, 42, 0.95)
 @media (max-width: 980px) {
 
     .servizi-page {
-    /* Mobile: Header più basso (78px) + Safe Area + Spazio ridotto */
+
     margin-top: calc(78px + var(--ion-safe-area-top) + 15px);
     gap: 24px;
   }
 
-
   .service-detail-card {
-    /* 1. Forza la card a non avere un'altezza minima fissa */
-    min-height: 0 !important; 
-    grid-template-columns: 1fr; /* Una sola colonna */
+
+    min-height: 0 !important;
+    grid-template-columns: 1fr;
     display: flex;
     flex-direction: column;
   }
 
   .service-media {
-    /* 2. Blocca l'immagine come un rettangolo orizzontale */
-    /* Questo impedisce alle foto verticali di allungare la card */
+
     width: 100%;
     height: auto !important;
     min-height: 0 !important;
-    aspect-ratio: 16 / 9; /* Base > Altezza */
-    
+    aspect-ratio: 16 / 9;
+
     img {
       object-fit: cover;
       object-position: center;
@@ -295,31 +283,30 @@ rgba(15, 23, 42, 0.95)
   }
 
   .service-body {
-    /* 3. Compatta il contenuto del testo */
+
     padding: 20px;
     gap: 16px;
-    /* Rimuove eventuali spazi bianchi forzati */
-    flex-grow: 0; 
+
+    flex-grow: 0;
   }
 
   .service-facts {
-    /* 4. Metti i prezzi affiancati (2 colonne) anche su mobile */
-    /* Se li metti uno sotto l'altro, la card diventa lunghissima */
+
     grid-template-columns: 1fr 1fr !important;
     gap: 10px;
-    
+
     div {
-      min-height: 65px !important; /* Più basse e compatte */
+      min-height: 65px !important;
       padding: 10px;
     }
   }
 
   .service-footer {
-    /* 5. Elimina il margin-top: auto che spinge il bottone nel vuoto */
-    margin-top: 10px; 
-    
+
+    margin-top: 10px;
+
     .booking-link {
-      width: 100%; /* Bottone a tutta larghezza per facilitare il click col pollice */
+      width: 100%;
       box-sizing: border-box;
     }
   }
@@ -327,28 +314,27 @@ rgba(15, 23, 42, 0.95)
 
 @media (max-width: 720px) {
   .service-body {
-    padding: 16px; /* Riduciamo il padding per non sprecare spazio */
+    padding: 16px;
     gap: 12px;
   }
 
   .service-facts {
-    /* Invece di una colonna singola lunga, prova a tenerne due piccole 
-       se i testi sono brevi, o riduci il gap */
-    grid-template-columns: 1fr 1fr; 
+
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
   }
 
   .service-facts div {
-    min-height: 60px; /* Più compatte */
+    min-height: 60px;
     padding: 8px;
   }
 
   .service-footer {
-    margin-top: 10px; /* Spazio minimo tra prezzi e bottone */
+    margin-top: 10px;
   }
-  
+
   .service-footer .booking-link {
-    width: 100%; /* Il bottone occupa tutta la larghezza, tipico dei telefoni */
+    width: 100%;
   }
 
 }

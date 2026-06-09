@@ -3,14 +3,12 @@
   width: 100%;
   margin: 0;
   padding: 0;
-  // Forza l'uscita da eventuali contenitori con padding
-  position: relative; 
+  position: relative;
   left: 0;
   right: 0;
 }
 .main-footer {
   margin-top: 60px;
-  /* Aggiungiamo il padding in basso per non coprire i link con la barra di navigazione iOS/Android */
   padding: 64px 24px calc(24px + var(--ion-safe-area-bottom));
   color: #ffffff;
   background:
@@ -24,7 +22,6 @@
   margin: 0 auto;
   padding: 34px;
   display: grid;
-  /* Layout fluido: si adatta da 3 colonne a 1 automaticamente */
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   align-items: start;
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -36,14 +33,13 @@
 
 .footer-section {
   min-height: 138px;
-  padding: 4px 20px; // Ridotto leggermente per mobile
+  padding: 4px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
 }
 
-/* Rimuoviamo il bordo sinistro su mobile perché le sezioni si impilano */
 @media (min-width: 821px) {
   .footer-section + .footer-section {
     border-left: 1px solid rgba(255, 255, 255, 0.1);
@@ -105,7 +101,6 @@
   box-sizing: border-box;
 }
 
-/* Icone Social (Data URI mantenuti dal tuo originale) */
 .social-icon {
   width: 26px;
   height: 26px;

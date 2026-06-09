@@ -1,7 +1,7 @@
 
 ion-content {
-  /* Rende lo sfondo coerente con il tuo design originale */
-  --background: #f8fafc; 
+
+  --background: #f8fafc;
   --padding-top: 0;
   --padding-bottom: 0;
   --padding-start: 0;
@@ -13,11 +13,11 @@ ion-content {
   display: flex;
   flex-direction: column;
   gap: 34px;
-  
-  width: 92%;           /* Occupa il 92% della larghezza su mobile */
-  max-width: 1100px;    /* Non diventa mai più largo di 1100px su PC */
-  margin: 80px auto 40px auto; /* 80px sopra per l'header, 'auto' ai lati per centrare */
-  margin-top: calc(104px + var(--ion-safe-area-top) + 20px);  
+
+  width: 92%;
+  max-width: 1100px;
+  margin: 80px auto 40px auto;
+  margin-top: calc(104px + var(--ion-safe-area-top) + 20px);
   box-sizing: border-box;
 }
 
@@ -181,34 +181,28 @@ ion-content {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
-
-/* Riquadro coerente con quello pieno */
 .appointment-card.empty {
   display: flex;
   align-items: center;
   gap: 18px;
   padding: 22px;
   border-radius: 10px;
-  
-  /* Stesso sfondo scuro/blur dell'originale */
-  background: rgba(255, 255, 255, 0.9); 
+
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.12);
-  
+
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
 
-/* Colori testi per lo stato vuoto */
-
-
 .appointment-card.empty h3 {
-  color: #000000 !important; /* Bianco */
+  color: #000000 !important;
   margin: 5px 0 6px;
 }
 
 .appointment-card.empty p {
-  color: #94a3b8 !important; /* Grigio azzurrato */
+  color: #94a3b8 !important;
 }
 
 .appointment-date {
@@ -370,8 +364,6 @@ ion-content {
   line-height: 1.45;
 }
 
-
-
 .services-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -483,20 +475,17 @@ ion-content {
 }
 
 .book-service-link:hover {
-  /* Rendiamo il gradiente leggermente più chiaro e vibrante */
+
   background: linear-gradient(
     145deg,
-    rgba(59, 130, 246, 1), /* Blu più acceso */
-    rgba(30, 41, 59, 1)    /* Grigio/Blu meno trasparente */
+    rgba(59, 130, 246, 1),
+    rgba(30, 41, 59, 1)
   );
-  
-  /* Aumentiamo l'ombra per dare profondità */
+
   box-shadow: 0 6px 22px rgba(37, 99, 235, 0.3);
-  
-  /* Leggero sollevamento */
+
   transform: translateY(-2px);
-  
-  /* Rinforziamo il bordo */
+
   border-color: rgba(255, 255, 255, 0.6);
 }
 
@@ -551,11 +540,11 @@ ion-content {
 @media (max-width: 768px) {
 
   .home-container {
-    /* Usiamo 78px perché l'header mobile è più basso */
+
     margin-top: calc(78px + var(--ion-safe-area-top) + 10px);
-    gap: 24px; /* Riduciamo un po' il gap tra le sezioni su mobile */
+    gap: 24px;
   }
-  
+
   .features-section {
     flex-direction: column;
   }
@@ -590,7 +579,5 @@ ion-content {
     text-align: center;
     box-sizing: border-box;
   }
-
-  
 
 }

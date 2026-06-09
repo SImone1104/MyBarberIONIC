@@ -1,7 +1,7 @@
 
 ion-content {
-  /* Rende lo sfondo coerente con il tuo design originale */
-  --background: #f8fafc; 
+
+  --background: #f8fafc;
   --padding-top: 0;
   --padding-bottom: 0;
   --padding-start: 0;
@@ -9,19 +9,17 @@ ion-content {
 
 }
 
-/* Layout generale della pagina prenotazioni. */
 .page-container {
   display: flex;
   flex-direction: column;
   gap: 36px;
-    width: 92%;           /* Occupa il 92% della larghezza su mobile */
-  max-width: 1100px;    /* Non diventa mai più largo di 1100px su PC */
-  margin: 80px auto 40px auto; /* 80px sopra per l'header, 'auto' ai lati per centrare */
-  margin-top: calc(104px + var(--ion-safe-area-top) + 20px);  
+    width: 92%;
+  max-width: 1100px;
+  margin: 80px auto 40px auto;
+  margin-top: calc(104px + var(--ion-safe-area-top) + 20px);
   box-sizing: border-box;
 }
 
-/* Card bianca usata come contenitore principale del form. */
 .card {
   background: #fff;
   padding: 26px;
@@ -29,7 +27,6 @@ ion-content {
   border: 1px solid #e4ebf3;
 }
 
-/* Layout condiviso per intestazioni, riepiloghi e header delle card. */
 .section-heading,
 .picker-header,
 .booking-summary,
@@ -45,7 +42,6 @@ ion-content {
   margin-bottom: 18px;
 }
 
-/* Testi introduttivi e titoli delle sezioni. */
 .eyebrow {
   margin: 0 0 4px;
   color: #007bff;
@@ -71,7 +67,6 @@ h3 {
   color: #667085;
 }
 
-/* Pill informative usate per stato corrente, orario e prezzo selezionato. */
 .step-pill,
 .selected-time {
   padding: 8px 14px;
@@ -97,7 +92,6 @@ h3 {
   transition: all 0.2s ease;
 }
 
-/* Contenitori visuali per calendario, orari e servizi. */
 .booking-picker,
 .service-picker {
   margin-bottom: 18px;
@@ -122,26 +116,23 @@ h3 {
   cursor: pointer;
   font-size: 15px;
   font-weight: 700;
-  color: #fff; /* Con questo sfondo scuro, il testo DEVE essere bianco */
+  color: #fff;
 
-  /* IL TUO GRADIENTE */
   background: linear-gradient(
     145deg,
-    rgba(37, 99, 235, 0.85), /* Blu intenso */
-    rgba(15, 23, 42, 0.95)   /* Blu notte/Nero */
+    rgba(37, 99, 235, 0.85),
+    rgba(15, 23, 42, 0.95)
   );
 
-  /* Bordo sottile per definire i bordi con il gradiente */
   border: 1px solid rgba(255, 255, 255, 0.1);
 
-  /* Ombra profonda coordinata */
   box-shadow: 0 10px 20px rgba(15, 23, 42, 0.3);
 
   transition: all 0.3s ease;
 }
 
 .quick-slot-btn:hover:not(:disabled) {
-  /* Invertiamo o schiariamo leggermente il gradiente all'hover */
+
   background: linear-gradient(
     145deg,
     rgba(37, 99, 235, 1),
@@ -202,13 +193,11 @@ h3 {
   font-weight: 900;
 }
 
-/* piccolo effetto interattivo coerente con resto UI */
 .service-total:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 32px rgba(37, 99, 235, 0.12);
 }
 
-/* Navigazione del mese nel calendario. */
 .month-controls {
   display: flex;
   align-items: center;
@@ -238,7 +227,6 @@ h3 {
   font-weight: 800;
 }
 
-/* Pulsanti cambio mese */
 .month-btn {
   width: 36px;
   height: 36px;
@@ -266,7 +254,6 @@ h3 {
   box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
 }
 
-/* Selezione coerente con il tuo tema */
 .day-card.selected,
 .time-slot.selected {
   background: linear-gradient(
@@ -288,14 +275,12 @@ h3 {
   transition: all 0.2s ease;
 }
 
-/* Griglie principali: calendario e slot orari. */
 .calendar-month,
 .time-grid {
   display: grid;
   gap: 8px;
 }
 
-/* Layout specifico della griglia calendario. */
 .calendar-month {
   grid-template-columns: repeat(7, minmax(0, 1fr));
   padding: 12px;
@@ -303,7 +288,6 @@ h3 {
   background: #fff;
 }
 
-/* Intestazioni dei giorni della settimana. */
 .weekday {
   display: grid;
   place-items: center;
@@ -313,7 +297,6 @@ h3 {
   text-transform: uppercase;
 }
 
-/* Celle del calendario e pulsanti degli slot orari. */
 .day-card,
 .time-slot {
   border: 1px solid #d8e0ea;
@@ -360,7 +343,6 @@ h3 {
   background: #f4f9ff;
 }
 
-/* Stati non disponibili: giorni fuori mese, giorni passati e slot non prenotabili. */
 .day-card.outside-month strong,
 .day-card:disabled strong,
 .day-card:disabled span {
@@ -374,20 +356,17 @@ h3 {
   opacity: 0.7;
 }
 
-/* Griglia dei pulsanti orari. */
 .time-grid {
   grid-template-columns: repeat(4, minmax(92px, 1fr));
   gap: 12px;
 }
 
-/* Griglia delle card servizio. */
 .service-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
-/* Card cliccabile per scegliere il servizio. */
 .service-card {
   min-height: 134px;
   padding: 16px;
@@ -404,7 +383,6 @@ h3 {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-/* Feedback visivo della card servizio al passaggio del mouse e alla selezione. */
 .service-card:hover {
   border-color: #007bff;
   box-shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
@@ -427,7 +405,6 @@ h3 {
   opacity: 1;
 }
 
-/* Pallino radio custom dentro ogni card servizio. */
 .service-radio {
   width: 18px;
   height: 18px;
@@ -451,7 +428,6 @@ h3 {
   background: #007bff;
 }
 
-/* Testi e prezzo visualizzati nella card servizio. */
 .service-content {
   display: flex;
   flex-direction: column;
@@ -502,7 +478,6 @@ h3 {
   transition: all 0.2s ease;
 }
 
-/* Stile degli slot orari. */
 .time-slot {
   min-height: 58px;
   padding: 11px 14px;
@@ -617,7 +592,6 @@ h3 {
   background: #f2f4f7;
 }
 
-/* Campi form generici: note e data manuale. */
 .form-group {
   margin-bottom: 15px;
   display: flex;
@@ -642,7 +616,6 @@ select {
   border-radius: 7px;
 }
 
-/* Focus accessibile sugli input. */
 input:focus,
 select:focus {
   outline: 0;
@@ -650,7 +623,6 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.12);
 }
 
-/* Riepilogo finale della prenotazione prima della conferma. */
 .booking-summary {
   align-items: stretch;
   margin-top: 8px;
@@ -672,7 +644,6 @@ select:focus {
   background: linear-gradient(90deg, #ffffff, #1d45e6, #ffffff);
 }
 
-/* Titolo del riepilogo e singole informazioni: data, ora, servizio. */
 .summary-title {
   width: 230px;
   min-width: 230px;
@@ -740,7 +711,6 @@ select:focus {
   font-weight: 700;
 }
 
-/* Pulsante di conferma prenotazione. */
 button[type='submit'] {
   width: 100%;
   margin-top: 14px;
@@ -788,11 +758,10 @@ button[type='submit']:disabled {
 .feedback-error { border-color: #dc2626; background: #fff1f2; }
 .feedback-info { border-color: #007bff; background: #eef6ff; color: #005fc5; }
 
-/* Adattamenti tablet/mobile. */
 @media (max-width: 768px) {
 
   .page-container {
-    /* Mobile: Header più basso (78px) + Safe Area + Spazio ridotto */
+
     margin-top: calc(78px + var(--ion-safe-area-top) + 15px);
     gap: 24px;
   }
@@ -823,9 +792,9 @@ button[type='submit']:disabled {
   }
 
   .day-card {
-    min-height: unset; /* Rimuoviamo il 56px che li allunga */
-    aspect-ratio: 1 / 1; /* Larghezza e Altezza diventano uguali */
-    padding: 4px; 
+    min-height: unset;
+    aspect-ratio: 1 / 1;
+    padding: 4px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -845,7 +814,6 @@ button[type='submit']:disabled {
   }
 }
 
-/* Layout a colonna singola per schermi molto stretti. */
 @media (max-width: 560px) {
   .service-grid {
     grid-template-columns: 1fr;

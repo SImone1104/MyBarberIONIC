@@ -1,9 +1,5 @@
 // contiene la logica vera delle richieste.
 
-
-
-
-//carico i moduli necessari
 const bcrypt = require("bcrypt"); // serve principalmente per proteggere le password.
 const jwt = require("jsonwebtoken"); //Un token JWT è una stringa firmata che il server genera dopo un login corretto. Serve a riconoscere l’utente nelle richieste successive.
 const User = require("../models/userModel");
